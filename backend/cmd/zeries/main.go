@@ -10,11 +10,11 @@ import (
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/joho/godotenv"
 	"github.com/mqrc81/zeries/api"
+	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
 )
 
 // TODO:
-//  - initialize DB
 //  - initialize Genres & Networks
 func main() {
 	log.Println("Starting application...")
@@ -26,20 +26,25 @@ func main() {
 		}
 	}
 
+	store, err := postgres.Init(os.Getenv("DATABASE_URL"))
+	checkError(err)
+
 	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	checkError(err)
 
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	checkError(err)
 
-	handler := api.Init(tmdbClient, traktClient)
+	handler, err := api.Init(*store, tmdbClient, traktClient)
+	checkError(err)
 
 	log.Println("Listening on " + os.Getenv("BACKEND_URL"))
-	if err = http.ListenAndServe(":"+os.Getenv("PORT"), handler); err != nil {
+	err = http.ListenAndServe(":"+os.Getenv("PORT"), handler)
+	checkError(err)
+}
+
+func checkError(err error) {
+	if err != nil {
 		log.Fatalln(err)
 	}
 }

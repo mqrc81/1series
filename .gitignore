@@ -7,3 +7,5 @@
 *.out
 .idea
 .env
+backend/postgres/migration
+*.sql

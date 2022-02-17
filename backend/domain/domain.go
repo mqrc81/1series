@@ -48,17 +48,9 @@ type Network struct {
 }
 
 type User struct {
-	Username         string
-	Email            string
-	Password         string
-	NotificationType NotificationType
+	Username              string
+	Email                 string
+	Password              string
+	NotifyReleases        bool
+	NotifyRecommendations bool
 }
-
-type NotificationType int
-
-const (
-	None NotificationType = iota
-	ReleasesOnly
-	RecommendationsOnly
-	All
-)

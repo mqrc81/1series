@@ -3,50 +3,97 @@
 package api
 
 import (
+	"context"
 	"net/http"
+	"time"
 
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
 )
 
-func Init(tmdbClient *tmdb.Client, traktClient *trakt.Client) *Controller {
+func Init(store postgres.Store, tmdbClient *tmdb.Client, traktClient *trakt.Client) (*Handler, error) {
 
-	h := &Controller{
-		Mux: chi.NewMux(),
+	h := &Handler{
+		Mux:      chi.NewMux(),
+		store:    store,
+		sessions: newSessionsManager(store),
 	}
 
-	shows := ShowController{tmdbClient, traktClient}
-	// users := UserHandler{store, sessions}
+	registerMiddleware(h)
+	registerShows(h, ShowHandler{store, tmdbClient, traktClient})
+	registerUsers(h, UserHandler{store, h.sessions})
 
+	h.Get("/api/check", h.HealthCheck())
+
+	return h, nil
+}
+
+func registerMiddleware(h *Handler) {
+	h.Use(middleware.RequestID)
 	h.Use(middleware.Logger)
-	// h.Use(sessions.LoadAndSave)
-	// h.Use(h.withUser)
+	h.Use(middleware.Recoverer)
+	h.Use(middleware.Timeout(time.Minute))
+	h.Use(h.sessions.LoadAndSave)
+	h.Use(h.withUser)
+}
 
+func registerShows(h *Handler, shows ShowHandler) {
 	h.Route("/api/shows", func(r chi.Router) {
 		r.Get("/popular", shows.PopularShows())
 		r.Get("/{show_id}", shows.Show())
 		r.Get("/search", shows.SearchShows())
 	})
-
-	h.Get("/api/check", h.Check())
-
-	return h
 }
 
-func (h *Controller) Check() http.HandlerFunc {
+func registerUsers(h *Handler, users UserHandler) {
+	h.Route("/api/users", func(r chi.Router) {
+		r.Post("/register", users.Register())
+		// r.Post("/login", users.Login())
+		// r.Post("/logout", users.Logout())
+	})
+}
+
+func (h *Handler) HealthCheck() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		name := req.URL.Query().Get("name")
-		if name == "" {
-			name = "World"
-		}
-		if _, err := res.Write([]byte("Hello " + name)); err != nil {
-			return
-		}
+		_, _ = res.Write([]byte("Hello World"))
 	}
 }
 
-type Controller struct {
+func newSessionsManager(store postgres.Store) *scs.SessionManager {
+	sessions := scs.New()
+	sessions.Store = postgresstore.New(store.DB.DB)
+	return sessions
+}
+
+func (h *Handler) withUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		userId := h.sessions.GetInt(req.Context(), "user_id")
+		if userId == 0 {
+			next.ServeHTTP(res, req)
+			return
+		}
+
+		user, err := h.store.GetUser(userId)
+		if err != nil {
+			next.ServeHTTP(res, req)
+			return
+		}
+
+		ctx := context.WithValue(req.Context(), "user", user)
+
+		next.ServeHTTP(res, req.WithContext(ctx))
+	})
+}
+
+type Handler struct {
 	*chi.Mux
+
+	store    domain.Store
+	sessions *scs.SessionManager
 }

@@ -4,27 +4,29 @@ import (
 	"net/http"
 
 	"github.com/cyruzin/golang-tmdb"
+	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
 )
 
-type ShowController struct {
+type ShowHandler struct {
+	store domain.Store
 	tmdb  *tmdb.Client
 	trakt *trakt.Client
 }
 
-func (h *ShowController) PopularShows() http.HandlerFunc {
+func (h *ShowHandler) PopularShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		// TODO
 	}
 }
 
-func (h *ShowController) Show() http.HandlerFunc {
+func (h *ShowHandler) Show() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		// TODO
 	}
 }
 
-func (h *ShowController) SearchShows() http.HandlerFunc {
+func (h *ShowHandler) SearchShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		// TODO
 	}
