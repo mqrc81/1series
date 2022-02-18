@@ -12,7 +12,7 @@ const (
 	showsWatchedURL = baseURL + "/shows/watched/weekly"
 )
 
-func (c *Client) ShowsWatchedWeekly(page int, limit int) ([]ShowsWatchedDto, error) {
+func (c *Client) GetShowsWatchedWeekly(page int, limit int) ([]ShowsWatchedDto, error) {
 
 	req, err := http.NewRequest(http.MethodGet, showsWatchedURL, nil)
 	if err != nil {

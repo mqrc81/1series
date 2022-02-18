@@ -49,7 +49,7 @@ func registerMiddleware(h *Handler) {
 	h.Use(middleware.RequestID)
 	h.Use(middleware.Logger)
 	h.Use(middleware.Recoverer)
-	h.Use(middleware.Timeout(time.Minute))
+	h.Use(middleware.Timeout(60 * time.Second))
 	h.Use(h.sessions.LoadAndSave)
 	h.Use(h.withUser)
 }
