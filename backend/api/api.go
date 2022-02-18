@@ -26,8 +26,20 @@ func Init(store postgres.Store, tmdbClient *tmdb.Client, traktClient *trakt.Clie
 	}
 
 	registerMiddleware(h)
-	registerShows(h, ShowHandler{store, tmdbClient, traktClient})
-	registerUsers(h, UserHandler{store, h.sessions})
+
+	shows := ShowHandler{store, tmdbClient, traktClient}
+	h.Route("/api/shows", func(r chi.Router) {
+		r.Get("/popular", shows.PopularShows())
+		r.Get("/{show_id}", shows.Show())
+		r.Get("/search", shows.SearchShows())
+	})
+
+	users := UserHandler{store, h.sessions}
+	h.Route("/api/users", func(r chi.Router) {
+		r.Post("/register", users.Register())
+		// r.Post("/login", users.Login())
+		// r.Post("/logout", users.Logout())
+	})
 
 	h.Get("/api/check", h.HealthCheck())
 
@@ -41,22 +53,6 @@ func registerMiddleware(h *Handler) {
 	h.Use(middleware.Timeout(time.Minute))
 	h.Use(h.sessions.LoadAndSave)
 	h.Use(h.withUser)
-}
-
-func registerShows(h *Handler, shows ShowHandler) {
-	h.Route("/api/shows", func(r chi.Router) {
-		r.Get("/popular", shows.PopularShows())
-		r.Get("/{show_id}", shows.Show())
-		r.Get("/search", shows.SearchShows())
-	})
-}
-
-func registerUsers(h *Handler, users UserHandler) {
-	h.Route("/api/users", func(r chi.Router) {
-		r.Post("/register", users.Register())
-		// r.Post("/login", users.Login())
-		// r.Post("/logout", users.Logout())
-	})
 }
 
 func (h *Handler) HealthCheck() http.HandlerFunc {
