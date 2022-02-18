@@ -29,8 +29,8 @@ func Init(store postgres.Store, tmdbClient *tmdb.Client, traktClient *trakt.Clie
 	shows := ShowHandler{store, tmdbClient, traktClient, new(DtoMapper)}
 	h.Route("/api/shows", func(r chi.Router) {
 		r.Get("/popular", shows.PopularShows())
-		r.Get("/{show_id}", shows.Show())
-		r.Get("/search", shows.SearchShows())
+		r.Get("/{showId}", shows.Show())
+		r.Get("/search/{searchTerm}", shows.SearchShows())
 	})
 
 	users := UserHandler{store, h.sessions}

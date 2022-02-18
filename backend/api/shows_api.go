@@ -52,12 +52,12 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 	}
 }
 
-// Show GET /api/shows/{show_id}
+// Show GET /api/shows/{showId}
 func (h *ShowHandler) Show() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var show domain.Show
 
-		id, _ := strconv.Atoi(chi.URLParam(req, "show_id"))
+		id, _ := strconv.Atoi(chi.URLParam(req, "showId"))
 
 		tmdbShow, err := h.tmdb.GetTVDetails(id, nil)
 		if err != nil {
@@ -74,17 +74,18 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 	}
 }
 
-// SearchShows GET /api/shows/search
+// SearchShows GET /api/shows/search/{searchTerm}
 func (h *ShowHandler) SearchShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var shows []domain.Show
 
-		query := req.URL.Query().Get("query")
-		if query == "" {
-			http.Error(res, "empty search query", http.StatusBadRequest)
+		searchTerm := chi.URLParam(req, "searchTerm")
+		if searchTerm == "" {
+			http.Error(res, "empty search search-term", http.StatusBadRequest)
 			return
 		}
-		tmdbShows, err := h.tmdb.GetSearchTVShow(query, nil)
+
+		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, nil)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
