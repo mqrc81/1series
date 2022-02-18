@@ -11,13 +11,13 @@ type UserStore struct {
 	*sqlx.DB
 }
 
-func (s *UserStore) GetUser(userId int) (domain.User, error) {
-	var user domain.User
+func (s *UserStore) GetUser(userId int) (user domain.User, err error) {
 
-	err := s.Get(&user,
+	if err = s.Get(
+		&user,
 		"SELECT u.* FROM users u WHERE u.id = $1",
-		userId)
-	if err != nil {
+		userId,
+	); err != nil {
 		err = fmt.Errorf("error getting user: %w", err)
 	}
 
