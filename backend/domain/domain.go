@@ -12,7 +12,7 @@ type Show struct {
 	Description   string
 	Year          int
 	Poster        string
-	Rating        int
+	Rating        float32
 	Homepage      string
 	SeasonsCount  int
 	EpisodesCount int
