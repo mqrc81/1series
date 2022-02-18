@@ -1,28 +1,29 @@
-package domain
+package api
 
 import (
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
+	"github.com/mqrc81/zeries/domain"
 )
 
 const (
 	tmdbImageUrl = "https://image.tmdb.org/t/p/original"
 )
 
-func ShowFromDto(show *tmdb.TVDetails) Show {
+func showFromDto(show *tmdb.TVDetails) domain.Show {
 
-	var genres []Genre
+	var genres []domain.Genre
 	for _, genre := range show.Genres {
-		genres = append(genres, Genre{
+		genres = append(genres, domain.Genre{
 			Id:   int(genre.ID),
 			Name: genre.Name,
 		})
 	}
 
-	var networks []Network
+	var networks []domain.Network
 	for _, network := range show.Networks {
-		networks = append(networks, Network{
+		networks = append(networks, domain.Network{
 			Id:   int(network.ID),
 			Name: network.Name,
 			Logo: tmdbImageUrl + network.LogoPath,
@@ -34,7 +35,7 @@ func ShowFromDto(show *tmdb.TVDetails) Show {
 		airDate, _ = time.Parse("2006-01-02", show.Seasons[0].AirDate)
 	}
 
-	return Show{
+	return domain.Show{
 		Id:            int(show.ID),
 		Name:          show.Name,
 		Description:   show.Overview,

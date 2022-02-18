@@ -41,7 +41,7 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 				return
 			}
 
-			shows = append(shows, domain.ShowFromDto(tmdbShow))
+			shows = append(shows, showFromDto(tmdbShow))
 		}
 
 		if err = h.respond(res, shows); err != nil {
@@ -64,7 +64,7 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 			return
 		}
 
-		show = domain.ShowFromDto(tmdbShow)
+		show = showFromDto(tmdbShow)
 
 		if err = h.respond(res, show); err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
