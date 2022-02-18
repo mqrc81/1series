@@ -13,9 +13,10 @@ import (
 )
 
 type ShowHandler struct {
-	store domain.Store
-	tmdb  *tmdb.Client
-	trakt *trakt.Client
+	store  domain.Store
+	tmdb   *tmdb.Client
+	trakt  *trakt.Client
+	mapper *DtoMapper
 }
 
 // PopularShows GET /api/shows/popular
@@ -41,10 +42,10 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 				return
 			}
 
-			shows = append(shows, showFromDto(tmdbShow))
+			shows = append(shows, h.mapper.showFromTmdbShow(tmdbShow))
 		}
 
-		if err = h.respond(res, shows); err != nil {
+		if err = respond(res, shows); err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -64,9 +65,9 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 			return
 		}
 
-		show = showFromDto(tmdbShow)
+		show = h.mapper.showFromTmdbShow(tmdbShow)
 
-		if err = h.respond(res, show); err != nil {
+		if err = respond(res, show); err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -76,11 +77,29 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 // SearchShows GET /api/shows/search
 func (h *ShowHandler) SearchShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		// TODO
+		var shows []domain.Show
+
+		query := req.URL.Query().Get("query")
+		if query == "" {
+			http.Error(res, "empty search query", http.StatusBadRequest)
+			return
+		}
+		tmdbShows, err := h.tmdb.GetSearchTVShow(query, nil)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		shows = h.mapper.showsFromTmdbShowsSearch(tmdbShows, 8)
+
+		if err = respond(res, shows); err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
-func (h *ShowHandler) respond(res http.ResponseWriter, body interface{}) error {
+func respond(res http.ResponseWriter, body interface{}) error {
 	bodyJson, err := json.Marshal(body)
 	if err != nil {
 		return fmt.Errorf("unable to parse %v: %w", body, err)

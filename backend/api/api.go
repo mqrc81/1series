@@ -26,7 +26,7 @@ func Init(store postgres.Store, tmdbClient *tmdb.Client, traktClient *trakt.Clie
 
 	registerMiddleware(h)
 
-	shows := ShowHandler{store, tmdbClient, traktClient}
+	shows := ShowHandler{store, tmdbClient, traktClient, new(DtoMapper)}
 	h.Route("/api/shows", func(r chi.Router) {
 		r.Get("/popular", shows.PopularShows())
 		r.Get("/{show_id}", shows.Show())
@@ -91,4 +91,7 @@ type Handler struct {
 
 	store    domain.Store
 	sessions *scs.SessionManager
+}
+
+type DtoMapper struct {
 }
