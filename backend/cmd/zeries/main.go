@@ -1,5 +1,5 @@
-// Package cmd/zeries
-// Entry-point which starts the application and initializes database, external clients, list of genres/networks
+// Package cmd/zeries is the entry-point which starts the application
+// and initializes database, external clients, list of genres/networks
 package main
 
 import (

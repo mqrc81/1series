@@ -1,5 +1,4 @@
-// Package postgres
-// PostgreSQL database access layer
+// Package postgres is the PostgreSQL database access layer
 package postgres
 
 import (

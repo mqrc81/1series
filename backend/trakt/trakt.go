@@ -1,5 +1,4 @@
-// Package trakt
-// Interface to Trakt's API (see https://trakt.docs.apiary.io/)
+// Package trakt is the interface to Trakt's API (see https://trakt.docs.apiary.io/)
 // Unlike Tmdb there is no actively maintained Go Trakt library
 package trakt
 

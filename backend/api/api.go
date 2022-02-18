@@ -1,5 +1,4 @@
-// Package api
-// Internal API interface
+// Package api is the internal API interface used solely in Angular
 package api
 
 import (

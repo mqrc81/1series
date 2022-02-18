@@ -1,5 +1,4 @@
-// Package domain
-// Domain models
+// Package domain contains all domain models
 package domain
 
 import (
