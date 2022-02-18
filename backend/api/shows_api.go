@@ -16,6 +16,7 @@ type ShowHandler struct {
 	trakt *trakt.Client
 }
 
+// PopularShows GET /api/shows/popular
 func (h *ShowHandler) PopularShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var shows []domain.Show
@@ -48,12 +49,14 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 	}
 }
 
+// Show GET /api/shows/{show_id}
 func (h *ShowHandler) Show() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		// TODO
 	}
 }
 
+// SearchShows GET /api/shows/search
 func (h *ShowHandler) SearchShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		// TODO

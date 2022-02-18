@@ -12,6 +12,7 @@ type UserHandler struct {
 	sessions *scs.SessionManager
 }
 
+// Register POST /api/users/register
 func (h *UserHandler) Register() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		// TODO
