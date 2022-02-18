@@ -22,3 +22,16 @@ func (s *GenreStore) GetGenres() (genres []domain.Genre, err error) {
 
 	return genres, err
 }
+
+func (s *GenreStore) AddGenre(genre domain.Genre) (err error) {
+
+	if _, err = s.Exec(
+		"INSERT INTO genres(id, name) VALUES ($1, $2)",
+		genre.Id,
+		genre.Name,
+	); err != nil {
+		err = fmt.Errorf("error adding genre [%v, %v]: %w", genre.Id, genre.Name, err)
+	}
+
+	return err
+}

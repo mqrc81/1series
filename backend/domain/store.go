@@ -12,10 +12,10 @@ type UserStore interface {
 
 type GenreStore interface {
 	GetGenres() ([]Genre, error)
-	// AddGenre(genre Genre) error
+	AddGenre(genre Genre) error
 }
 
 type NetworkStore interface {
 	GetNetworks() ([]Network, error)
-	// AddNetwork(network Network) error
+	AddNetwork(network Network) error
 }

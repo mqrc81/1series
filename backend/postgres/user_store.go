@@ -18,7 +18,7 @@ func (s *UserStore) GetUser(userId int) (user domain.User, err error) {
 		"SELECT u.* FROM users u WHERE u.id = $1",
 		userId,
 	); err != nil {
-		err = fmt.Errorf("error getting user: %w", err)
+		err = fmt.Errorf("error getting user [%v]: %w", userId, err)
 	}
 
 	return user, err

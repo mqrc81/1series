@@ -22,3 +22,17 @@ func (s *NetworkStore) GetNetworks() (networks []domain.Network, err error) {
 
 	return networks, err
 }
+
+func (s *NetworkStore) AddNetwork(network domain.Network) (err error) {
+
+	if _, err = s.Exec(
+		"INSERT INTO networks(id, name, logo) VALUES ($1, $2, $3)",
+		network.Id,
+		network.Name,
+		network.Logo,
+	); err != nil {
+		err = fmt.Errorf("error adding network [%v, %v, %v]: %w", network.Id, network.Name, network.Logo, err)
+	}
+
+	return err
+}
