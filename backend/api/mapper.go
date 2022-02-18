@@ -61,3 +61,6 @@ func (*DtoMapper) showsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults i
 	}
 	return shows
 }
+
+type DtoMapper struct {
+}

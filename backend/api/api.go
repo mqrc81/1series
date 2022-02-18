@@ -27,20 +27,22 @@ func Init(store domain.Store, sessionsStore *postgresstore.PostgresStore,
 	registerMiddleware(h)
 
 	shows := ShowHandler{store, tmdbClient, traktClient, new(DtoMapper)}
-	h.Route("/api/shows", func(r chi.Router) {
-		r.Get("/popular", shows.PopularShows())
-		r.Get("/{showId}", shows.Show())
-		r.Get("/search/{searchTerm}", shows.SearchShows())
-	})
-
 	users := UserHandler{store, h.sessions}
-	h.Route("/api/users", func(r chi.Router) {
-		r.Post("/register", users.Register())
-		// r.Post("/login", users.Login())
-		// r.Post("/logout", users.Logout())
-	})
+	h.Route("/api", func(api chi.Router) {
+		api.Route("/shows", func(apiShows chi.Router) {
+			apiShows.Get("/popular", shows.PopularShows())
+			apiShows.Get("/{showId}", shows.Show())
+			apiShows.Get("/search/{searchTerm}", shows.SearchShows())
+		})
 
-	h.Get("/api/check", h.HealthCheck())
+		api.Route("/users", func(apiUsers chi.Router) {
+			apiUsers.Post("/register", users.Register())
+			// apiUsers.Post("/login", users.Login())
+			// apiUsers.Post("/logout", users.Logout())
+		})
+
+		api.Get("/check", h.HealthCheck())
+	})
 
 	return h, nil
 }
@@ -91,7 +93,4 @@ type Handler struct {
 
 	store    domain.Store
 	sessions *scs.SessionManager
-}
-
-type DtoMapper struct {
 }

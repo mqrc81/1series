@@ -12,6 +12,10 @@ import (
 	"github.com/mqrc81/zeries/trakt"
 )
 
+var (
+	tmdbOptions = map[string]string{"language": "en-US"}
+)
+
 type ShowHandler struct {
 	store  domain.Store
 	tmdb   *tmdb.Client
@@ -36,7 +40,7 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 		}
 
 		for _, traktShow := range traktShows {
-			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), nil)
+			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), tmdbOptions)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
@@ -59,7 +63,7 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 
 		id, _ := strconv.Atoi(chi.URLParam(req, "showId"))
 
-		tmdbShow, err := h.tmdb.GetTVDetails(id, nil)
+		tmdbShow, err := h.tmdb.GetTVDetails(id, tmdbOptions)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -85,7 +89,7 @@ func (h *ShowHandler) SearchShows() http.HandlerFunc {
 			return
 		}
 
-		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
+		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, tmdbOptions)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
