@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -53,6 +54,8 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 // Show GET /api/shows/{show_id}
 func (h *ShowHandler) Show() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
+		var show domain.Show
+
 		id, _ := strconv.Atoi(chi.URLParam(req, "show_id"))
 
 		tmdbShow, err := h.tmdb.GetTVDetails(id, nil)
@@ -61,7 +64,7 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 			return
 		}
 
-		show := domain.ShowFromDto(tmdbShow)
+		show = domain.ShowFromDto(tmdbShow)
 
 		if err = h.respond(res, show); err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -78,14 +81,14 @@ func (h *ShowHandler) SearchShows() http.HandlerFunc {
 }
 
 func (h *ShowHandler) respond(res http.ResponseWriter, body interface{}) error {
-	bodyJSON, err := json.Marshal(body)
+	bodyJson, err := json.Marshal(body)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to parse %v: %w", body, err)
 	}
 
 	res.Header().Add("Content-Type", "application/json")
-	if _, err = res.Write(bodyJSON); err != nil {
-		return err
+	if _, err = res.Write(bodyJson); err != nil {
+		return fmt.Errorf("unable to respond with %v: %w", bodyJson, err)
 	}
 
 	return nil
