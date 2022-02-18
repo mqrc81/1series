@@ -2,9 +2,9 @@ package trakt
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
 const (
@@ -14,12 +14,10 @@ const (
 
 func (c *Client) GetShowsWatchedWeekly(page int, limit int) ([]ShowsWatchedDto, error) {
 
-	req, err := http.NewRequest(http.MethodGet, showsWatchedURL, nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(showsWatchedURL+"?page=%d&limit=%d", page, limit), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.URL.Query().Set("page", strconv.Itoa(page))
-	req.URL.Query().Set("limit", strconv.Itoa(limit))
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("trakt-api-version", "2")

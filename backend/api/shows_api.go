@@ -81,11 +81,11 @@ func (h *ShowHandler) SearchShows() http.HandlerFunc {
 
 		searchTerm := chi.URLParam(req, "searchTerm")
 		if searchTerm == "" {
-			http.Error(res, "empty search search-term", http.StatusBadRequest)
+			http.Error(res, "empty search-term", http.StatusBadRequest)
 			return
 		}
 
-		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, nil)
+		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return

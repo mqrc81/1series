@@ -12,16 +12,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
 )
 
-func Init(store postgres.Store, tmdbClient *tmdb.Client, traktClient *trakt.Client) (*Handler, error) {
+func Init(store domain.Store, sessionsStore *postgresstore.PostgresStore,
+	tmdbClient *tmdb.Client, traktClient *trakt.Client) (*Handler, error) {
 
 	h := &Handler{
 		Mux:      chi.NewMux(),
 		store:    store,
-		sessions: newSessionsManager(store),
+		sessions: newSessionsManager(sessionsStore),
 	}
 
 	registerMiddleware(h)
@@ -60,9 +60,9 @@ func (h *Handler) HealthCheck() http.HandlerFunc {
 	}
 }
 
-func newSessionsManager(store postgres.Store) *scs.SessionManager {
+func newSessionsManager(sessionsStore *postgresstore.PostgresStore) *scs.SessionManager {
 	sessions := scs.New()
-	sessions.Store = postgresstore.New(store.DB.DB)
+	sessions.Store = sessionsStore
 	return sessions
 }
 

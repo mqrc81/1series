@@ -19,14 +19,14 @@ import (
 func main() {
 	log.Println("Starting application...")
 
-	// Environment variables need to be initialized from local file first when ran locally
+	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
 		if err := godotenv.Load(); err != nil {
 			log.Fatalln(err)
 		}
 	}
 
-	store, err := postgres.Init(os.Getenv("DATABASE_URL"))
+	store, sessionsStore, err := postgres.Init(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
 	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
@@ -35,7 +35,7 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	handler, err := api.Init(*store, tmdbClient, traktClient)
+	handler, err := api.Init(*store, sessionsStore, tmdbClient, traktClient)
 	checkError(err)
 
 	log.Println("Listening on " + os.Getenv("BACKEND_URL"))
