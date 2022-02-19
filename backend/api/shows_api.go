@@ -121,11 +121,8 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(),
 					map[string]string{"append_to_response": "translations"})
 				if err != nil {
-					// An inconsistency in trakt's tmdb-id can occur on exceptions... the show must go on
-					// TODO: Use TMDb's /find API to get show by IMDb-ID
-					log.Printf("error getting tmdb show [%d, %v]: %v\n", traktRelease.TmdbId(), traktRelease.SlugId(),
-						err.Error())
-					continue
+					http.Error(res, err.Error(), http.StatusInternalServerError)
+					return
 				}
 
 				if hasRelevantInfo(tmdbRelease) {
@@ -176,15 +173,13 @@ func hasRelevantType(show *tmdb.TVDetails) bool {
 }
 
 func respond(res http.ResponseWriter, body interface{}) error {
-	bodyJson, err := json.Marshal(body)
-	if err != nil {
-		return fmt.Errorf("unable to parse %v: %w", body, err)
-	}
-
 	res.Header().Add("Content-Type", "application/json")
-	if _, err = res.Write(bodyJson); err != nil {
-		return fmt.Errorf("unable to respond with %v: %w", bodyJson, err)
-	}
 
+	// TODO: check if escaping unicode is actually necessary for Angular
+	e := json.NewEncoder(res)
+	e.SetEscapeHTML(false)
+	if err := e.Encode(body); err != nil {
+		return fmt.Errorf("unable to encode %v: %w", body, err)
+	}
 	return nil
 }
