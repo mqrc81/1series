@@ -5,15 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/go-chi/chi/v5"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
-)
-
-var (
-	tmdbOptions = map[string]string{"language": "en-US"}
 )
 
 type ShowHandler struct {
@@ -40,13 +37,13 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 		}
 
 		for _, traktShow := range traktShows {
-			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), tmdbOptions)
+			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), nil)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
 
-			shows = append(shows, h.mapper.showFromTmdbShow(tmdbShow))
+			shows = append(shows, h.mapper.ShowFromTmdbShow(tmdbShow))
 		}
 
 		if err = respond(res, shows); err != nil {
@@ -63,13 +60,13 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 
 		id, _ := strconv.Atoi(chi.URLParam(req, "showId"))
 
-		tmdbShow, err := h.tmdb.GetTVDetails(id, tmdbOptions)
+		tmdbShow, err := h.tmdb.GetTVDetails(id, nil)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		show = h.mapper.showFromTmdbShow(tmdbShow)
+		show = h.mapper.ShowFromTmdbShow(tmdbShow)
 
 		if err = respond(res, show); err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -78,26 +75,54 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 	}
 }
 
-// SearchShows GET /api/shows/search/{searchTerm}
+// SearchShows GET /api/shows/search
 func (h *ShowHandler) SearchShows() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var shows []domain.Show
 
-		searchTerm := chi.URLParam(req, "searchTerm")
+		searchTerm := req.URL.Query().Get("searchTerm")
 		if searchTerm == "" {
 			http.Error(res, "empty search-term", http.StatusBadRequest)
 			return
 		}
 
-		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, tmdbOptions)
+		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		shows = h.mapper.showsFromTmdbShowsSearch(tmdbShows, 8)
+		shows = h.mapper.ShowsFromTmdbShowsSearch(tmdbShows, 8)
 
 		if err = respond(res, shows); err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// UpcomingReleases GET /api/shows/upcoming
+func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		var releases []domain.Release
+
+		startDate, _ := time.Parse("2006-01-02", req.URL.Query().Get("startDate"))
+
+		traktReleases, err := h.trakt.GetSeasonPremieres(startDate, 5)
+
+		for _, traktRelease := range traktReleases {
+			if traktRelease.IsRelevant() {
+				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(), nil)
+				if err != nil {
+					http.Error(res, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				releases = append(releases,
+					h.mapper.ReleaseFromTmdbShow(tmdbRelease, traktRelease.SeasonNumber(), traktRelease.AirDate()))
+			}
+		}
+
+		if err = respond(res, releases); err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}

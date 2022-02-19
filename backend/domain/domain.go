@@ -6,9 +6,9 @@ import (
 )
 
 type Show struct {
-	Id            int // Tmdb Id
+	Id            int
 	Name          string
-	Description   string
+	Overview      string
 	Year          int
 	Poster        string
 	Rating        float32
@@ -20,28 +20,27 @@ type Show struct {
 }
 
 type Season struct {
-	Id            int // Tmdb Id
-	Number        string
+	ShowId        int
+	Number        int
 	Name          string
-	Description   string
+	Overview      string
 	Poster        string
 	EpisodesCount int
-	ShowId        int // Tmdb Id
 }
 
 type Release struct {
-	Show         Show
-	SeasonNumber int
-	AirDate      time.Time
+	Show    Show
+	Season  Season
+	AirDate time.Time
 }
 
 type Genre struct {
-	Id   int // Tmdb Id
+	Id   int
 	Name string
 }
 
 type Network struct {
-	Id   int // Tmdb Id
+	Id   int
 	Name string
 	Logo string
 }

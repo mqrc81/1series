@@ -32,7 +32,8 @@ func Init(store domain.Store, sessionsStore *postgresstore.PostgresStore,
 		api.Route("/shows", func(apiShows chi.Router) {
 			apiShows.Get("/popular", shows.PopularShows())
 			apiShows.Get("/{showId}", shows.Show())
-			apiShows.Get("/search/{searchTerm}", shows.SearchShows())
+			apiShows.Get("/search", shows.SearchShows())
+			apiShows.Get("/upcoming", shows.UpcomingReleases())
 		})
 
 		api.Route("/users", func(apiUsers chi.Router) {

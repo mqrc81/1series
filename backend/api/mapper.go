@@ -11,7 +11,7 @@ const (
 	tmdbImageUrl = "https://image.tmdb.org/t/p/original"
 )
 
-func (*DtoMapper) showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
+func (m *DtoMapper) ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 
 	var genres []domain.Genre
 	for _, genre := range dto.Genres {
@@ -38,7 +38,7 @@ func (*DtoMapper) showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	return domain.Show{
 		Id:            int(dto.ID),
 		Name:          dto.Name,
-		Description:   dto.Overview,
+		Overview:      dto.Overview,
 		Year:          airDate.Year(),
 		Poster:        tmdbImageUrl + dto.PosterPath,
 		Rating:        dto.VoteAverage,
@@ -50,7 +50,7 @@ func (*DtoMapper) showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	}
 }
 
-func (*DtoMapper) showsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []domain.Show) {
+func (m *DtoMapper) ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []domain.Show) {
 	for _, result := range dto.Results[:maxResults] {
 		shows = append(shows, domain.Show{
 			Id:     int(result.ID),
@@ -60,6 +60,29 @@ func (*DtoMapper) showsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults i
 		})
 	}
 	return shows
+}
+
+func (m *DtoMapper) ReleaseFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int, airDate time.Time) domain.Release {
+	return domain.Release{
+		Show:    m.ShowFromTmdbShow(dto),
+		Season:  m.SeasonFromTmdbShow(dto, seasonNumber),
+		AirDate: airDate,
+	}
+}
+
+func (m *DtoMapper) SeasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
+	if seasonNumber > len(dto.Seasons) {
+		seasonNumber = len(dto.Seasons)
+	}
+	season := dto.Seasons[seasonNumber-1]
+	return domain.Season{
+		ShowId:        int(dto.ID),
+		Number:        season.SeasonNumber,
+		Name:          season.Name,
+		Overview:      season.Overview,
+		Poster:        tmdbImageUrl + season.PosterPath,
+		EpisodesCount: season.EpisodeCount,
+	}
 }
 
 type DtoMapper struct {
