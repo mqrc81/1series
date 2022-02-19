@@ -14,6 +14,11 @@ import (
 	"github.com/mqrc81/zeries/trakt"
 )
 
+var (
+	tmdbLanguageEnglishOptions    = map[string]string{"language": "en-US"}
+	tmdbAppendTranslationsOptions = map[string]string{"append_to_response": "translations"}
+)
+
 type ShowHandler struct {
 	store  domain.Store
 	tmdb   *tmdb.Client
@@ -87,7 +92,7 @@ func (h *ShowHandler) SearchShows() http.HandlerFunc {
 			return
 		}
 
-		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
+		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, tmdbLanguageEnglishOptions)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -117,8 +122,7 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 		for _, traktRelease := range traktReleases {
 
 			if hasRelevantIds(traktRelease) {
-				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(),
-					map[string]string{"append_to_response": "translations"})
+				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(), tmdbAppendTranslationsOptions)
 				if err != nil {
 					http.Error(res, err.Error(), http.StatusInternalServerError)
 					return
@@ -185,11 +189,11 @@ func hasRelevantType(show *tmdb.TVDetails) bool {
 func respond(res http.ResponseWriter, body interface{}) error {
 	res.Header().Add("Content-Type", "application/json")
 
-	// TODO: check if escaping unicode is actually necessary for Angular
+	// TODO: check if escaping unicode is actually necessary for angular
 	e := json.NewEncoder(res)
 	e.SetEscapeHTML(false)
 	if err := e.Encode(body); err != nil {
-		return fmt.Errorf("unable to encode %v: %w", body, err)
+		return fmt.Errorf("unable to encode [%v]: %w", body, err)
 	}
 	return nil
 }
