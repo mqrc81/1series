@@ -45,8 +45,7 @@ func (c *Client) GetShowsWatchedWeekly(page int, limit int) (showsWatched []Show
 
 func (c *Client) GetSeasonPremieres(startDate time.Time, days int) (seasonPremieres []SeasonPremieresDto, err error) {
 
-	url := fmt.Sprintf(baseURL+"/calendars/all/shows/premieres/%v/%d?extended=full", startDate.Format("2006-01-02"),
-		days)
+	url := fmt.Sprintf(baseURL+"/calendars/all/shows/premieres/%v/%d", startDate.Format("2006-01-02"), days)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err

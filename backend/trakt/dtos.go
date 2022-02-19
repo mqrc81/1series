@@ -30,17 +30,17 @@ type SeasonPremieresDto struct {
 			Tmdb int    `json:"tmdb"`
 			Imdb string `json:"imdb"`
 			Tvdb int    `json:"tvdb"`
+			Slug string `json:"slug"`
 		} `json:"ids"`
-		Genres                []string `json:"genres"`
-		Network               string   `json:"network"`
-		AvailableTranslations []string `json:"available_translations"`
-		Overview              string   `json:"overview"`
-		Rating                float32  `json:"rating"`
 	} `json:"show"`
 }
 
 func (dto SeasonPremieresDto) TmdbId() int {
 	return dto.Show.Ids.Tmdb
+}
+
+func (dto SeasonPremieresDto) SlugId() string {
+	return dto.Show.Ids.Slug
 }
 
 func (dto SeasonPremieresDto) SeasonNumber() int {
@@ -50,27 +50,4 @@ func (dto SeasonPremieresDto) SeasonNumber() int {
 func (dto SeasonPremieresDto) AirDate() time.Time {
 	airDate, _ := time.Parse("2006-01-02T15:04:05.000Z", dto.FirstAired)
 	return airDate
-}
-
-func (dto SeasonPremieresDto) IsRelevant() bool {
-	return dto.hasRelevantIds() &&
-		dto.Show.Overview != "" &&
-		dto.Show.Rating != 0 &&
-		dto.hasRelevantAvailableTranslation() &&
-		len(dto.Show.Genres) > 0 &&
-		dto.Show.Network != ""
-}
-
-func (dto SeasonPremieresDto) hasRelevantIds() bool {
-	ids := dto.Show.Ids
-	return ids.Tmdb != 0 && ids.Tvdb != 0 && ids.Imdb != ""
-}
-
-func (dto SeasonPremieresDto) hasRelevantAvailableTranslation() bool {
-	for _, availableTranslation := range dto.Show.AvailableTranslations {
-		if availableTranslation == "en" {
-			return true
-		}
-	}
-	return false
 }

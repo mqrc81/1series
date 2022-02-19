@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -110,15 +111,27 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 
 		traktReleases, err := h.trakt.GetSeasonPremieres(startDate, 5)
 
+		// TODO: The relevant upcoming releases should be computed by a scheduler daily
+		//  which then saves the tmdb-id, season-number & air-date in a store.
+		//  This would drastically improve performance & reduce the amount of external api calls.
+
 		for _, traktRelease := range traktReleases {
-			if traktRelease.IsRelevant() {
-				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(), nil)
+
+			if hasRelevantIds(traktRelease) {
+				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(),
+					map[string]string{"append_to_response": "translations"})
 				if err != nil {
-					http.Error(res, err.Error(), http.StatusInternalServerError)
-					return
+					// An inconsistency in trakt's tmdb-id can occur on exceptions... the show must go on
+					// TODO: Use TMDb's /find API to get show by IMDb-ID
+					log.Printf("error getting tmdb show [%d, %v]: %v\n", traktRelease.TmdbId(), traktRelease.SlugId(),
+						err.Error())
+					continue
 				}
-				releases = append(releases,
-					h.mapper.ReleaseFromTmdbShow(tmdbRelease, traktRelease.SeasonNumber(), traktRelease.AirDate()))
+
+				if hasRelevantInfo(tmdbRelease) {
+					releases = append(releases,
+						h.mapper.ReleaseFromTmdbShow(tmdbRelease, traktRelease.SeasonNumber(), traktRelease.AirDate()))
+				}
 			}
 		}
 
@@ -127,6 +140,39 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 			return
 		}
 	}
+}
+
+func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
+	ids := release.Show.Ids
+	return ids.Tmdb != 0 && ids.Tvdb != 0 && ids.Imdb != "" && ids.Slug != ""
+}
+
+func hasRelevantInfo(show *tmdb.TVDetails) bool {
+	return len(show.Genres) > 0 &&
+		len(show.Networks) > 0 &&
+		len(show.Overview) > 0 &&
+		hasEnglishTranslation(show.Translations) &&
+		hasRelevantType(show)
+}
+
+func hasEnglishTranslation(translations *tmdb.TVTranslations) bool {
+	for _, translation := range translations.Translations {
+		if translation.Iso639_1 == "en" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasRelevantType(show *tmdb.TVDetails) bool {
+	t := show.Type
+	if t == "Scripted" || t == "Miniseries" || t == "Documentary" {
+		return true
+	}
+	if t != "Reality" && t != "News" && t != "Talk Show" {
+		log.Printf("Unknown type [%v] detected for show [%d, %v]\n", show.Type, show.ID, show.Name)
+	}
+	return false
 }
 
 func respond(res http.ResponseWriter, body interface{}) error {
