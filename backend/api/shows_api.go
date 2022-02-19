@@ -107,12 +107,11 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var releases []domain.Release
 
-		startDate, _ := time.Parse("2006-01-02", req.URL.Query().Get("startDate"))
-
-		traktReleases, err := h.trakt.GetSeasonPremieres(startDate, 5)
+		startDate, days := calculateDateAndDays(req.URL.Query().Get("startDate"))
+		traktReleases, err := h.trakt.GetSeasonPremieres(startDate, days)
 
 		// TODO: The relevant upcoming releases should be computed by a scheduler daily
-		//  which then saves the tmdb-id, season-number & air-date in a store.
+		//  which then stores the tmdb-id, season-number & air-date.
 		//  This would drastically improve performance & reduce the amount of external api calls.
 
 		for _, traktRelease := range traktReleases {
@@ -137,6 +136,17 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 			return
 		}
 	}
+}
+
+func calculateDateAndDays(dateStr string) (time.Time, int) {
+	startDate, _ := time.Parse("2006-01-02", dateStr)
+	days := 5
+
+	timeDiffInWeeks := startDate.Sub(time.Now()).Hours() / 24 / 7
+	if timeDiffInWeeks > 0 {
+		days += int(timeDiffInWeeks * 3)
+	}
+	return startDate, days
 }
 
 func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
