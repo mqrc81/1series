@@ -10,3 +10,4 @@
 resources
 backend/.gitignore
 backend/Procfile
+.run
