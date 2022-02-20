@@ -10,7 +10,7 @@ import (
 type JobExecutor interface {
 	Execute() error
 	logStart()
-	logEnd() error
+	logEnd(actions int) error
 }
 
 func NewUpdateReleasesJob(store domain.Store, tmdbClient *tmdb.Client, traktClient *trakt.Client) JobExecutor {

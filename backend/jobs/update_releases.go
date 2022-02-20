@@ -18,6 +18,7 @@ const (
 
 func (e UpdateReleasesJobExecutor) Execute() error {
 	e.logStart()
+	var releasesUpdated, pastReleases int
 	now := time.Now()
 	expiry := now.Add(20 * time.Hour)
 
@@ -46,12 +47,20 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 						traktRelease.TmdbId(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
 				}
 
-				e.actions++
+				if traktRelease.AirDate().Before(now) {
+					pastReleases++
+				}
+
+				releasesUpdated++
 			}
 		}
 	}
 
-	return e.logEnd()
+	if err = e.store.SetPastReleasesCount(pastReleases); err != nil {
+		return fmt.Errorf("%v whilst setting past-releases-count [%d]: %w", defaultErrorMessage, pastReleases, err)
+	}
+
+	return e.logEnd(releasesUpdated)
 }
 
 func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
@@ -91,15 +100,13 @@ type UpdateReleasesJobExecutor struct {
 	store domain.Store
 	tmdb  *tmdb.Client
 	trakt *trakt.Client
-
-	actions int
 }
 
 func (e UpdateReleasesJobExecutor) logStart() {
 	log.Println("Running update-releases job")
 }
 
-func (e UpdateReleasesJobExecutor) logEnd() error {
-	log.Printf("Completed update-releases job with %d releases updated\n", e.actions)
+func (e UpdateReleasesJobExecutor) logEnd(actions int) error {
+	log.Printf("Completed update-releases job with %d releases updated\n", actions)
 	return nil
 }

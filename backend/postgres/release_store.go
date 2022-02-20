@@ -36,11 +36,25 @@ func (s *ReleaseStore) ClearExpiredReleases() (err error) {
 }
 
 func (s *ReleaseStore) SetPastReleasesCount(amount int) (err error) {
-	// TODO implement me
-	panic("implement me")
+
+	if _, err = s.Exec(
+		"UPDATE past_releases SET amount = $1",
+		amount,
+	); err != nil {
+		err = fmt.Errorf("error setting past releases count: %w", err)
+	}
+
+	return err
 }
 
 func (s *ReleaseStore) GetPastReleasesCount() (amount int, err error) {
-	// TODO implement me
-	panic("implement me")
+
+	if err = s.Get(
+		&amount,
+		"SELECT ps.amount FROM past_releases ps LIMIT 1",
+	); err != nil || amount == 0 {
+		err = fmt.Errorf("error getting past releases count: %w", err)
+	}
+
+	return amount, err
 }
