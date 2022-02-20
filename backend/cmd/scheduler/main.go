@@ -31,8 +31,11 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	_ = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient).Execute()
-	_ = jobs.NewNotifyUsersJob().Execute()
+	err = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient).Execute()
+	checkError(err)
+
+	err = jobs.NewNotifyUsersJob().Execute()
+	checkError(err)
 }
 
 func checkError(err error) {

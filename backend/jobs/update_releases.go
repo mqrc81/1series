@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	negativeTwoWeeks    = -2 * 7 * 24 * time.Hour
-	EightMonthsInDays   = 8 * 30
+	thirtyDays          = traktDaysCap * 24 * time.Hour
+	traktDaysCap        = 30
 	defaultErrorMessage = "error executing update-releases job"
 )
 
@@ -20,45 +20,55 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	e.logStart()
 	var releasesUpdated, pastReleases int
 	now := time.Now()
-	expiry := now.Add(20 * time.Hour)
+	// Start at 30 days in the past to allow users to view past releases
+	startDate := now.Add(-thirtyDays)
+	expiry := now.Add(10 * time.Hour)
 
-	traktReleases, err := e.trakt.GetSeasonPremieres(now.Add(negativeTwoWeeks), EightMonthsInDays)
-	if err != nil {
-		return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
-	}
+	// Trakt's limit is 30 days per request, but we want 10 * 30 days
+	for i := 0; i < 9; i++ {
 
-	for _, traktRelease := range traktReleases {
-		if hasRelevantIds(traktRelease) {
-			tmdbShow, err := e.tmdb.GetTVDetails(traktRelease.TmdbId(),
-				map[string]string{"append_to_response": "translations"})
-			if err != nil {
-				return fmt.Errorf("%v whilst fetching tmdb show-details for [%v]: %w", defaultErrorMessage,
-					traktRelease.SlugId(), err)
-			}
+		traktReleases, err := e.trakt.GetSeasonPremieres(startDate, traktDaysCap)
+		if err != nil {
+			return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
+		}
 
-			if hasRelevantInfo(tmdbShow) {
-				if err = e.store.SaveRelease(domain.ReleaseRef{
-					ShowId:       traktRelease.TmdbId(),
-					SeasonNumber: traktRelease.SeasonNumber(),
-					AirDate:      traktRelease.AirDate(),
-				}, expiry); err != nil {
-					return fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
-						traktRelease.TmdbId(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
+		for _, traktRelease := range traktReleases {
+			if hasRelevantIds(traktRelease) {
+				tmdbShow, err := e.tmdb.GetTVDetails(traktRelease.TmdbId(),
+					map[string]string{"append_to_response": "translations"})
+				if err != nil {
+					// On rare occasions trakt's tmdb-id might be incorrect
+					// We treat this case as if hasRelevantIds(traktRelease) was false
+					log.Printf("Tmdb show-details for [%v] couldn't be fetched: %v", traktRelease.SlugId(), err)
+					continue
 				}
 
-				if traktRelease.AirDate().Before(now) {
-					pastReleases++
+				if hasRelevantInfo(tmdbShow) {
+					if err = e.store.SaveRelease(domain.ReleaseRef{
+						ShowId:       traktRelease.TmdbId(),
+						SeasonNumber: traktRelease.SeasonNumber(),
+						AirDate:      traktRelease.AirDate(),
+					}, expiry); err != nil {
+						return fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
+							traktRelease.TmdbId(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
+					}
+
+					if traktRelease.AirDate().Before(now) {
+						pastReleases++
+					}
+					releasesUpdated++
 				}
-				releasesUpdated++
 			}
 		}
+
+		startDate = startDate.Add(thirtyDays)
 	}
 
-	if err = e.store.SetPastReleasesCount(pastReleases); err != nil {
+	if err := e.store.SetPastReleasesCount(pastReleases); err != nil {
 		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 	}
 
-	if err = e.store.ClearExpiredReleases(now); err != nil {
+	if err := e.store.ClearExpiredReleases(now); err != nil {
 		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 	}
 
@@ -74,6 +84,7 @@ func hasRelevantInfo(show *tmdb.TVDetails) bool {
 	return len(show.Genres) > 0 &&
 		len(show.Networks) > 0 &&
 		len(show.Overview) > 0 &&
+		len(show.Seasons) > 0 &&
 		hasEnglishTranslation(show.Translations) &&
 		hasRelevantType(show)
 }
@@ -92,7 +103,7 @@ func hasRelevantType(show *tmdb.TVDetails) bool {
 	if t == "Scripted" || t == "Miniseries" || t == "Documentary" {
 		return true
 	}
-	if t != "Reality" && t != "News" && t != "Talk Show" {
+	if t != "Reality" && t != "News" && t != "Talk Show" && t != "Video" {
 		log.Printf("Unknown type [%v] detected for show [%d, %v]\n", show.Type, show.ID, show.Name)
 	}
 	return false

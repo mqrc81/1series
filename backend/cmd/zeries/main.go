@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -18,7 +17,7 @@ import (
 // TODO:
 //  - initialize Genres & Networks
 func main() {
-	fmt.Println("Starting application...")
+	log.Println("Starting application...")
 
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
@@ -39,7 +38,7 @@ func main() {
 	handler, err := api.Init(*store, sessionsStore, tmdbClient, traktClient)
 	checkError(err)
 
-	fmt.Println("Listening on " + os.Getenv("BACKEND_URL"))
+	log.Println("Listening on " + os.Getenv("BACKEND_URL"))
 	err = http.ListenAndServe(":"+os.Getenv("PORT"), handler)
 	checkError(err)
 }
