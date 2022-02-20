@@ -3,10 +3,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/go-chi/chi/v5"
@@ -20,6 +18,10 @@ type ShowHandler struct {
 	trakt  *trakt.Client
 	mapper *DtoMapper
 }
+
+const (
+	releasesPerRequest = 20
+)
 
 // PopularShows GET /api/shows/popular
 func (h *ShowHandler) PopularShows() http.HandlerFunc {
@@ -107,28 +109,30 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var releases []domain.Release
 
-		startDate, days := calculateDateAndDays(req.URL.Query().Get("startDate"))
-		traktReleases, err := h.trakt.GetSeasonPremieres(startDate, days)
+		pastReleases, err := h.store.GetPastReleasesCount()
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-		// TODO: The relevant upcoming releases should be computed by a jobs daily
-		//  which then stores the tmdb-id, season-number & air-date.
-		//  This would drastically improve performance & reduce the amount of external api calls.
+		amount, offset := calculateRange(req.URL.Query().Get("page"), pastReleases)
 
-		for _, traktRelease := range traktReleases {
+		releasesRef, err := h.store.GetReleases(amount, offset)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-			if hasRelevantIds(traktRelease) {
-				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(),
-					map[string]string{"append_to_response": "translations"})
-				if err != nil {
-					http.Error(res, err.Error(), http.StatusInternalServerError)
-					return
-				}
-
-				if hasRelevantInfo(tmdbRelease) {
-					releases = append(releases,
-						h.mapper.ReleaseFromTmdbShow(tmdbRelease, traktRelease.SeasonNumber(), traktRelease.AirDate()))
-				}
+		for _, releaseRef := range releasesRef {
+			tmdbRelease, err := h.tmdb.GetTVDetails(releaseRef.ShowId,
+				map[string]string{"append_to_response": "translations"})
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
 			}
+
+			releases = append(releases,
+				h.mapper.ReleaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate))
 		}
 
 		if err = respond(res, releases); err != nil {
@@ -138,48 +142,26 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 	}
 }
 
-func calculateDateAndDays(dateStr string) (time.Time, int) {
-	startDate, _ := time.Parse("2006-01-02", dateStr)
-	days := 5
+func calculateRange(pageQueryParam string, pastReleases int) (int, int) {
+	page, _ := strconv.Atoi(pageQueryParam)
 
-	timeDiffInWeeks := startDate.Sub(time.Now()).Hours() / 24 / 7
-	if timeDiffInWeeks > 0 {
-		days += int(timeDiffInWeeks * 3)
-	}
-	return startDate, days
-}
-
-func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
-	ids := release.Show.Ids
-	return ids.Tmdb != 0 && ids.Tvdb != 0 && ids.Imdb != "" && ids.Slug != ""
-}
-
-func hasRelevantInfo(show *tmdb.TVDetails) bool {
-	return len(show.Genres) > 0 &&
-		len(show.Networks) > 0 &&
-		len(show.Overview) > 0 &&
-		hasEnglishTranslation(show.Translations) &&
-		hasRelevantType(show)
-}
-
-func hasEnglishTranslation(translations *tmdb.TVTranslations) bool {
-	for _, translation := range translations.Translations {
-		if translation.Iso639_1 == "en" {
-			return true
+	if page == 0 {
+		// For first request, return 40 releases
+		return releasesPerRequest * 2, pastReleases
+	} else if page > 0 {
+		// For pages 1+ return 20 releases
+		return releasesPerRequest, pastReleases + releasesPerRequest*(page+1)
+	} else {
+		// For negative pages return 20 releases or max releases left for last page
+		offset := pastReleases + releasesPerRequest*page
+		amount := releasesPerRequest
+		if offset <= 0 {
+			// The last possible page for past releases has been reached
+			amount += offset
+			offset = 0
 		}
+		return amount, offset
 	}
-	return false
-}
-
-func hasRelevantType(show *tmdb.TVDetails) bool {
-	t := show.Type
-	if t == "Scripted" || t == "Miniseries" || t == "Documentary" {
-		return true
-	}
-	if t != "Reality" && t != "News" && t != "Talk Show" {
-		log.Printf("Unknown type [%v] detected for show [%d, %v]\n", show.Type, show.ID, show.Name)
-	}
-	return false
 }
 
 func respond(res http.ResponseWriter, body interface{}) error {
