@@ -24,7 +24,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	startDate := now.Add(-thirtyDays)
 	expiry := now.Add(10 * time.Hour)
 
-	// Trakt's limit is 30 days per request, but we want 10 * 30 days
+	// Trakt's limit is 30 days per request, but we want 9 * 30 days
 	for i := 0; i < 9; i++ {
 
 		traktReleases, err := e.trakt.GetSeasonPremieres(startDate, traktDaysCap)
@@ -38,7 +38,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 					map[string]string{"append_to_response": "translations"})
 				if err != nil {
 					// On rare occasions trakt's tmdb-id might be incorrect
-					// We treat this case as if hasRelevantIds(traktRelease) was false
+					// We treat this case as if jobs#hasRelevantIds was false
 					log.Printf("Tmdb show-details for [%v] couldn't be fetched: %v", traktRelease.SlugId(), err)
 					continue
 				}
