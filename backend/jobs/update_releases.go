@@ -57,7 +57,11 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	}
 
 	if err = e.store.SetPastReleasesCount(pastReleases); err != nil {
-		return fmt.Errorf("%v whilst setting past-releases-count [%d]: %w", defaultErrorMessage, pastReleases, err)
+		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+	}
+
+	if err = e.store.ClearExpiredReleases(now); err != nil {
+		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 	}
 
 	return e.logEnd(releasesUpdated)

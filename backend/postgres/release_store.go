@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
@@ -30,9 +31,16 @@ func (s *ReleaseStore) SaveRelease(release domain.ReleaseRef) (err error) {
 	panic("implement me")
 }
 
-func (s *ReleaseStore) ClearExpiredReleases() (err error) {
-	// TODO implement me
-	panic("implement me")
+func (s *ReleaseStore) ClearExpiredReleases(now time.Time) (err error) {
+
+	if _, err = s.Exec(
+		"DELETE FROM releases r WHERE r.expiry < $1",
+		now,
+	); err != nil {
+		err = fmt.Errorf("error clearing expired releases: %w", err)
+	}
+
+	return err
 }
 
 func (s *ReleaseStore) SetPastReleasesCount(amount int) (err error) {

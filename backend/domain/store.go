@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"time"
+)
+
 type Store interface {
 	UserStore
 	GenreStore
@@ -24,7 +28,7 @@ type NetworkStore interface {
 type ReleaseStore interface {
 	GetReleases(amount int, offset int) ([]ReleaseRef, error)
 	SaveRelease(release ReleaseRef) error
-	ClearExpiredReleases() error
+	ClearExpiredReleases(now time.Time) error
 	SetPastReleasesCount(amount int) error
 	GetPastReleasesCount() (int, error)
 }
