@@ -34,6 +34,13 @@ type Release struct {
 	AirDate time.Time
 }
 
+type ReleaseRef struct {
+	ShowId       int       `db:"show_id"`
+	SeasonNumber int       `db:"season_number"`
+	AirDate      time.Time `db:"air_date"`
+	Expiry       time.Time `db:"expiry"`
+}
+
 type Genre struct {
 	Id   int
 	Name string

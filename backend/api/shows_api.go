@@ -14,11 +14,6 @@ import (
 	"github.com/mqrc81/zeries/trakt"
 )
 
-var (
-	tmdbLanguageEnglishOptions    = map[string]string{"language": "en-US"}
-	tmdbAppendTranslationsOptions = map[string]string{"append_to_response": "translations"}
-)
-
 type ShowHandler struct {
 	store  domain.Store
 	tmdb   *tmdb.Client
@@ -92,7 +87,7 @@ func (h *ShowHandler) SearchShows() http.HandlerFunc {
 			return
 		}
 
-		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, tmdbLanguageEnglishOptions)
+		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -115,14 +110,15 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 		startDate, days := calculateDateAndDays(req.URL.Query().Get("startDate"))
 		traktReleases, err := h.trakt.GetSeasonPremieres(startDate, days)
 
-		// TODO: The relevant upcoming releases should be computed by a scheduler daily
+		// TODO: The relevant upcoming releases should be computed by a jobs daily
 		//  which then stores the tmdb-id, season-number & air-date.
 		//  This would drastically improve performance & reduce the amount of external api calls.
 
 		for _, traktRelease := range traktReleases {
 
 			if hasRelevantIds(traktRelease) {
-				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(), tmdbAppendTranslationsOptions)
+				tmdbRelease, err := h.tmdb.GetTVDetails(traktRelease.TmdbId(),
+					map[string]string{"append_to_response": "translations"})
 				if err != nil {
 					http.Error(res, err.Error(), http.StatusInternalServerError)
 					return
@@ -189,11 +185,14 @@ func hasRelevantType(show *tmdb.TVDetails) bool {
 func respond(res http.ResponseWriter, body interface{}) error {
 	res.Header().Add("Content-Type", "application/json")
 
-	// TODO: check if escaping unicode is actually necessary for angular
-	e := json.NewEncoder(res)
-	e.SetEscapeHTML(false)
-	if err := e.Encode(body); err != nil {
-		return fmt.Errorf("unable to encode [%v]: %w", body, err)
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("error parsing [%v] to json: %w", body, err)
 	}
+
+	if _, err = res.Write(bodyJson); err != nil {
+		return fmt.Errorf("error responding with [%v]: %w", bodyJson, err)
+	}
+
 	return nil
 }

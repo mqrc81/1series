@@ -1,5 +1,8 @@
 module github.com/mqrc81/zeries
 
+// +heroku goVersion go1.17
+// +heroku install ./cmd/...
+
 go 1.17
 
 require (

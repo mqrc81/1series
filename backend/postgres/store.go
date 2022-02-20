@@ -21,6 +21,7 @@ func Init(dataSourceName string) (*Store, *postgresstore.PostgresStore, error) {
 		&UserStore{db},
 		&GenreStore{db},
 		&NetworkStore{db},
+		&ReleaseStore{db},
 	}, sessionsStore, nil
 }
 
@@ -28,4 +29,5 @@ type Store struct {
 	*UserStore
 	*GenreStore
 	*NetworkStore
+	*ReleaseStore
 }

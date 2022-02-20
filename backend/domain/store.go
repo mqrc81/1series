@@ -4,6 +4,7 @@ type Store interface {
 	UserStore
 	GenreStore
 	NetworkStore
+	ReleaseStore
 }
 
 type UserStore interface {
@@ -18,4 +19,12 @@ type GenreStore interface {
 type NetworkStore interface {
 	GetNetworks() ([]Network, error)
 	AddNetwork(network Network) error
+}
+
+type ReleaseStore interface {
+	GetReleases(amount int, offset int) ([]ReleaseRef, error)
+	SaveRelease(release ReleaseRef) error
+	ClearExpiredReleases() error
+	SetPastReleasesCount(amount int) error
+	GetPastReleasesCount() (int, error)
 }
