@@ -16,7 +16,7 @@ func (s *ReleaseStore) GetReleases(amount int, offset int) (releases []domain.Re
 
 	if err = s.Select(
 		&releases,
-		"SELECT r.show_id, r.season_number, r.air_date FROM releases r LIMIT $1 OFFSET $2",
+		"SELECT r.show_id, r.season_number, r.air_date FROM releases r ORDER BY r.air_date LIMIT $1 OFFSET $2",
 		amount,
 		offset,
 	); err != nil {
