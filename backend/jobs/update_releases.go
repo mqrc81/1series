@@ -18,11 +18,11 @@ const (
 
 func (e UpdateReleasesJobExecutor) Execute() error {
 	e.logStart()
-	var releasesUpdated, pastReleases int
+	var releasesUpdated int
 	now := time.Now()
 	// Start at 30 days in the past to allow users to view past releases
 	startDate := now.Add(-thirtyDays)
-	expiry := now.Add(10 * time.Hour)
+	expiry := now.Add(time.Hour)
 
 	// Trakt's limit is 30 days per request, but we want 9 * 30 days
 	for i := 0; i < 9; i++ {
@@ -52,22 +52,22 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 						return fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
 							traktRelease.TmdbId(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
 					}
-
-					if traktRelease.AirDate().Before(now) {
-						pastReleases++
-					}
 					releasesUpdated++
 				}
+			}
+		}
+
+		if i == 0 {
+			// The first iteration takes care of all past releases
+			if err := e.store.SetPastReleasesCount(releasesUpdated); err != nil {
+				return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 			}
 		}
 
 		startDate = startDate.Add(thirtyDays)
 	}
 
-	if err := e.store.SetPastReleasesCount(pastReleases); err != nil {
-		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
-	}
-
+	// TODO: there is a small window in which expired and updated releases can coexist
 	if err := e.store.ClearExpiredReleases(now); err != nil {
 		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 	}

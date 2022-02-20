@@ -14,8 +14,7 @@ import (
 	"github.com/mqrc81/zeries/trakt"
 )
 
-// TODO:
-//  - initialize Genres & Networks
+// TODO: initialize genres & networks
 func main() {
 	log.Println("Starting application...")
 
