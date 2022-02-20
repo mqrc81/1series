@@ -41,8 +41,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 					ShowId:       traktRelease.TmdbId(),
 					SeasonNumber: traktRelease.SeasonNumber(),
 					AirDate:      traktRelease.AirDate(),
-					Expiry:       expiry,
-				}); err != nil {
+				}, expiry); err != nil {
 					return fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
 						traktRelease.TmdbId(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
 				}
@@ -50,7 +49,6 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 				if traktRelease.AirDate().Before(now) {
 					pastReleases++
 				}
-
 				releasesUpdated++
 			}
 		}
