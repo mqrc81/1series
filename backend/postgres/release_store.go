@@ -28,8 +28,8 @@ func (s *ReleaseStore) GetReleases(amount int, offset int) (releases []domain.Re
 
 func (s *ReleaseStore) SaveRelease(release domain.ReleaseRef, expiry time.Time) (err error) {
 
+	// Insert if combination of show_id & season_number doesn't exist, else update
 	if _, err = s.Exec(
-		// Insert if (show_id, season_number) doesn't exist; else update
 		"INSERT INTO releases(show_id, season_number, air_date, expiry) VALUES($1, $2, $3, $4) ON CONFLICT (show_id, season_number) DO UPDATE SET air_date = $3, expiry = $4",
 		release.ShowId,
 		release.SeasonNumber,
@@ -57,6 +57,7 @@ func (s *ReleaseStore) ClearExpiredReleases(now time.Time) (err error) {
 
 func (s *ReleaseStore) SetPastReleasesCount(amount int) (err error) {
 
+	//goland:noinspection SqlWithoutWhere
 	if _, err = s.Exec(
 		"UPDATE past_releases SET amount = $1",
 		amount,
