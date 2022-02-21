@@ -22,7 +22,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	now := time.Now()
 	// Start at 30 days in the past to allow users to view past releases
 	startDate := now.Add(-thirtyDays)
-	expiry := now.Add(time.Hour)
+	expiry := now.Add(3 * time.Hour)
 
 	// Trakt's limit is 30 days per request, but we want 9 * 30 days
 	for i := 0; i < 9; i++ {
