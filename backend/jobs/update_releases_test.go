@@ -127,6 +127,7 @@ type TmdbSeasons []struct {
 	SeasonNumber int    `json:"season_number"`
 }
 
+//goland:noinspection GoSnakeCaseUsage
 type TmdbTranslations []struct {
 	Iso3166_1   string `json:"iso_3166_1"`
 	Iso639_1    string `json:"iso_639_1"`
@@ -155,7 +156,6 @@ func Test_hasRelevantInfo(t *testing.T) {
 				Seasons:  TmdbSeasons{{}},
 				Type:     "Scripted",
 				TVTranslationsAppend: &tmdb.TVTranslationsAppend{Translations: &tmdb.TVTranslations{
-					ID:           123,
 					Translations: TmdbTranslations{{Iso639_1: "en"}},
 				}},
 			},
@@ -185,7 +185,6 @@ func Test_hasRelevantInfo(t *testing.T) {
 				Seasons:  TmdbSeasons{{}},
 				Type:     "Scripted",
 				TVTranslationsAppend: &tmdb.TVTranslationsAppend{Translations: &tmdb.TVTranslations{
-					ID:           123,
 					Translations: TmdbTranslations{{Iso639_1: "en"}},
 				}},
 			},
@@ -200,7 +199,6 @@ func Test_hasRelevantInfo(t *testing.T) {
 				Seasons:  TmdbSeasons{{}},
 				Type:     "Scripted",
 				TVTranslationsAppend: &tmdb.TVTranslationsAppend{Translations: &tmdb.TVTranslations{
-					ID:           123,
 					Translations: TmdbTranslations{{Iso639_1: "en"}},
 				}},
 			},
@@ -215,7 +213,6 @@ func Test_hasRelevantInfo(t *testing.T) {
 				Seasons:  TmdbSeasons{},
 				Type:     "Scripted",
 				TVTranslationsAppend: &tmdb.TVTranslationsAppend{Translations: &tmdb.TVTranslations{
-					ID:           123,
 					Translations: TmdbTranslations{{Iso639_1: "en"}},
 				}},
 			},
@@ -230,7 +227,6 @@ func Test_hasRelevantInfo(t *testing.T) {
 				Seasons:  TmdbSeasons{{}},
 				Type:     "Porn",
 				TVTranslationsAppend: &tmdb.TVTranslationsAppend{Translations: &tmdb.TVTranslations{
-					ID:           123,
 					Translations: TmdbTranslations{{Iso639_1: "en"}},
 				}},
 			},
@@ -245,7 +241,6 @@ func Test_hasRelevantInfo(t *testing.T) {
 				Seasons:  TmdbSeasons{{}},
 				Type:     "Scripted",
 				TVTranslationsAppend: &tmdb.TVTranslationsAppend{Translations: &tmdb.TVTranslations{
-					ID:           432,
 					Translations: TmdbTranslations{{Iso639_1: "fr"}},
 				}},
 			},
