@@ -4,7 +4,106 @@ import (
 	"testing"
 
 	tmdb "github.com/cyruzin/golang-tmdb"
+	"github.com/mqrc81/zeries/trakt"
 )
+
+type TraktShow struct {
+	Ids struct {
+		Tmdb int    `json:"tmdb"`
+		Imdb string `json:"imdb"`
+		Tvdb int    `json:"tvdb"`
+		Slug string `json:"slug"`
+	} `json:"ids"`
+}
+
+type TraktIds struct {
+	Tmdb int    `json:"tmdb"`
+	Imdb string `json:"imdb"`
+	Tvdb int    `json:"tvdb"`
+	Slug string `json:"slug"`
+}
+
+func Test_hasRelevantIds(t *testing.T) {
+	tests := []struct {
+		name string
+		args trakt.SeasonPremieresDto
+		want bool
+	}{
+		{
+			name: "#1",
+			args: trakt.SeasonPremieresDto{
+				Show: TraktShow{
+					Ids: TraktIds{
+						Tmdb: 123,
+						Imdb: "abc",
+						Tvdb: 456,
+						Slug: "def",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "#2",
+			args: trakt.SeasonPremieresDto{
+				Show: TraktShow{
+					Ids: TraktIds{
+						Imdb: "abc",
+						Tvdb: 456,
+						Slug: "def",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "#3",
+			args: trakt.SeasonPremieresDto{
+				Show: TraktShow{
+					Ids: TraktIds{
+						Tmdb: 123,
+						Tvdb: 456,
+						Slug: "def",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "#4",
+			args: trakt.SeasonPremieresDto{
+				Show: TraktShow{
+					Ids: TraktIds{
+						Tmdb: 123,
+						Imdb: "abc",
+						Slug: "def",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "#5",
+			args: trakt.SeasonPremieresDto{
+				Show: TraktShow{
+					Ids: TraktIds{
+						Tmdb: 123,
+						Imdb: "abc",
+						Tvdb: 456,
+					},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := hasRelevantIds(tt.args); got != tt.want {
+				t.Errorf("hasRelevantIds() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
 
 type TmdbGenres []struct {
 	ID   int64  `json:"id"`
