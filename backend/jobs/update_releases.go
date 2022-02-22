@@ -39,7 +39,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 				if err != nil {
 					// On rare occasions trakt's tmdb-id might be incorrect
 					// We treat this case as if jobs#hasRelevantIds was false
-					log.Printf("Tmdb show-details for [%v] couldn't be fetched: %v", traktRelease.SlugId(), err)
+					log.Printf("Incorrect tmdb-id [%v]: %v", traktRelease.Ids(), err)
 					continue
 				}
 

@@ -4,7 +4,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/cyruzin/golang-tmdb"
@@ -20,12 +19,11 @@ func main() {
 
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
-		if err := godotenv.Load(); err != nil {
-			log.Fatalln(err)
-		}
+		err := godotenv.Load()
+		checkError(err)
 	}
 
-	store, sessionsStore, err := postgres.Init(os.Getenv("DATABASE_URL"))
+	store, sessionStore, err := postgres.Init(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
 	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
@@ -34,11 +32,11 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	handler, err := api.Init(*store, sessionsStore, tmdbClient, traktClient)
+	handler, err := api.Init(*store, sessionStore, tmdbClient, traktClient)
 	checkError(err)
 
 	log.Println("Listening on " + os.Getenv("BACKEND_URL"))
-	err = http.ListenAndServe(":"+os.Getenv("PORT"), handler)
+	err = handler.Run(":" + os.Getenv("PORT"))
 	checkError(err)
 }
 

@@ -1,20 +1,17 @@
 package api
 
 import (
-	"net/http"
-
-	"github.com/alexedwards/scs/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/mqrc81/zeries/domain"
 )
 
 type UserHandler struct {
-	store    domain.Store
-	sessions *scs.SessionManager
+	store domain.Store
 }
 
 // Register POST /api/users/register
-func (h *UserHandler) Register() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+func (h *UserHandler) Register() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		// TODO
 	}
 }

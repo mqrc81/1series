@@ -1,6 +1,7 @@
 package trakt
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -9,13 +10,22 @@ import (
 type ShowsWatchedDto struct {
 	Show struct {
 		Ids struct {
-			Tmdb int `json:"tmdb"`
+			Tmdb int    `json:"tmdb"`
+			Slug string `json:"slug"`
 		} `json:"ids"`
 	} `json:"show"`
 }
 
 func (dto ShowsWatchedDto) TmdbId() int {
 	return dto.Show.Ids.Tmdb
+}
+
+func (dto ShowsWatchedDto) SlugId() string {
+	return dto.Show.Ids.Slug
+}
+
+func (dto ShowsWatchedDto) Ids() string {
+	return fmt.Sprintf("%d, %v", dto.TmdbId(), dto.SlugId())
 }
 
 // SeasonPremieresDto represents the relevant fields of Trakt's DTO.
@@ -50,4 +60,8 @@ func (dto SeasonPremieresDto) SeasonNumber() int {
 func (dto SeasonPremieresDto) AirDate() time.Time {
 	airDate, _ := time.Parse("2006-01-02T15:04:05.000Z", dto.FirstAired)
 	return airDate
+}
+
+func (dto SeasonPremieresDto) Ids() string {
+	return fmt.Sprintf("%d, %v", dto.TmdbId(), dto.SlugId())
 }

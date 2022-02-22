@@ -1,13 +1,12 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
 )
@@ -24,118 +23,103 @@ type ShowHandler struct {
 }
 
 // PopularShows GET /api/shows/popular
-func (h *ShowHandler) PopularShows() http.HandlerFunc {
-	const pageParam QueryParam = "page"
+func (h *ShowHandler) PopularShows() gin.HandlerFunc {
+	const pageQuery UrlQuery = "page"
 
-	return func(res http.ResponseWriter, req *http.Request) {
-		var shows []domain.Show
-
-		page := 1
-		if req.URL.Query().Has(pageParam) {
-			page, _ = strconv.Atoi(req.URL.Query().Get(pageParam))
+	return func(ctx *gin.Context) {
+		page, _ := strconv.Atoi(ctx.Query(pageQuery))
+		if page < 1 {
+			page = 1
 		}
 
 		traktShows, err := h.trakt.GetShowsWatchedWeekly(page, 20)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			httpError500(ctx, fmt.Errorf("trakt error most-watched-shows [%v]: %w", page, err))
 			return
 		}
 
+		var shows []domain.Show
 		for _, traktShow := range traktShows {
 			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), nil)
 			if err != nil {
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				httpError500(ctx, fmt.Errorf("tmdb error tv-details [%v]: %w", traktShow.Ids(), err))
 				return
 			}
 
 			shows = append(shows, h.mapper.ShowFromTmdbShow(tmdbShow))
 		}
 
-		if err = respond(res, shows); err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		ctx.JSON(http.StatusOK, shows)
 	}
 }
 
 // Show GET /api/shows/{showId}
-func (h *ShowHandler) Show() http.HandlerFunc {
+func (h *ShowHandler) Show() gin.HandlerFunc {
 	const showIdParam UrlParam = "showId"
 
-	return func(res http.ResponseWriter, req *http.Request) {
-		var show domain.Show
-
-		id, _ := strconv.Atoi(chi.URLParam(req, showIdParam))
-
-		tmdbShow, err := h.tmdb.GetTVDetails(id, nil)
+	return func(ctx *gin.Context) {
+		showId, err := strconv.Atoi(ctx.Param(showIdParam))
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			httpError400(ctx, fmt.Errorf("invalid show-id [%v]", ctx.Param(showIdParam)))
 			return
 		}
 
-		show = h.mapper.ShowFromTmdbShow(tmdbShow)
-
-		if err = respond(res, show); err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+		tmdbShow, err := h.tmdb.GetTVDetails(showId, nil)
+		if err != nil {
+			httpError500(ctx, fmt.Errorf("tmdb error tv-details [%d]: %w", showId, err))
 			return
 		}
+
+		ctx.JSON(http.StatusOK, h.mapper.ShowFromTmdbShow(tmdbShow))
 	}
 }
 
 // SearchShows GET /api/shows/search
-func (h *ShowHandler) SearchShows() http.HandlerFunc {
-	const searchTermParam QueryParam = "searchTerm"
+func (h *ShowHandler) SearchShows() gin.HandlerFunc {
+	const searchTermQuery UrlQuery = "searchTerm"
 
-	return func(res http.ResponseWriter, req *http.Request) {
-		var shows []domain.Show
-
-		searchTerm := req.URL.Query().Get(searchTermParam)
+	return func(ctx *gin.Context) {
+		searchTerm := ctx.Param(searchTermQuery)
 		if searchTerm == "" {
-			http.Error(res, "empty search-term", http.StatusBadRequest)
+			httpError400(ctx, fmt.Errorf("invalid search-term [%v]", searchTerm))
 			return
 		}
 
 		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			httpError500(ctx, fmt.Errorf("tmdb error search-tv-show [%v]: %w", searchTerm, err))
 			return
 		}
 
-		shows = h.mapper.ShowsFromTmdbShowsSearch(tmdbShows, 8)
-
-		if err = respond(res, shows); err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		ctx.JSON(http.StatusOK, h.mapper.ShowsFromTmdbShowsSearch(tmdbShows, 8))
 	}
 }
 
-// UpcomingReleases GET /api/shows/upcoming
-func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
-	const pageParam QueryParam = "page"
+// UpcomingReleases GET /api/shows/releases
+func (h *ShowHandler) UpcomingReleases() gin.HandlerFunc {
+	const pageQuery UrlQuery = "page"
 
-	return func(res http.ResponseWriter, req *http.Request) {
-		var releases []domain.Release
-
+	return func(ctx *gin.Context) {
 		pastReleases, err := h.store.GetPastReleasesCount()
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			httpError500(ctx, err)
 			return
 		}
 
-		amount, offset := calculateRange(req.URL.Query().Get(pageParam), pastReleases)
+		amount, offset := calculateRange(ctx.Query(pageQuery), pastReleases)
 
 		releasesRef, err := h.store.GetReleases(amount, offset)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			httpError500(ctx, err)
 			return
 		}
 
+		var releases []domain.Release
 		for _, releaseRef := range releasesRef {
 			tmdbRelease, err := h.tmdb.GetTVDetails(releaseRef.ShowId,
 				map[string]string{"append_to_response": "translations"})
 			if err != nil {
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				httpError500(ctx, fmt.Errorf("tmdb error tv-details [%v]: %w", tmdbRelease.Name, err))
 				return
 			}
 
@@ -143,10 +127,7 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 				h.mapper.ReleaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate))
 		}
 
-		if err = respond(res, releases); err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		ctx.JSON(http.StatusOK, releases)
 	}
 }
 
@@ -170,19 +151,4 @@ func calculateRange(pageQueryParam string, pastReleases int) (int, int) {
 		}
 		return amount, offset
 	}
-}
-
-func respond(res http.ResponseWriter, body interface{}) error {
-	res.Header().Add("Content-Type", "application/json")
-
-	bodyJson, err := json.Marshal(body)
-	if err != nil {
-		return fmt.Errorf("error parsing [%v] to json: %w", body, err)
-	}
-
-	if _, err = res.Write(bodyJson); err != nil {
-		return fmt.Errorf("error responding with [%v]: %w", bodyJson, err)
-	}
-
-	return nil
 }

@@ -2,101 +2,87 @@
 package api
 
 import (
-	"context"
 	"net/http"
-	"time"
 
-	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/v2"
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
 )
 
-func Init(store domain.Store, sessionsStore *postgresstore.PostgresStore,
+func Init(store domain.Store, sessionStore sessions.Store,
 	tmdbClient *tmdb.Client, traktClient *trakt.Client) (*Handler, error) {
 
 	h := &Handler{
-		Mux:      chi.NewMux(),
-		store:    store,
-		sessions: newSessionsManager(sessionsStore),
+		gin.Default(),
+		store,
 	}
 
-	registerMiddleware(h)
+	shows := &ShowHandler{store, tmdbClient, traktClient, new(DtoMapper)}
+	users := &UserHandler{store}
 
-	shows := ShowHandler{store, tmdbClient, traktClient, new(DtoMapper)}
-	users := UserHandler{store, h.sessions}
-	h.Route("/api", func(api chi.Router) {
-		api.Route("/shows", func(apiShows chi.Router) {
-			apiShows.Get("/popular", shows.PopularShows())
-			apiShows.Get("/{showId}", shows.Show())
-			apiShows.Get("/search", shows.SearchShows())
-			apiShows.Get("/upcoming", shows.UpcomingReleases())
-		})
+	h.Use(
+		gin.Logger(),
+		gin.Recovery(),
+		sessions.Sessions("session", sessionStore),
+		h.withUser(),
+	)
 
-		api.Route("/users", func(apiUsers chi.Router) {
-			apiUsers.Post("/register", users.Register())
-			// apiUsers.Post("/login", users.Login())
-			// apiUsers.Post("/logout", users.Logout())
-		})
+	showsApi := h.Group("/api/shows")
+	{
+		showsApi.GET("/popular", shows.PopularShows())
+		showsApi.GET("/:showsId", shows.Show())
+		showsApi.GET("/search", shows.SearchShows())
+		showsApi.GET("/releases", shows.UpcomingReleases())
+	}
 
-		api.Get("/ping", h.Ping())
-	})
+	usersApi := h.Group("/api/users")
+	{
+		usersApi.POST("/register", users.Register())
+		// usersApi.POST("/login", users.Login())
+		// usersApi.POST("/logout", users.Logout())
+	}
+
+	h.GET("/ping", h.Ping())
 
 	return h, nil
 }
 
-func registerMiddleware(h *Handler) {
-	h.Use(middleware.RequestID)
-	h.Use(middleware.Logger)
-	h.Use(middleware.Recoverer)
-	h.Use(middleware.Timeout(60 * time.Second))
-	h.Use(h.sessions.LoadAndSave)
-	h.Use(h.withUser)
-}
-
-func (h *Handler) Ping() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		_, _ = res.Write([]byte("Pong!"))
+func (h *Handler) Ping() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "Pong!")
 	}
 }
 
-func newSessionsManager(sessionsStore *postgresstore.PostgresStore) *scs.SessionManager {
-	sessions := scs.New()
-	sessions.Store = sessionsStore
-	return sessions
+func (h *Handler) withUser() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		session := sessions.Default(ctx)
+
+		if userId, ok := session.Get("userId").(int); ok {
+			if user, err := h.store.GetUser(userId); err == nil {
+				ctx.Set("user", user)
+			}
+		}
+
+		ctx.Next()
+	}
 }
 
-func (h *Handler) withUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		userId := h.sessions.GetInt(req.Context(), "user_id")
-		if userId == 0 {
-			next.ServeHTTP(res, req)
-			return
-		}
+func httpError400(ctx *gin.Context, err error) {
+	_ = ctx.AbortWithError(http.StatusBadRequest, err)
+}
 
-		user, err := h.store.GetUser(userId)
-		if err != nil {
-			next.ServeHTTP(res, req)
-			return
-		}
-
-		ctx := context.WithValue(req.Context(), "user", user)
-
-		next.ServeHTTP(res, req.WithContext(ctx))
-	})
+func httpError500(ctx *gin.Context, err error) {
+	_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 }
 
 type Handler struct {
-	*chi.Mux
-
-	store    domain.Store
-	sessions *scs.SessionManager
+	*gin.Engine
+	store domain.Store
 }
 
-// QueryParam & UrlParam don't serve a real purpose other than
+// UrlQuery & UrlParam don't serve a real purpose other than
 // clearer documentation of all params used in each endpoint
-type QueryParam = string
+type UrlQuery = string
 type UrlParam = string

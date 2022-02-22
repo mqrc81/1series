@@ -2,20 +2,22 @@
 package postgres
 
 import (
+	_ "database/sql"
 	"fmt"
 
-	"github.com/alexedwards/scs/postgresstore"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/postgres"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-func Init(dataSourceName string) (*Store, *postgresstore.PostgresStore, error) {
+func Init(dataSourceName string) (*Store, sessions.Store, error) {
 	db, err := sqlx.Connect("postgres", dataSourceName)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error opening database: %w", err)
+		return nil, nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
-	sessionsStore := postgresstore.New(db.DB)
+	sessionsStore, err := postgres.NewStore(db.DB)
 
 	return &Store{
 		&UserStore{db},

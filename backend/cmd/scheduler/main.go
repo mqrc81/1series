@@ -17,9 +17,8 @@ import (
 func main() {
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
-		if err := godotenv.Load(); err != nil {
-			log.Fatalln(err)
-		}
+		err := godotenv.Load()
+		checkError(err)
 	}
 
 	store, _, err := postgres.Init(os.Getenv("DATABASE_URL"))
