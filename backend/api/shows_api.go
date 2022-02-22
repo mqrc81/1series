@@ -12,6 +12,10 @@ import (
 	"github.com/mqrc81/zeries/trakt"
 )
 
+const (
+	releasesPerRequest = 20
+)
+
 type ShowHandler struct {
 	store  domain.Store
 	tmdb   *tmdb.Client
@@ -19,18 +23,16 @@ type ShowHandler struct {
 	mapper *DtoMapper
 }
 
-const (
-	releasesPerRequest = 20
-)
-
 // PopularShows GET /api/shows/popular
 func (h *ShowHandler) PopularShows() http.HandlerFunc {
+	const pageParam QueryParam = "page"
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		var shows []domain.Show
 
 		page := 1
-		if req.URL.Query().Has("page") {
-			page, _ = strconv.Atoi(req.URL.Query().Get("page"))
+		if req.URL.Query().Has(pageParam) {
+			page, _ = strconv.Atoi(req.URL.Query().Get(pageParam))
 		}
 
 		traktShows, err := h.trakt.GetShowsWatchedWeekly(page, 20)
@@ -58,10 +60,12 @@ func (h *ShowHandler) PopularShows() http.HandlerFunc {
 
 // Show GET /api/shows/{showId}
 func (h *ShowHandler) Show() http.HandlerFunc {
+	const showIdParam UrlParam = "showId"
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		var show domain.Show
 
-		id, _ := strconv.Atoi(chi.URLParam(req, "showId"))
+		id, _ := strconv.Atoi(chi.URLParam(req, showIdParam))
 
 		tmdbShow, err := h.tmdb.GetTVDetails(id, nil)
 		if err != nil {
@@ -80,10 +84,12 @@ func (h *ShowHandler) Show() http.HandlerFunc {
 
 // SearchShows GET /api/shows/search
 func (h *ShowHandler) SearchShows() http.HandlerFunc {
+	const searchTermParam QueryParam = "searchTerm"
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		var shows []domain.Show
 
-		searchTerm := req.URL.Query().Get("searchTerm")
+		searchTerm := req.URL.Query().Get(searchTermParam)
 		if searchTerm == "" {
 			http.Error(res, "empty search-term", http.StatusBadRequest)
 			return
@@ -106,6 +112,8 @@ func (h *ShowHandler) SearchShows() http.HandlerFunc {
 
 // UpcomingReleases GET /api/shows/upcoming
 func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
+	const pageParam QueryParam = "page"
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		var releases []domain.Release
 
@@ -115,7 +123,7 @@ func (h *ShowHandler) UpcomingReleases() http.HandlerFunc {
 			return
 		}
 
-		amount, offset := calculateRange(req.URL.Query().Get("page"), pastReleases)
+		amount, offset := calculateRange(req.URL.Query().Get(pageParam), pastReleases)
 
 		releasesRef, err := h.store.GetReleases(amount, offset)
 		if err != nil {

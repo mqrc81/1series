@@ -42,7 +42,7 @@ func Init(store domain.Store, sessionsStore *postgresstore.PostgresStore,
 			// apiUsers.Post("/logout", users.Logout())
 		})
 
-		api.Get("/check", h.HealthCheck())
+		api.Get("/ping", h.Ping())
 	})
 
 	return h, nil
@@ -57,9 +57,9 @@ func registerMiddleware(h *Handler) {
 	h.Use(h.withUser)
 }
 
-func (h *Handler) HealthCheck() http.HandlerFunc {
+func (h *Handler) Ping() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		_, _ = res.Write([]byte("Hello World"))
+		_, _ = res.Write([]byte("Pong!"))
 	}
 }
 
@@ -95,3 +95,8 @@ type Handler struct {
 	store    domain.Store
 	sessions *scs.SessionManager
 }
+
+// QueryParam & UrlParam don't serve a real purpose other than
+// clearer documentation of all params used in each endpoint
+type QueryParam = string
+type UrlParam = string
