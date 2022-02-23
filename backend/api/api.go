@@ -2,7 +2,9 @@
 package api
 
 import (
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/gorilla/sessions"
@@ -26,11 +28,11 @@ func Init(store domain.Store, sessionStore sessions.Store,
 
 	h.Use(
 		middleware.RequestID(),
-		middleware.Logger(),
 		middleware.Recover(),
 		// middleware.CSRF(),
 		session.Middleware(sessionStore),
 		h.withUser(),
+		h.logRequest(),
 	)
 
 	showsApi := h.Group("/api/shows")
@@ -55,7 +57,8 @@ func Init(store domain.Store, sessionStore sessions.Store,
 
 func (h *Handler) Ping() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		return ctx.JSON(http.StatusOK, "Pong!")
+		ctx.Logger().Info("Hey!")
+		return ctx.String(http.StatusOK, "Pong!")
 	}
 }
 
@@ -72,6 +75,36 @@ func (h *Handler) withUser() echo.MiddlewareFunc {
 			return next(ctx)
 		}
 	}
+}
+
+func (h *Handler) logRequest() echo.MiddlewareFunc {
+	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
+			msgFormat := "'%v' | req=[%v %v %v] res=[%v %v] user=[%v %v]"
+			if v.Error != nil {
+				log.Printf("ERROR: Http error occurred: "+msgFormat, v.Error,
+					v.Method, v.URI, v.QueryParams, v.Status, v.Latency, v.RemoteIP, usernameOrEmpty(ctx.Get("user")))
+			} else if v.Latency > 5*time.Second {
+				log.Printf("WARN: Latency surpassed 5 seconds: "+msgFormat, v.Latency,
+					v.Method, v.URI, v.QueryParams, v.Status, v.Error, v.RemoteIP, usernameOrEmpty(ctx.Get("user")))
+			}
+			return nil
+		},
+		LogError:       true,
+		LogLatency:     true,
+		LogMethod:      true,
+		LogURI:         true,
+		LogQueryParams: []string{"page", "searchTerm"},
+		LogStatus:      true,
+		LogRemoteIP:    true,
+	})
+}
+
+func usernameOrEmpty(userInf interface{}) string {
+	if user, ok := userInf.(domain.User); ok {
+		return user.Username
+	}
+	return ""
 }
 
 type Handler struct {
