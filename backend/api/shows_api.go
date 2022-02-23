@@ -35,7 +35,7 @@ func (h *ShowHandler) PopularShows() echo.HandlerFunc {
 		traktShows, err := h.trakt.GetShowsWatchedWeekly(page, 20)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Errorf("trakt error most-watched-shows [%v]: %w", page, err))
+				fmt.Sprintf("trakt error fetching most-watched-shows [%v]: %v", page, err.Error()))
 		}
 
 		var shows []domain.Show
@@ -43,7 +43,7 @@ func (h *ShowHandler) PopularShows() echo.HandlerFunc {
 			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), nil)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
-					fmt.Errorf("tmdb error tv-details [%v]: %w", traktShow.Ids(), err))
+					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", traktShow.Ids(), err.Error()))
 			}
 
 			shows = append(shows, h.mapper.ShowFromTmdbShow(tmdbShow))
@@ -60,13 +60,13 @@ func (h *ShowHandler) Show() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		showId, err := strconv.Atoi(ctx.Param(showIdParam))
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("invalid show-id [%v]", ctx.Param(showIdParam)))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid show-id [%v]", ctx.Param(showIdParam)))
 		}
 
 		tmdbShow, err := h.tmdb.GetTVDetails(showId, nil)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Errorf("tmdb error tv-details [%d]: %w", showId, err))
+				fmt.Sprintf("tmdb error fetching tv-details [%d]: %v", showId, err.Error()))
 		}
 
 		return ctx.JSON(http.StatusOK, h.mapper.ShowFromTmdbShow(tmdbShow))
@@ -80,13 +80,13 @@ func (h *ShowHandler) SearchShows() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		searchTerm := ctx.Param(searchTermParam)
 		if searchTerm == "" {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("invalid search-term [%v]", searchTerm))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid search-term [%v]", searchTerm))
 		}
 
 		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Errorf("tmdb error search-tv-show [%v]: %w", searchTerm, err))
+				fmt.Sprintf("tmdb error fetching search-tv-show [%v]: %v", searchTerm, err.Error()))
 		}
 
 		return ctx.JSON(http.StatusOK, h.mapper.ShowsFromTmdbShowsSearch(tmdbShows, 8))
@@ -100,14 +100,14 @@ func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		pastReleases, err := h.store.GetPastReleasesCount()
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
 		amount, offset := calculateRange(ctx.QueryParam(pageParam), pastReleases)
 
 		releasesRef, err := h.store.GetReleases(amount, offset)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
 		var releases []domain.Release
@@ -116,7 +116,7 @@ func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
 				map[string]string{"append_to_response": "translations"})
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError,
-					fmt.Errorf("tmdb error tv-details [%v]: %w", tmdbRelease.Name, err))
+					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", tmdbRelease.Name, err.Error()))
 			}
 
 			releases = append(releases,

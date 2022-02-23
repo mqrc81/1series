@@ -21,7 +21,7 @@ func Init(store domain.Store, sessionStore sessions.Store,
 		store,
 	}
 
-	shows := &ShowHandler{store, tmdbClient, traktClient, new(DtoMapper)}
+	shows := &ShowHandler{store, tmdbClient, traktClient, &DtoMapper{}}
 	users := &UserHandler{store}
 
 	h.Use(
