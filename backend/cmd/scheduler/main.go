@@ -21,7 +21,7 @@ func main() {
 		checkError(err)
 	}
 
-	store, _, err := postgres.Init(os.Getenv("DATABASE_URL"))
+	store, _, err := postgres.NewStore(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
 	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))

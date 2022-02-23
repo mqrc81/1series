@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Init(dataSourceName string) (*Store, sessions.Store, error) {
+func NewStore(dataSourceName string) (*Store, sessions.Store, error) {
 	db, err := sqlx.Connect("postgres", dataSourceName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error connecting to database: %w", err)

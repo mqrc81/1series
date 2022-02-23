@@ -22,7 +22,7 @@ func main() {
 		checkError(err)
 	}
 
-	store, sessionStore, err := postgres.Init(os.Getenv("DATABASE_URL"))
+	store, sessionStore, err := postgres.NewStore(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
 	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
@@ -31,7 +31,11 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	handler, err := api.Init(*store, sessionStore, tmdbClient, traktClient)
+	logger, err := api.NewLogger()
+	checkError(err)
+	defer logger.Sync()
+
+	handler, err := api.NewHandler(*store, sessionStore, tmdbClient, traktClient, logger)
 	checkError(err)
 
 	log.Println("Listening on " + os.Getenv("BACKEND_URL"))

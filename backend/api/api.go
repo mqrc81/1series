@@ -2,7 +2,7 @@
 package api
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,18 +13,21 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
+	"go.uber.org/zap"
 )
 
-func Init(store domain.Store, sessionStore sessions.Store,
-	tmdbClient *tmdb.Client, traktClient *trakt.Client) (*Handler, error) {
+func NewHandler(store domain.Store, sessionStore sessions.Store,
+	tmdbClient *tmdb.Client, traktClient *trakt.Client,
+	logger *zap.SugaredLogger) (*Handler, error) {
 
 	h := &Handler{
 		echo.New(),
 		store,
+		logger,
 	}
 
-	shows := &ShowHandler{store, tmdbClient, traktClient, &DtoMapper{}}
-	users := &UserHandler{store}
+	shows := &ShowHandler{store, tmdbClient, traktClient, &DtoMapper{}, logger}
+	users := &UserHandler{store, logger}
 
 	h.Use(
 		middleware.RequestID(),
@@ -80,36 +83,33 @@ func (h *Handler) withUser() echo.MiddlewareFunc {
 func (h *Handler) logRequest() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
-			msgFormat := "'%v' | req=[%v %v %v] res=[%v %v] user=[%v %v]"
 			if v.Error != nil {
-				log.Printf("ERROR: Http error occurred: "+msgFormat, v.Error,
-					v.Method, v.URI, v.QueryParams, v.Status, v.Latency, v.RemoteIP, usernameOrEmpty(ctx.Get("user")))
+				h.log.Errorw("Http error occurred",
+					"request", fmt.Sprint(v.Method, v.URI, v.Status),
+					"error", v.Error,
+					"latency", v.Latency,
+					"user", fmt.Sprint(ctx.Get("user"), v.RemoteIP))
 			} else if v.Latency > 5*time.Second {
-				log.Printf("WARN: Latency surpassed 5 seconds: "+msgFormat, v.Latency,
-					v.Method, v.URI, v.QueryParams, v.Status, v.Error, v.RemoteIP, usernameOrEmpty(ctx.Get("user")))
+				h.log.Warnw("Http error occurred",
+					"request", fmt.Sprint(v.Method, v.URI, v.Status),
+					"latency", v.Latency,
+					"user", fmt.Sprint(ctx.Get("user"), v.RemoteIP))
 			}
 			return nil
 		},
-		LogError:       true,
-		LogLatency:     true,
-		LogMethod:      true,
-		LogURI:         true,
-		LogQueryParams: []string{"page", "searchTerm"},
-		LogStatus:      true,
-		LogRemoteIP:    true,
+		LogMethod:   true,
+		LogURI:      true,
+		LogStatus:   true,
+		LogError:    true,
+		LogLatency:  true,
+		LogRemoteIP: true,
 	})
-}
-
-func usernameOrEmpty(userInf interface{}) string {
-	if user, ok := userInf.(domain.User); ok {
-		return user.Username
-	}
-	return ""
 }
 
 type Handler struct {
 	*echo.Echo
 	store domain.Store
+	log   *zap.SugaredLogger
 }
 
 // QueryParam & UrlParam don't serve a real purpose other than

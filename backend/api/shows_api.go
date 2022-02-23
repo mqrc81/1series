@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
+	"go.uber.org/zap"
 )
 
 const (
@@ -20,6 +21,7 @@ type ShowHandler struct {
 	tmdb   *tmdb.Client
 	trakt  *trakt.Client
 	mapper *DtoMapper
+	log    *zap.SugaredLogger
 }
 
 // PopularShows GET /api/shows/popular
