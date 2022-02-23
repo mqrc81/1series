@@ -16,7 +16,6 @@ import (
 // TODO: initialize genres & networks
 func main() {
 	log.Println("Starting application...")
-
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
 		err := godotenv.Load()
@@ -36,7 +35,7 @@ func main() {
 	checkError(err)
 
 	log.Println("Listening on " + os.Getenv("BACKEND_URL"))
-	err = handler.Run(":" + os.Getenv("PORT"))
+	err = handler.Start(":" + os.Getenv("PORT"))
 	checkError(err)
 }
 

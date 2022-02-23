@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
 )
@@ -15,7 +17,7 @@ func Init(store domain.Store, sessionStore sessions.Store,
 	tmdbClient *tmdb.Client, traktClient *trakt.Client) (*Handler, error) {
 
 	h := &Handler{
-		gin.Default(),
+		echo.New(),
 		store,
 	}
 
@@ -23,9 +25,10 @@ func Init(store domain.Store, sessionStore sessions.Store,
 	users := &UserHandler{store}
 
 	h.Use(
-		gin.Logger(),
-		gin.Recovery(),
-		sessions.Sessions("session", sessionStore),
+		middleware.RequestID(),
+		middleware.Logger(),
+		middleware.Recover(),
+		session.Middleware(sessionStore),
 		h.withUser(),
 	)
 
@@ -49,40 +52,33 @@ func Init(store domain.Store, sessionStore sessions.Store,
 	return h, nil
 }
 
-func (h *Handler) Ping() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "Pong!")
+func (h *Handler) Ping() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		return ctx.JSON(http.StatusOK, "Pong!")
 	}
 }
 
-func (h *Handler) withUser() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		session := sessions.Default(ctx)
-
-		if userId, ok := session.Get("userId").(int); ok {
-			if user, err := h.store.GetUser(userId); err == nil {
-				ctx.Set("user", user)
+func (h *Handler) withUser() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			if mySession, err := session.Get("my-session", ctx); err == nil {
+				if userId, ok := mySession.Values["userId"].(int); ok {
+					if user, err := h.store.GetUser(userId); err == nil {
+						ctx.Set("user", user)
+					}
+				}
 			}
+			return next(ctx)
 		}
-
-		ctx.Next()
 	}
-}
-
-func httpError400(ctx *gin.Context, err error) {
-	_ = ctx.AbortWithError(http.StatusBadRequest, err)
-}
-
-func httpError500(ctx *gin.Context, err error) {
-	_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 }
 
 type Handler struct {
-	*gin.Engine
+	*echo.Echo
 	store domain.Store
 }
 
-// UrlQuery & UrlParam don't serve a real purpose other than
+// QueryParam & UrlParam don't serve a real purpose other than
 // clearer documentation of all params used in each endpoint
-type UrlQuery = string
+type QueryParam = string
 type UrlParam = string

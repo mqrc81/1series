@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
 )
 
@@ -10,8 +10,9 @@ type UserHandler struct {
 }
 
 // Register POST /api/users/register
-func (h *UserHandler) Register() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+func (h *UserHandler) Register() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
 		// TODO
+		return nil
 	}
 }

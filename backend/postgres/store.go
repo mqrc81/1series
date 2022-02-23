@@ -5,8 +5,8 @@ import (
 	_ "database/sql"
 	"fmt"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/postgres"
+	"github.com/antonlindstrom/pgstore"
+	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -17,7 +17,8 @@ func Init(dataSourceName string) (*Store, sessions.Store, error) {
 		return nil, nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
-	sessionsStore, err := postgres.NewStore(db.DB)
+	// TODO
+	sessionsStore, err := pgstore.NewPGStoreFromPool(db.DB)
 
 	return &Store{
 		&UserStore{db},
