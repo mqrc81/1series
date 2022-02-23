@@ -28,6 +28,7 @@ func Init(store domain.Store, sessionStore sessions.Store,
 		middleware.RequestID(),
 		middleware.Logger(),
 		middleware.Recover(),
+		// middleware.CSRF(),
 		session.Middleware(sessionStore),
 		h.withUser(),
 	)
@@ -47,7 +48,7 @@ func Init(store domain.Store, sessionStore sessions.Store,
 		// usersApi.POST("/logout", users.Logout())
 	}
 
-	h.GET("/ping", h.Ping())
+	h.GET("/api/ping", h.Ping())
 
 	return h, nil
 }

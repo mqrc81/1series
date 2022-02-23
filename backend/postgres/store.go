@@ -17,15 +17,17 @@ func Init(dataSourceName string) (*Store, sessions.Store, error) {
 		return nil, nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
-	// TODO
-	sessionsStore, err := pgstore.NewPGStoreFromPool(db.DB)
+	sessionStore, err := pgstore.NewPGStoreFromPool(db.DB)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error initializing session store: %w", err)
+	}
 
 	return &Store{
 		&UserStore{db},
 		&GenreStore{db},
 		&NetworkStore{db},
 		&ReleaseStore{db},
-	}, sessionsStore, nil
+	}, sessionStore, nil
 }
 
 type Store struct {
