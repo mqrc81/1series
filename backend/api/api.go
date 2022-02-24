@@ -2,7 +2,6 @@
 package api
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -32,10 +31,10 @@ func NewHandler(store domain.Store, sessionStore sessions.Store,
 	h.Use(
 		middleware.RequestID(),
 		middleware.Recover(),
+		h.logRequest(),
 		// middleware.CSRF(),
 		session.Middleware(sessionStore),
 		h.withUser(),
-		h.logRequest(),
 	)
 
 	showsApi := h.Group("/api/shows")
@@ -88,25 +87,19 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
-				h.log.Error("Http error occurred",
-					"request", fmt.Sprint(v.Method, v.URI, v.Status),
-					"error", v.Error,
-					"latency", v.Latency,
-					"user", fmt.Sprint(ctx.Get("user"), v.RemoteIP))
+				h.log.Error("Http error occurred: request=[%v %v %v] error=[%v] latency=[%v]",
+					v.Method, v.URI, v.Status, v.Error, v.Latency)
 			} else if v.Latency > 5*time.Second {
-				h.log.Warn("Http error occurred",
-					"request", fmt.Sprint(v.Method, v.URI, v.Status),
-					"latency", v.Latency,
-					"user", fmt.Sprint(ctx.Get("user"), v.RemoteIP))
+				h.log.Warn("Latency surpassed 5 seconds: request=[%v %v %v] error=[%v] latency=[%v]",
+					v.Method, v.URI, v.Status, v.Error, v.Latency)
 			}
 			return nil
 		},
-		LogMethod:   true,
-		LogURI:      true,
-		LogStatus:   true,
-		LogError:    true,
-		LogLatency:  true,
-		LogRemoteIP: true,
+		LogMethod:  true,
+		LogURI:     true,
+		LogStatus:  true,
+		LogError:   true,
+		LogLatency: true,
 	})
 }
 
