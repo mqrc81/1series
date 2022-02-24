@@ -3,6 +3,7 @@ package api
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -19,7 +20,6 @@ import (
 func NewHandler(store domain.Store, sessionStore sessions.Store,
 	tmdbClient *tmdb.Client, traktClient *trakt.Client,
 	logger util.Logger) (*Handler, error) {
-
 	h := &Handler{
 		echo.New(),
 		store,
@@ -54,6 +54,9 @@ func NewHandler(store domain.Store, sessionStore sessions.Store,
 	}
 
 	h.GET("/api/ping", h.Ping())
+
+	// Disable internal echo logs (like banner)
+	h.Logger.SetOutput(io.Discard)
 
 	return h, nil
 }

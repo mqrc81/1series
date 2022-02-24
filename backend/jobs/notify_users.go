@@ -20,6 +20,6 @@ func (e NotifyUsersJobExecutor) logStart() {
 }
 
 func (e NotifyUsersJobExecutor) logEnd(actions int) error {
-	e.Info("Completed notify-users job with %d users notified\n", actions)
+	e.Info("Completed notify-users job with %d users notified", actions)
 	return nil
 }

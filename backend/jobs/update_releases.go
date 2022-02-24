@@ -104,7 +104,7 @@ func (e UpdateReleasesJobExecutor) hasRelevantType(show *tmdb.TVDetails) bool {
 		return true
 	}
 	if t != "Reality" && t != "News" && t != "Talk Show" && t != "Video" {
-		e.Warn("Unknown type [%v] detected for show [%d, %v]\n", show.Type, show.ID, show.Name)
+		e.Warn("Unknown type [%v] detected for show [%d, %v]", show.Type, show.ID, show.Name)
 	}
 	return false
 }
@@ -121,6 +121,6 @@ func (e UpdateReleasesJobExecutor) logStart() {
 }
 
 func (e UpdateReleasesJobExecutor) logEnd(actions int) error {
-	e.Info("Completed update-releases job with %d releases updated\n", actions)
+	e.Info("Completed update-releases job with %d releases updated", actions)
 	return nil
 }
