@@ -12,14 +12,13 @@ func (e NotifyUsersJobExecutor) Execute() error {
 
 type NotifyUsersJobExecutor struct {
 	// TODO
-	util.Logger
 }
 
 func (e NotifyUsersJobExecutor) logStart() {
-	e.Info("Running notify-users job")
+	util.LogInfo("Running notify-users job")
 }
 
 func (e NotifyUsersJobExecutor) logEnd(actions int) error {
-	e.Info("Completed notify-users job with %d users notified", actions)
+	util.LogInfo("Completed notify-users job with %d users notified", actions)
 	return nil
 }

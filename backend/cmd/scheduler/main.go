@@ -14,8 +14,6 @@ import (
 	"github.com/mqrc81/zeries/util"
 )
 
-var logger = util.NewLogger()
-
 func main() {
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
@@ -32,15 +30,15 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	err = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient, logger).Execute()
+	err = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient).Execute()
 	checkError(err)
 
-	err = jobs.NewNotifyUsersJob(logger).Execute()
+	err = jobs.NewNotifyUsersJob().Execute()
 	checkError(err)
 }
 
 func checkError(err error) {
 	if err != nil {
-		logger.Panic(err)
+		util.LogPanic(err)
 	}
 }

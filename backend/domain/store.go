@@ -13,6 +13,8 @@ type Store interface {
 
 type UserStore interface {
 	GetUser(userId int) (User, error)
+	GetUserByUsername(username string) (User, error)
+	GetUserByEmail(email string) (User, error)
 }
 
 type GenreStore interface {

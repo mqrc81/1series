@@ -16,17 +16,20 @@ import (
 	"github.com/mqrc81/zeries/util"
 )
 
-func NewHandler(store domain.Store, sessionStore sessions.Store,
-	tmdbClient *tmdb.Client, traktClient *trakt.Client,
-	logger util.Logger) (*Handler, error) {
+func NewHandler(store domain.Store, sessionStore sessions.Store, tmdbClient *tmdb.Client,
+	traktClient *trakt.Client) (*Handler, error) {
+
 	h := &Handler{
 		echo.New(),
 		store,
-		logger,
 	}
 
-	shows := &ShowHandler{store, tmdbClient, traktClient, &DtoMapper{}, logger}
-	users := &UserHandler{store, logger}
+	h.Logger.SetOutput(io.Discard)
+	h.HideBanner = true
+	h.Validator = NewValidator(store)
+
+	shows := &ShowHandler{store, tmdbClient, traktClient, &DtoMapper{}}
+	users := &UserHandler{store}
 
 	h.Use(
 		middleware.RequestID(),
@@ -54,15 +57,12 @@ func NewHandler(store domain.Store, sessionStore sessions.Store,
 
 	h.GET("/api/ping", h.Ping())
 
-	// Disable internal echo logs (like banner)
-	h.Logger.SetOutput(io.Discard)
-
 	return h, nil
 }
 
 func (h *Handler) Ping() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		h.log.Warn("Pong",
+		util.LogWarn("Pong",
 			"idk", 3)
 		return ctx.String(http.StatusOK, "Pong!")
 	}
@@ -87,10 +87,10 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
-				h.log.Error("Http error occurred: request=[%v %v %v] error=[%v] latency=[%v]",
+				util.LogError("Http error occurred: request=[%v %v %v] error=[%v] latency=[%v]",
 					v.Method, v.URI, v.Status, v.Error, v.Latency)
-			} else if v.Latency > 5*time.Second {
-				h.log.Warn("Latency surpassed 5 seconds: request=[%v %v %v] error=[%v] latency=[%v]",
+			} else if v.Latency > 3*time.Second {
+				util.LogWarn("Latency surpassed 3 seconds: request=[%v %v %v] error=[%v] latency=[%v]",
 					v.Method, v.URI, v.Status, v.Error, v.Latency)
 			}
 			return nil
@@ -106,7 +106,6 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 type Handler struct {
 	*echo.Echo
 	store domain.Store
-	log   util.Logger
 }
 
 // QueryParam & UrlParam don't serve a real purpose other than

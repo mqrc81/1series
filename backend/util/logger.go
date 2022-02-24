@@ -5,8 +5,6 @@ import (
 	"os"
 )
 
-const logArgs = log.Ldate | log.Ltime
-
 const (
 	reset  = "\033[0m"
 	cyan   = "\033[36m"
@@ -14,40 +12,25 @@ const (
 	red    = "\033[31m"
 )
 
-type Logger interface {
-	Info(msg string, args ...interface{})
-	Warn(msg string, args ...interface{})
-	Error(msg string, args ...interface{})
-	Panic(err error)
+var (
+	infoLogger  = log.New(log.Writer(), cyan+"INFO: "+reset, log.Ldate|log.Ltime)
+	warnLogger  = log.New(log.Writer(), yellow+"WARN: "+reset, log.Ldate|log.Ltime)
+	errorLogger = log.New(log.Writer(), red+"ERROR: "+reset, log.Ldate|log.Ltime)
+)
+
+func LogInfo(msg string, args ...interface{}) {
+	infoLogger.Printf(msg+"\n", args...)
 }
 
-type logger struct {
-	info  *log.Logger
-	warn  *log.Logger
-	error *log.Logger
+func LogWarn(msg string, args ...interface{}) {
+	warnLogger.Printf(msg+"\n", args...)
 }
 
-func NewLogger() Logger {
-	return &logger{
-		info:  log.New(log.Writer(), cyan+"INFO: "+reset, logArgs),
-		warn:  log.New(log.Writer(), yellow+"WARN: "+reset, logArgs),
-		error: log.New(log.Writer(), red+"ERROR: "+reset, logArgs),
-	}
+func LogError(msg string, args ...interface{}) {
+	errorLogger.Printf(msg+"\n", args...)
 }
 
-func (l *logger) Info(msg string, args ...interface{}) {
-	l.info.Printf(msg+"\n", args...)
-}
-
-func (l *logger) Warn(msg string, args ...interface{}) {
-	l.warn.Printf(msg+"\n", args...)
-}
-
-func (l *logger) Error(msg string, args ...interface{}) {
-	l.error.Printf(msg+"\n", args...)
-}
-
-func (l *logger) Panic(err error) {
-	l.error.Printf(err.Error() + "\n")
+func LogPanic(err error) {
+	errorLogger.Printf(err.Error() + "\n")
 	os.Exit(1)
 }

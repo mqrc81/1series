@@ -5,12 +5,7 @@ import (
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/util"
 )
-
-var e = UpdateReleasesJobExecutor{
-	Logger: util.NewLogger(),
-}
 
 type TraktShow struct {
 	Ids struct {
@@ -103,7 +98,7 @@ func Test_hasRelevantIds(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := e.hasRelevantIds(tt.args); got != tt.want {
+			if got := hasRelevantIds(tt.args); got != tt.want {
 				t.Errorf("hasRelevantIds() = %v, want %v", got, tt.want)
 			}
 		})
@@ -259,7 +254,7 @@ func Test_hasRelevantInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := e.hasRelevantInfo(tt.args); got != tt.want {
+			if got := hasRelevantInfo(tt.args); got != tt.want {
 				t.Errorf("hasRelevantInfo() = %v, want %v", got, tt.want)
 			}
 		})
