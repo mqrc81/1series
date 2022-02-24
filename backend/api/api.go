@@ -13,12 +13,12 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
-	"go.uber.org/zap"
+	"github.com/mqrc81/zeries/util"
 )
 
 func NewHandler(store domain.Store, sessionStore sessions.Store,
 	tmdbClient *tmdb.Client, traktClient *trakt.Client,
-	logger *zap.SugaredLogger) (*Handler, error) {
+	logger util.Logger) (*Handler, error) {
 
 	h := &Handler{
 		echo.New(),
@@ -60,7 +60,8 @@ func NewHandler(store domain.Store, sessionStore sessions.Store,
 
 func (h *Handler) Ping() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		ctx.Logger().Info("Hey!")
+		h.log.Warn("Pong",
+			"idk", 3)
 		return ctx.String(http.StatusOK, "Pong!")
 	}
 }
@@ -84,13 +85,13 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
-				h.log.Errorw("Http error occurred",
+				h.log.Error("Http error occurred",
 					"request", fmt.Sprint(v.Method, v.URI, v.Status),
 					"error", v.Error,
 					"latency", v.Latency,
 					"user", fmt.Sprint(ctx.Get("user"), v.RemoteIP))
 			} else if v.Latency > 5*time.Second {
-				h.log.Warnw("Http error occurred",
+				h.log.Warn("Http error occurred",
 					"request", fmt.Sprint(v.Method, v.URI, v.Status),
 					"latency", v.Latency,
 					"user", fmt.Sprint(ctx.Get("user"), v.RemoteIP))
@@ -109,7 +110,7 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 type Handler struct {
 	*echo.Echo
 	store domain.Store
-	log   *zap.SugaredLogger
+	log   util.Logger
 }
 
 // QueryParam & UrlParam don't serve a real purpose other than

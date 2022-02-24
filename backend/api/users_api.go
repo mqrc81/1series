@@ -3,12 +3,12 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
-	"go.uber.org/zap"
+	"github.com/mqrc81/zeries/util"
 )
 
 type UserHandler struct {
 	store domain.Store
-	log   *zap.SugaredLogger
+	log   util.Logger
 }
 
 // Register POST /api/users/register

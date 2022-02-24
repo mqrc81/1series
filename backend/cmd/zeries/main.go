@@ -3,7 +3,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/cyruzin/golang-tmdb"
@@ -11,11 +10,14 @@ import (
 	"github.com/mqrc81/zeries/api"
 	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/zeries/util"
 )
+
+var logger = util.NewLogger()
 
 // TODO: initialize genres & networks
 func main() {
-	log.Println("Starting application...")
+	logger.Info("Starting application...")
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
 		err := godotenv.Load()
@@ -31,20 +33,16 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	logger, err := api.NewLogger()
-	checkError(err)
-	defer logger.Sync()
-
 	handler, err := api.NewHandler(*store, sessionStore, tmdbClient, traktClient, logger)
 	checkError(err)
 
-	log.Println("Listening on " + os.Getenv("BACKEND_URL"))
+	logger.Info("Listening on " + os.Getenv("BACKEND_URL"))
 	err = handler.Start(":" + os.Getenv("PORT"))
 	checkError(err)
 }
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatalln(err)
+		logger.Panic(err)
 	}
 }
