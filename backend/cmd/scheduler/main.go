@@ -4,7 +4,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/cyruzin/golang-tmdb"
@@ -12,7 +11,10 @@ import (
 	"github.com/mqrc81/zeries/jobs"
 	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/zeries/util"
 )
+
+var logger = util.NewLogger()
 
 func main() {
 	// Environment variables need to be initialized from .env file first when ran locally
@@ -30,15 +32,15 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	err = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient).Execute()
+	err = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient, logger).Execute()
 	checkError(err)
 
-	err = jobs.NewNotifyUsersJob().Execute()
+	err = jobs.NewNotifyUsersJob(logger).Execute()
 	checkError(err)
 }
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatalln(err)
+		logger.Panic(err)
 	}
 }

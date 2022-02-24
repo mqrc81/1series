@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const logArgs = log.Ldate | log.Ltime | log.Lshortfile
+const logArgs = log.Ldate | log.Ltime
 
 const (
 	reset  = "\033[0m"

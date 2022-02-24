@@ -2,12 +2,12 @@ package jobs
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/zeries/util"
 )
 
 const (
@@ -33,17 +33,17 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 		}
 
 		for _, traktRelease := range traktReleases {
-			if hasRelevantIds(traktRelease) {
+			if e.hasRelevantIds(traktRelease) {
 				tmdbShow, err := e.tmdb.GetTVDetails(traktRelease.TmdbId(),
 					map[string]string{"append_to_response": "translations"})
 				if err != nil {
 					// On rare occasions trakt's tmdb-id might be incorrect
 					// We treat this case as if jobs#hasRelevantIds was false
-					log.Printf("Incorrect tmdb-id [%v]: %v", traktRelease.Ids(), err)
+					e.Warn("Incorrect tmdb-id [%v]: %v", traktRelease.Ids(), err)
 					continue
 				}
 
-				if hasRelevantInfo(tmdbShow) {
+				if e.hasRelevantInfo(tmdbShow) {
 					if err = e.store.SaveRelease(domain.ReleaseRef{
 						ShowId:       traktRelease.TmdbId(),
 						SeasonNumber: traktRelease.SeasonNumber(),
@@ -75,21 +75,21 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	return e.logEnd(releasesUpdated)
 }
 
-func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
+func (e UpdateReleasesJobExecutor) hasRelevantIds(release trakt.SeasonPremieresDto) bool {
 	ids := release.Show.Ids
 	return ids.Tmdb != 0 && ids.Tvdb != 0 && ids.Imdb != "" && ids.Slug != ""
 }
 
-func hasRelevantInfo(show *tmdb.TVDetails) bool {
+func (e UpdateReleasesJobExecutor) hasRelevantInfo(show *tmdb.TVDetails) bool {
 	return len(show.Genres) > 0 &&
 		len(show.Networks) > 0 &&
 		len(show.Overview) > 0 &&
 		len(show.Seasons) > 0 &&
-		hasEnglishTranslation(show.Translations) &&
-		hasRelevantType(show)
+		e.hasEnglishTranslation(show.Translations) &&
+		e.hasRelevantType(show)
 }
 
-func hasEnglishTranslation(translations *tmdb.TVTranslations) bool {
+func (e UpdateReleasesJobExecutor) hasEnglishTranslation(translations *tmdb.TVTranslations) bool {
 	for _, translation := range translations.Translations {
 		if translation.Iso639_1 == "en" {
 			return true
@@ -98,13 +98,13 @@ func hasEnglishTranslation(translations *tmdb.TVTranslations) bool {
 	return false
 }
 
-func hasRelevantType(show *tmdb.TVDetails) bool {
+func (e UpdateReleasesJobExecutor) hasRelevantType(show *tmdb.TVDetails) bool {
 	t := show.Type
 	if t == "Scripted" || t == "Miniseries" || t == "Documentary" {
 		return true
 	}
 	if t != "Reality" && t != "News" && t != "Talk Show" && t != "Video" {
-		log.Printf("Unknown type [%v] detected for show [%d, %v]\n", show.Type, show.ID, show.Name)
+		e.Warn("Unknown type [%v] detected for show [%d, %v]\n", show.Type, show.ID, show.Name)
 	}
 	return false
 }
@@ -113,13 +113,14 @@ type UpdateReleasesJobExecutor struct {
 	store domain.Store
 	tmdb  *tmdb.Client
 	trakt *trakt.Client
+	util.Logger
 }
 
 func (e UpdateReleasesJobExecutor) logStart() {
-	log.Println("Running update-releases job")
+	e.Info("Running update-releases job")
 }
 
 func (e UpdateReleasesJobExecutor) logEnd(actions int) error {
-	log.Printf("Completed update-releases job with %d releases updated\n", actions)
+	e.Info("Completed update-releases job with %d releases updated\n", actions)
 	return nil
 }
