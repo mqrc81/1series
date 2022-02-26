@@ -36,7 +36,7 @@ jobs:
         with:
           heroku_api_key: ${{secrets.HEROKU_KEY}}
           heroku_app_name: "zeries-api"
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          heroku_email: "ugaugapower@gmail.com"
           appdir: "backend"
           healthcheck: "https://zeries-api.herokuapp.com/api/ping"
           checkstring: "Pong!"
