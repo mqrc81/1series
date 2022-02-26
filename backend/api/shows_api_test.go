@@ -21,12 +21,12 @@ func Test_calculateRange(t *testing.T) {
 		{
 			name: "#1",
 			args: args{pageQueryParam: "", pastReleases: 55},
-			want: want{amount: 40, offset: 55},
+			want: want{amount: 20, offset: 55},
 		},
 		{
 			name: "#2",
 			args: args{pageQueryParam: "1", pastReleases: 55},
-			want: want{amount: 20, offset: 95},
+			want: want{amount: 20, offset: 75},
 		},
 		{
 			name: "#3",
@@ -41,12 +41,12 @@ func Test_calculateRange(t *testing.T) {
 		{
 			name: "#5",
 			args: args{pageQueryParam: "3", pastReleases: 55},
-			want: want{amount: 20, offset: 135},
+			want: want{amount: 20, offset: 115},
 		},
 		{
 			name: "#6",
 			args: args{pageQueryParam: "abc", pastReleases: 55},
-			want: want{amount: 40, offset: 55},
+			want: want{amount: 20, offset: 55},
 		},
 	}
 	for _, tt := range tests {

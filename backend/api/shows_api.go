@@ -130,21 +130,25 @@ func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
 func calculateRange(pageQueryParam string, pastReleases int) (int, int) {
 	page, _ := strconv.Atoi(pageQueryParam)
 
-	if page == 0 {
-		// For first request, return 40 releases
-		return releasesPerRequest * 2, pastReleases
-	} else if page > 0 {
-		// For pages 1+ return 20 releases
-		return releasesPerRequest, pastReleases + releasesPerRequest*(page+1)
-	} else {
-		// For negative pages return 20 releases or max releases left for last page
-		offset := pastReleases + releasesPerRequest*page
-		amount := releasesPerRequest
-		if offset <= 0 {
-			// The last possible page for past releases has been reached
-			amount += offset
-			offset = 0
-		}
-		return amount, offset
+	if page < 0 {
+		return calculateRangeForPastReleases(pastReleases, page)
 	}
+	return calculateRangeForUpcomingReleases(pastReleases, page)
+}
+
+func calculateRangeForUpcomingReleases(pastReleases int, page int) (int, int) {
+	// For pages 0+ return 20 releases
+	return releasesPerRequest, pastReleases + releasesPerRequest*(page)
+}
+
+func calculateRangeForPastReleases(pastReleases int, page int) (int, int) {
+	// For negative pages return 20 releases or max releases left for last page
+	offset := pastReleases + releasesPerRequest*page
+	amount := releasesPerRequest
+	if offset <= 0 {
+		// The last possible page for past releases has been reached
+		amount += offset
+		offset = 0
+	}
+	return amount, offset
 }

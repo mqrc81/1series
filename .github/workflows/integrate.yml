@@ -1,9 +1,7 @@
-name: CI
+name: CI & CD
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches: [ master ]
 
 jobs:
@@ -26,3 +24,16 @@ jobs:
       - name: Test
         working-directory: ./backend
         run: go test -v ./...
+
+  CD:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_KEY}}
+          heroku_app_name: "zeries-api"
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          app_dir: "backend"
+          healthcheck: "https://zeries-api.herokapp.com/api/ping"
+          checkstring: "Pong!"
