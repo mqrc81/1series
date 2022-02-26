@@ -2,6 +2,8 @@ package api
 
 import (
 	"testing"
+
+	"github.com/nbio/st"
 )
 
 func Test_calculateRange(t *testing.T) {
@@ -52,12 +54,10 @@ func Test_calculateRange(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAmount, gotOffset := calculateRange(tt.args.pageQueryParam, tt.args.pastReleases)
-			if gotAmount != tt.amount {
-				t.Errorf("calculateRange() amount got = %v, want %v", gotAmount, tt.amount)
-			}
-			if gotOffset != tt.offset {
-				t.Errorf("calculateRange() offset got = %v, want %v", gotOffset, tt.offset)
-			}
+
+			st.Expect(t, gotAmount, tt.amount)
+			st.Expect(t, gotOffset, tt.offset)
+
 		})
 	}
 }

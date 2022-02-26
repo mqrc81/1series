@@ -5,6 +5,7 @@ import (
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/util"
 )
 
 const (
@@ -72,6 +73,7 @@ func releaseFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int, airDate time.Tim
 
 func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	if seasonNumber > len(dto.Seasons) {
+		util.LogError("Tmdb show [%d, %v] has no season [%v]", dto.ID, dto.Name, seasonNumber)
 		return domain.Season{}
 	}
 	season := dto.Seasons[seasonNumber-1]
@@ -83,7 +85,4 @@ func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 		Poster:        tmdbImageUrl + season.PosterPath,
 		EpisodesCount: season.EpisodeCount,
 	}
-}
-
-type DtoMapper struct {
 }

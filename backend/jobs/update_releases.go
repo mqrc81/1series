@@ -50,7 +50,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 						AirDate:      traktRelease.AirDate(),
 					}, expiry); err != nil {
 						return fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
-							traktRelease.TmdbId(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
+							traktRelease.Ids(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
 					}
 					releasesUpdated++
 				}

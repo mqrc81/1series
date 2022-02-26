@@ -13,6 +13,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.6.3
 	github.com/lib/pq v1.10.4
+	github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32
 	github.com/spazzymoto/echo-scs-session v1.0.0
 )
 

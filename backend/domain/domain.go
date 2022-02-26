@@ -52,10 +52,14 @@ type Network struct {
 }
 
 type User struct {
-	Id                    int    `db:"id"`
-	Username              string `db:"username"`
-	Email                 string `db:"email"`
-	Password              string `db:"password"`
-	NotifyReleases        bool   `db:"notify_releases"`
-	NotifyRecommendations bool   `db:"notify_recommendations"`
+	Id       int    `db:"id"`
+	Username string `db:"username"`
+	Email    string `db:"email"`
+	Password string `db:"password"`
+	EmailOptions
+}
+
+type EmailOptions struct {
+	NotifyReleases        bool `db:"notify_releases"`
+	NotifyRecommendations bool `db:"notify_recommendations"`
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/trakt"
+	"github.com/nbio/st"
 )
 
 type TraktShow struct {
@@ -98,9 +99,9 @@ func Test_hasRelevantIds(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := hasRelevantIds(tt.args); got != tt.want {
-				t.Errorf("hasRelevantIds() = %v, want %v", got, tt.want)
-			}
+
+			st.Expect(t, hasRelevantIds(tt.args), tt.want)
+
 		})
 	}
 }
@@ -254,9 +255,9 @@ func Test_hasRelevantInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := hasRelevantInfo(tt.args); got != tt.want {
-				t.Errorf("hasRelevantInfo() = %v, want %v", got, tt.want)
-			}
+
+			st.Expect(t, hasRelevantInfo(tt.args), tt.want)
+
 		})
 	}
 }
