@@ -38,5 +38,7 @@ jobs:
           heroku_app_name: "zeries-api"
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           appdir: "backend"
+          procfile: "web: zeries"
           healthcheck: "https://zeries-api.herokuapp.com/api/ping"
           checkstring: "Pong!"
+          rollbackonhealthcheckfailed: true
