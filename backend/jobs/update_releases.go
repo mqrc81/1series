@@ -59,7 +59,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 
 		if i == 0 {
 			// The first iteration takes care of all past releases
-			if err := e.store.SetPastReleasesCount(releasesUpdated); err != nil {
+			if err = e.store.SetPastReleasesCount(releasesUpdated); err != nil {
 				return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 			}
 		}

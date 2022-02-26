@@ -2,24 +2,18 @@
 package postgres
 
 import (
+	"database/sql"
 	_ "database/sql"
 	"fmt"
 
-	"github.com/antonlindstrom/pgstore"
-	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-func NewStore(dataSourceName string) (*Store, sessions.Store, error) {
+func NewStore(dataSourceName string) (*Store, *sql.DB, error) {
 	db, err := sqlx.Connect("postgres", dataSourceName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error connecting to database: %w", err)
-	}
-
-	sessionStore, err := pgstore.NewPGStoreFromPool(db.DB)
-	if err != nil {
-		return nil, nil, fmt.Errorf("error initializing session store: %w", err)
 	}
 
 	return &Store{
@@ -27,7 +21,7 @@ func NewStore(dataSourceName string) (*Store, sessions.Store, error) {
 		&GenreStore{db},
 		&NetworkStore{db},
 		&ReleaseStore{db},
-	}, sessionStore, nil
+	}, db.DB, nil
 }
 
 type Store struct {

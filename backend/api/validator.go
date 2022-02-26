@@ -1,75 +1,38 @@
 package api
 
-import (
-	"fmt"
-	"regexp"
-
-	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/domain"
-)
-
 const (
 	emailRegex = `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
 )
 
-func NewValidator(store domain.Store) echo.Validator {
-	return validator{store}
-}
-
-func (v validator) Validate(i interface{}) error {
-	return i.(formValidator).validate(v.store)
-}
+type FormErrors map[string]string
 
 type RegisterForm struct {
 	Username string `form:"username"`
 	Email    string `form:"email"`
 	Password string `form:"password"`
+
+	UsernameTaken bool
+	EmailTaken    bool
+	FormErrors
 }
 
-func (r RegisterForm) validate(store domain.Store) error {
-	errorsAndFields := make(map[string]string)
+func (f *RegisterForm) Validate() bool {
+	f.FormErrors = FormErrors{}
 
-	if matched, _ := regexp.MatchString(emailRegex, r.Email); !matched {
-		errorsAndFields["email"] = "Invalid email"
-	}
-
-	return validationErrorFrom(errorsAndFields)
+	return len(f.FormErrors) == 0
 }
 
 type LoginForm struct {
-	UsernameOrEmail string `form:"usernameOrEmail"`
-	Password        string `form:"password"`
+	// Identifier can be either username or email
+	Identifier string `form:"identifier"`
+	Password   string `form:"password"`
+
+	IdentifierNotFound bool
+	FormErrors
 }
 
-func (r LoginForm) validate(store domain.Store) error {
-	errorsAndFields := make(map[string]string)
+func (f *LoginForm) Validate() bool {
+	f.FormErrors = FormErrors{}
 
-	if r.UsernameOrEmail == "" {
-		errorsAndFields["usernameOrEmail"] = "Username or email can not be empty"
-	}
-
-	return validationErrorFrom(errorsAndFields)
-}
-
-type validator struct {
-	store domain.Store
-}
-
-type formValidator interface {
-	validate(store domain.Store) error
-}
-
-type validationError struct {
-	errorsAndFields map[string]string
-}
-
-func (e validationError) Error() string {
-	return fmt.Sprintf("error validating form: %v", e.errorsAndFields)
-}
-
-func validationErrorFrom(errorsAndFields map[string]string) error {
-	if len(errorsAndFields) > 0 {
-		return validationError{errorsAndFields}
-	}
-	return nil
+	return len(f.FormErrors) == 0
 }

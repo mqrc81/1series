@@ -22,8 +22,10 @@ func main() {
 		checkError(err)
 	}
 
-	store, sessionStore, err := postgres.NewStore(os.Getenv("DATABASE_URL"))
+	store, db, err := postgres.NewStore(os.Getenv("DATABASE_URL"))
 	checkError(err)
+
+	sessionManager, err := api.NewSessionManager(db)
 
 	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
 	checkError(err)
@@ -31,7 +33,7 @@ func main() {
 	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	handler, err := api.NewHandler(*store, sessionStore, tmdbClient, traktClient)
+	handler, err := api.NewHandler(*store, sessionManager, tmdbClient, traktClient)
 	checkError(err)
 
 	util.LogInfo("Listening on " + os.Getenv("BACKEND_URL"))

@@ -6,37 +6,37 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
 	"github.com/mqrc81/zeries/util"
+	echoscs "github.com/spazzymoto/echo-scs-session"
 )
 
-func NewHandler(store domain.Store, sessionStore sessions.Store, tmdbClient *tmdb.Client,
+func NewHandler(store domain.Store, sessionManager *scs.SessionManager, tmdbClient *tmdb.Client,
 	traktClient *trakt.Client) (*Handler, error) {
 
 	h := &Handler{
 		echo.New(),
 		store,
+		sessionManager,
 	}
 
 	h.Logger.SetOutput(io.Discard)
 	h.HideBanner = true
-	h.Validator = NewValidator(store)
 
-	shows := &ShowHandler{store, tmdbClient, traktClient, &DtoMapper{}}
-	users := &UserHandler{store}
+	shows := &ShowHandler{store, sessionManager, tmdbClient, traktClient}
+	users := &UserHandler{store, sessionManager}
 
 	h.Use(
 		middleware.RequestID(),
 		middleware.Recover(),
 		h.logRequest(),
 		// middleware.CSRF(),
-		session.Middleware(sessionStore),
+		echoscs.LoadAndSave(sessionManager),
 		h.withUser(),
 	)
 
@@ -62,8 +62,6 @@ func NewHandler(store domain.Store, sessionStore sessions.Store, tmdbClient *tmd
 
 func (h *Handler) Ping() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		util.LogWarn("Pong",
-			"idk", 3)
 		return ctx.String(http.StatusOK, "Pong!")
 	}
 }
@@ -71,13 +69,12 @@ func (h *Handler) Ping() echo.HandlerFunc {
 func (h *Handler) withUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			if mySession, err := session.Get("my-session", ctx); err == nil {
-				if userId, ok := mySession.Values["userId"].(int); ok {
-					if user, err := h.store.GetUser(userId); err == nil {
-						ctx.Set("user", user)
-					}
+			if userId := h.sessions.GetInt(ctx.Request().Context(), "userId"); userId > 0 {
+				if user, err := h.store.GetUser(userId); err == nil {
+					ctx.Set("user", user)
 				}
 			}
+
 			return next(ctx)
 		}
 	}
@@ -105,7 +102,8 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 
 type Handler struct {
 	*echo.Echo
-	store domain.Store
+	store    domain.Store
+	sessions *scs.SessionManager
 }
 
 // QueryParam & UrlParam don't serve a real purpose other than

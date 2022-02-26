@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
@@ -16,10 +17,10 @@ const (
 )
 
 type ShowHandler struct {
-	store  domain.Store
-	tmdb   *tmdb.Client
-	trakt  *trakt.Client
-	mapper *DtoMapper
+	store    domain.Store
+	sessions *scs.SessionManager
+	tmdb     *tmdb.Client
+	trakt    *trakt.Client
 }
 
 // PopularShows GET /api/shows/popular
@@ -46,7 +47,7 @@ func (h *ShowHandler) PopularShows() echo.HandlerFunc {
 					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", traktShow.Ids(), err.Error()))
 			}
 
-			shows = append(shows, h.mapper.ShowFromTmdbShow(tmdbShow))
+			shows = append(shows, showFromTmdbShow(tmdbShow))
 		}
 
 		return ctx.JSON(http.StatusOK, shows)
@@ -69,7 +70,7 @@ func (h *ShowHandler) Show() echo.HandlerFunc {
 				fmt.Sprintf("tmdb error fetching tv-details [%d]: %v", showId, err.Error()))
 		}
 
-		return ctx.JSON(http.StatusOK, h.mapper.ShowFromTmdbShow(tmdbShow))
+		return ctx.JSON(http.StatusOK, showFromTmdbShow(tmdbShow))
 	}
 }
 
@@ -89,7 +90,7 @@ func (h *ShowHandler) SearchShows() echo.HandlerFunc {
 				fmt.Sprintf("tmdb error fetching search-tv-show [%v]: %v", searchTerm, err.Error()))
 		}
 
-		return ctx.JSON(http.StatusOK, h.mapper.ShowsFromTmdbShowsSearch(tmdbShows, 8))
+		return ctx.JSON(http.StatusOK, showsFromTmdbShowsSearch(tmdbShows, 8))
 	}
 }
 
@@ -119,8 +120,7 @@ func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
 					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", tmdbRelease.Name, err.Error()))
 			}
 
-			releases = append(releases,
-				h.mapper.ReleaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate))
+			releases = append(releases, releaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate))
 		}
 
 		return ctx.JSON(http.StatusOK, releases)

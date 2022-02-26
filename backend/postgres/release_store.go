@@ -57,9 +57,8 @@ func (s *ReleaseStore) ClearExpiredReleases(now time.Time) (err error) {
 
 func (s *ReleaseStore) SetPastReleasesCount(amount int) (err error) {
 
-	//goland:noinspection SqlWithoutWhere
 	if _, err = s.Exec(
-		"UPDATE past_releases SET amount = $1",
+		"UPDATE past_releases SET amount = $1 WHERE past_releases_id = 69",
 		amount,
 	); err != nil {
 		err = fmt.Errorf("error setting past releases count: %w", err)
@@ -72,7 +71,7 @@ func (s *ReleaseStore) GetPastReleasesCount() (amount int, err error) {
 
 	if err = s.Get(
 		&amount,
-		"SELECT ps.amount FROM past_releases ps LIMIT 1",
+		"SELECT ps.amount FROM past_releases ps",
 	); err != nil || amount == 0 {
 		err = fmt.Errorf("error getting past releases count: %w", err)
 	}
