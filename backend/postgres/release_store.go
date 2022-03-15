@@ -45,11 +45,12 @@ func (s *ReleaseStore) SaveRelease(release domain.ReleaseRef, expiry time.Time) 
 
 }
 
-func (s *ReleaseStore) ClearExpiredReleases(now time.Time) (err error) {
+func (s *ReleaseStore) ClearExpiredReleases(now time.Time, airDate time.Time) (err error) {
 
 	if _, err = s.Exec(
-		`DELETE FROM releases r WHERE r.expiry < $1`,
+		`DELETE FROM releases r WHERE r.expiry < $1 AND r.air_date < $2`,
 		now,
+		airDate,
 	); err != nil {
 		err = fmt.Errorf("error clearing expired releases: %w", err)
 	}

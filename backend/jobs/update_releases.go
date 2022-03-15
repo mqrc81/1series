@@ -17,11 +17,15 @@ const (
 
 func (e UpdateReleasesJobExecutor) Execute() error {
 	e.logStart()
-	var releasesUpdated int
-	now := time.Now()
-	// Start at 30 days in the past to allow users to view past releases
-	startDate := now.Add(-thirtyDays)
-	expiry := now.Add(3 * time.Hour)
+
+	var (
+		releases          []domain.ReleaseRef
+		pastReleasesCount int
+		now               = time.Now()
+		// Start at 30 days in the past to allow users to view past releases
+		startDate = now.Add(-thirtyDays)
+		expiry    = now.Add(3 * time.Hour)
+	)
 
 	traktShowsAnticipated, err := e.trakt.GetAnticipatedShows(1, 10)
 	if err != nil {
@@ -36,34 +40,30 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 			return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
 		}
 
-		newReleasesUpdated, err := e.filterAndUpdateReleases(traktReleases, traktShowsAnticipated, expiry)
+		releases, err = e.filterAndCollectReleases(releases, traktReleases, traktShowsAnticipated)
 		if err != nil {
 			return err
 		}
-		releasesUpdated += newReleasesUpdated
 
 		if i == 0 {
 			// The first iteration takes care of all past releases
-			if err = e.store.SetPastReleasesCount(releasesUpdated); err != nil {
-				return fmt.Errorf("%v: %w", defaultErrorMessage, err)
-			}
+			pastReleasesCount = len(releases)
 		}
 
 		startDate = startDate.Add(thirtyDays)
 	}
 
-	// TODO: there is a small window in which expired and updated releases can coexist
-	if err := e.store.ClearExpiredReleases(now); err != nil {
-		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+	err = e.updateReleases(releases, expiry, pastReleasesCount, now)
+	if err != nil {
+		return err
 	}
 
-	return e.logEnd(releasesUpdated)
+	return e.logEnd(len(releases))
 }
 
-func (e UpdateReleasesJobExecutor) filterAndUpdateReleases(
-	traktReleases []trakt.SeasonPremieresDto, traktShowsAnticipated []trakt.ShowsAnticipatedDto, expiry time.Time,
-) (int, error) {
-	var releasesUpdated int
+func (e UpdateReleasesJobExecutor) filterAndCollectReleases(
+	releases []domain.ReleaseRef, traktReleases []trakt.SeasonPremieresDto, traktShows []trakt.ShowsAnticipatedDto,
+) ([]domain.ReleaseRef, error) {
 	for _, traktRelease := range traktReleases {
 		if !hasRelevantIds(traktRelease) {
 			continue
@@ -71,30 +71,42 @@ func (e UpdateReleasesJobExecutor) filterAndUpdateReleases(
 
 		tmdbShow, err := e.tmdb.GetTVDetails(traktRelease.TmdbId(),
 			map[string]string{"append_to_response": "translations"})
-		if err != nil {
-			// On rare occasions trakt's tmdb-id might be incorrect
-			// We treat this case as if jobs#hasRelevantIds was false
-			LogWarning("Incorrect tmdb-id [%v]: %v", traktRelease.Ids(), err)
+
+		if err != nil || !hasRelevantInfo(tmdbShow) || !hasMatchingSeasons(traktRelease, tmdbShow) {
 			continue
 		}
 
-		if !hasRelevantInfo(tmdbShow) || !hasMatchingSeasons(traktRelease, tmdbShow) {
-			continue
-		}
-
-		if err = e.store.SaveRelease(domain.ReleaseRef{
+		releases = append(releases, domain.ReleaseRef{
 			ShowId:            traktRelease.TmdbId(),
 			SeasonNumber:      traktRelease.SeasonNumber(),
 			AirDate:           traktRelease.AirDate(),
-			AnticipationLevel: anticipationLevelFor(traktRelease.TmdbId(), traktShowsAnticipated),
-		}, expiry); err != nil {
-			return 0, fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
-				traktRelease.Ids(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
-		}
-
-		releasesUpdated++
+			AnticipationLevel: anticipationLevelFor(traktRelease.TmdbId(), traktShows),
+		})
 	}
-	return releasesUpdated, nil
+	return releases, nil
+}
+
+func (e UpdateReleasesJobExecutor) updateReleases(
+	releases []domain.ReleaseRef, expiry time.Time, pastReleasesCount int, now time.Time,
+) (err error) {
+	var updatedPastReleasesCount bool
+	for i, release := range releases {
+		if err = e.store.SaveRelease(release, expiry); err != nil {
+			return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+		}
+		if err = e.store.ClearExpiredReleases(now, release.AirDate); err != nil {
+			return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+		}
+		if !updatedPastReleasesCount && i >= pastReleasesCount {
+			if err = e.store.SetPastReleasesCount(pastReleasesCount); err != nil {
+				return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+			}
+		}
+	}
+	if err = e.store.ClearExpiredReleases(now, now.Add(12*30*24*time.Hour)); err != nil {
+		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+	}
+	return nil
 }
 
 func hasRelevantIds(release trakt.SeasonPremieresDto) bool {

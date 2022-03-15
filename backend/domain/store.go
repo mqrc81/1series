@@ -30,7 +30,7 @@ type NetworkStore interface {
 type ReleaseStore interface {
 	GetReleases(amount int, offset int) ([]ReleaseRef, error)
 	SaveRelease(release ReleaseRef, expiry time.Time) error
-	ClearExpiredReleases(now time.Time) error
+	ClearExpiredReleases(now time.Time, airDate time.Time) error
 	SetPastReleasesCount(amount int) error
 	GetPastReleasesCount() (int, error)
 }
