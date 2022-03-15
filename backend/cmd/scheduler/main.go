@@ -11,7 +11,7 @@ import (
 	"github.com/mqrc81/zeries/jobs"
 	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/util"
+	. "github.com/mqrc81/zeries/util"
 )
 
 func main() {
@@ -39,6 +39,6 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		util.LogPanic(err)
+		LogPanic(err)
 	}
 }

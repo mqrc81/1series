@@ -29,15 +29,17 @@ type Season struct {
 }
 
 type Release struct {
-	Show    Show
-	Season  Season
-	AirDate time.Time
+	Show              Show
+	Season            Season
+	AirDate           time.Time
+	AnticipationLevel AnticipationLevel
 }
 
 type ReleaseRef struct {
-	ShowId       int       `db:"show_id"`
-	SeasonNumber int       `db:"season_number"`
-	AirDate      time.Time `db:"air_date"`
+	ShowId            int               `db:"show_id"`
+	SeasonNumber      int               `db:"season_number"`
+	AirDate           time.Time         `db:"air_date"`
+	AnticipationLevel AnticipationLevel `db:"anticipation_level"`
 }
 
 type Genre struct {
@@ -56,10 +58,19 @@ type User struct {
 	Username string `db:"username"`
 	Email    string `db:"email"`
 	Password string `db:"password"`
-	EmailOptions
+	NotificationOptions
 }
 
-type EmailOptions struct {
-	NotifyReleases        bool `db:"notify_releases"`
-	NotifyRecommendations bool `db:"notify_recommendations"`
+type NotificationOptions struct {
+	Releases        bool `db:"notify_releases"`
+	Recommendations bool `db:"notify_recommendations"`
 }
+
+type AnticipationLevel = int
+
+const (
+	Zero   AnticipationLevel = iota
+	Mid                      // top 10
+	Bussin                   // top 3
+	Zamn                     // top 1
+)

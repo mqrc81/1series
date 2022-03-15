@@ -23,8 +23,8 @@ type ShowHandler struct {
 	trakt    *trakt.Client
 }
 
-// PopularShows GET /api/shows/popular
-func (h *ShowHandler) PopularShows() echo.HandlerFunc {
+// Popular GET /api/shows/popular
+func (h *ShowHandler) Popular() echo.HandlerFunc {
 	const pageParam QueryParam = "page"
 
 	return func(ctx echo.Context) error {
@@ -120,7 +120,8 @@ func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
 					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", tmdbRelease.Name, err.Error()))
 			}
 
-			releases = append(releases, releaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate))
+			releases = append(releases, releaseFromTmdbShow(
+				tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate, releaseRef.AnticipationLevel))
 		}
 
 		return ctx.JSON(http.StatusOK, releases)

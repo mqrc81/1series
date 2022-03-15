@@ -73,3 +73,34 @@ func (c *Client) GetSeasonPremieres(startDate time.Time, days int) (seasonPremie
 
 	return seasonPremieres, nil
 }
+
+func (c *Client) GetAnticipatedShows(page int, limit int) (showsAnticipated []ShowsAnticipatedDto, err error) {
+
+	url := fmt.Sprintf(baseURL+"/shows/anticipated?page=%d&limit=%d", page, limit)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("trakt-api-version", "2")
+	req.Header.Add("trakt-api-key", c.apiKey)
+
+	res, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	resBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(resBody, &showsAnticipated)
+	if err != nil {
+		return nil, err
+	}
+
+	return showsAnticipated, nil
+}

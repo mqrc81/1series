@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"github.com/mqrc81/zeries/util"
+	. "github.com/mqrc81/zeries/util"
 )
 
 func (e NotifyUsersJobExecutor) Execute() error {
@@ -15,10 +15,10 @@ type NotifyUsersJobExecutor struct {
 }
 
 func (e NotifyUsersJobExecutor) logStart() {
-	util.LogInfo("Running notify-users job")
+	LogInfo("Running notify-users job")
 }
 
 func (e NotifyUsersJobExecutor) logEnd(actions int) error {
-	util.LogInfo("Completed notify-users job with %d users notified", actions)
+	LogInfo("Completed notify-users job with %d users notified", actions)
 	return nil
 }

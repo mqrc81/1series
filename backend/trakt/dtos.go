@@ -65,3 +65,17 @@ func (dto SeasonPremieresDto) AirDate() time.Time {
 func (dto SeasonPremieresDto) Ids() string {
 	return fmt.Sprintf("%d, %v", dto.TmdbId(), dto.SlugId())
 }
+
+// ShowsAnticipatedDto represents the relevant fields of Trakt's DTO.
+// We only need the TMDb-ID, since we fetch all the details from TMDb.
+type ShowsAnticipatedDto struct {
+	Show struct {
+		Ids struct {
+			Tmdb int `json:"tmdb"`
+		} `json:"ids"`
+	} `json:"show"`
+}
+
+func (dto ShowsAnticipatedDto) TmdbId() int {
+	return dto.Show.Ids.Tmdb
+}

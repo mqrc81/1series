@@ -7,12 +7,11 @@ import (
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/util"
+	. "github.com/mqrc81/zeries/util"
 )
 
 const (
-	thirtyDays          = traktDaysCap * 24 * time.Hour
-	traktDaysCap        = 30
+	thirtyDays          = 30 * 24 * time.Hour
 	defaultErrorMessage = "error executing update-releases job"
 )
 
@@ -24,38 +23,24 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	startDate := now.Add(-thirtyDays)
 	expiry := now.Add(3 * time.Hour)
 
-	// Trakt's limit is 30 days per request, but we want 9 * 30 days
+	traktShowsAnticipated, err := e.trakt.GetAnticipatedShows(1, 10)
+	if err != nil {
+		return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
+	}
+
+	// Trakt's limit is 33 days per request, but we want 9 * 30 days
 	for i := 0; i < 9; i++ {
 
-		traktReleases, err := e.trakt.GetSeasonPremieres(startDate, traktDaysCap)
+		traktReleases, err := e.trakt.GetSeasonPremieres(startDate, 30)
 		if err != nil {
 			return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
 		}
 
-		for _, traktRelease := range traktReleases {
-			if hasRelevantIds(traktRelease) {
-				tmdbShow, err := e.tmdb.GetTVDetails(traktRelease.TmdbId(),
-					map[string]string{"append_to_response": "translations"})
-				if err != nil {
-					// On rare occasions trakt's tmdb-id might be incorrect
-					// We treat this case as if jobs#hasRelevantIds was false
-					util.LogWarn("Incorrect tmdb-id [%v]: %v", traktRelease.Ids(), err)
-					continue
-				}
-
-				if hasRelevantInfo(tmdbShow) {
-					if err = e.store.SaveRelease(domain.ReleaseRef{
-						ShowId:       traktRelease.TmdbId(),
-						SeasonNumber: traktRelease.SeasonNumber(),
-						AirDate:      traktRelease.AirDate(),
-					}, expiry); err != nil {
-						return fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
-							traktRelease.Ids(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
-					}
-					releasesUpdated++
-				}
-			}
+		newReleasesUpdated, err := e.filterAndUpdateReleases(traktReleases, traktShowsAnticipated, expiry)
+		if err != nil {
+			return err
 		}
+		releasesUpdated += newReleasesUpdated
 
 		if i == 0 {
 			// The first iteration takes care of all past releases
@@ -73,6 +58,43 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	}
 
 	return e.logEnd(releasesUpdated)
+}
+
+func (e UpdateReleasesJobExecutor) filterAndUpdateReleases(
+	traktReleases []trakt.SeasonPremieresDto, traktShowsAnticipated []trakt.ShowsAnticipatedDto, expiry time.Time,
+) (int, error) {
+	var releasesUpdated int
+	for _, traktRelease := range traktReleases {
+		if !hasRelevantIds(traktRelease) {
+			continue
+		}
+
+		tmdbShow, err := e.tmdb.GetTVDetails(traktRelease.TmdbId(),
+			map[string]string{"append_to_response": "translations"})
+		if err != nil {
+			// On rare occasions trakt's tmdb-id might be incorrect
+			// We treat this case as if jobs#hasRelevantIds was false
+			LogWarning("Incorrect tmdb-id [%v]: %v", traktRelease.Ids(), err)
+			continue
+		}
+
+		if !hasRelevantInfo(tmdbShow) || !hasMatchingSeasons(traktRelease, tmdbShow) {
+			continue
+		}
+
+		if err = e.store.SaveRelease(domain.ReleaseRef{
+			ShowId:            traktRelease.TmdbId(),
+			SeasonNumber:      traktRelease.SeasonNumber(),
+			AirDate:           traktRelease.AirDate(),
+			AnticipationLevel: anticipationLevelFor(traktRelease.TmdbId(), traktShowsAnticipated),
+		}, expiry); err != nil {
+			return 0, fmt.Errorf("%v whilst saving release [%v, %d, %v]: %w", defaultErrorMessage,
+				traktRelease.Ids(), traktRelease.SeasonNumber(), traktRelease.AirDate(), err)
+		}
+
+		releasesUpdated++
+	}
+	return releasesUpdated, nil
 }
 
 func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
@@ -104,9 +126,28 @@ func hasRelevantType(show *tmdb.TVDetails) bool {
 		return true
 	}
 	if t != "Reality" && t != "News" && t != "Talk Show" && t != "Video" {
-		util.LogWarn("Unknown type [%v] detected for show [%d, %v]", show.Type, show.ID, show.Name)
+		LogWarning("Unknown type [%v] detected for show [%d, %v]", show.Type, show.ID, show.Name)
 	}
 	return false
+}
+
+func hasMatchingSeasons(release trakt.SeasonPremieresDto, show *tmdb.TVDetails) bool {
+	return len(show.Seasons) >= release.SeasonNumber()
+}
+
+func anticipationLevelFor(releaseId int, showsAnticipated []trakt.ShowsAnticipatedDto) domain.AnticipationLevel {
+	for i, showAnticipated := range showsAnticipated {
+		if releaseId == showAnticipated.TmdbId() {
+			if i == 0 {
+				return domain.Zamn
+			} else if i < 3 {
+				return domain.Bussin
+			} else if i < 10 {
+				return domain.Mid
+			}
+		}
+	}
+	return domain.Zero
 }
 
 type UpdateReleasesJobExecutor struct {
@@ -116,10 +157,10 @@ type UpdateReleasesJobExecutor struct {
 }
 
 func (e UpdateReleasesJobExecutor) logStart() {
-	util.LogInfo("Running update-releases job")
+	LogInfo("Running update-releases job")
 }
 
 func (e UpdateReleasesJobExecutor) logEnd(actions int) error {
-	util.LogInfo("Completed update-releases job with %d releases updated", actions)
+	LogInfo("Completed update-releases job with %d releases updated", actions)
 	return nil
 }

@@ -10,12 +10,12 @@ import (
 	"github.com/mqrc81/zeries/api"
 	"github.com/mqrc81/zeries/postgres"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/util"
+	. "github.com/mqrc81/zeries/util"
 )
 
 // TODO: initialize genres & networks
 func main() {
-	util.LogInfo("Starting application...")
+	LogInfo("Starting application...")
 	// Environment variables need to be initialized from .env file first when ran locally
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
 		err := godotenv.Load()
@@ -36,13 +36,13 @@ func main() {
 	handler, err := api.NewHandler(*store, sessionManager, tmdbClient, traktClient)
 	checkError(err)
 
-	util.LogInfo("Listening on " + os.Getenv("BACKEND_URL"))
+	LogInfo("Listening on " + os.Getenv("BACKEND_URL"))
 	err = handler.Start(":" + os.Getenv("PORT"))
 	checkError(err)
 }
 
 func checkError(err error) {
 	if err != nil {
-		util.LogPanic(err)
+		LogPanic(err)
 	}
 }

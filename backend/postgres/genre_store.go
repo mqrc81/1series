@@ -15,7 +15,7 @@ func (s *GenreStore) GetGenres() (genres []domain.Genre, err error) {
 
 	if err = s.Select(
 		&genres,
-		"SELECT g.* FROM genres g",
+		`SELECT g.* FROM genres g`,
 	); err != nil {
 		err = fmt.Errorf("error getting genres: %w", err)
 	}
@@ -26,7 +26,7 @@ func (s *GenreStore) GetGenres() (genres []domain.Genre, err error) {
 func (s *GenreStore) AddGenre(genre domain.Genre) (err error) {
 
 	if _, err = s.Exec(
-		"INSERT INTO genres(id, name) VALUES ($1, $2)",
+		`INSERT INTO genres(id, name) VALUES ($1, $2)`,
 		genre.Id,
 		genre.Name,
 	); err != nil {

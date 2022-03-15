@@ -15,7 +15,7 @@ func (s *NetworkStore) GetNetworks() (networks []domain.Network, err error) {
 
 	if err = s.Select(
 		&networks,
-		"SELECT n.* FROM networks n",
+		`SELECT n.* FROM networks n`,
 	); err != nil {
 		err = fmt.Errorf("error getting networks: %w", err)
 	}
@@ -26,7 +26,7 @@ func (s *NetworkStore) GetNetworks() (networks []domain.Network, err error) {
 func (s *NetworkStore) AddNetwork(network domain.Network) (err error) {
 
 	if _, err = s.Exec(
-		"INSERT INTO networks(id, name, logo) VALUES ($1, $2, $3)",
+		`INSERT INTO networks(id, name, logo) VALUES ($1, $2, $3)`,
 		network.Id,
 		network.Name,
 		network.Logo,

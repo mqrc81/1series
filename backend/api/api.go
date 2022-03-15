@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/util"
+	. "github.com/mqrc81/zeries/util"
 	echoscs "github.com/spazzymoto/echo-scs-session"
 )
 
@@ -34,6 +34,7 @@ func NewHandler(store domain.Store, sessionManager *scs.SessionManager, tmdbClie
 	h.Use(
 		middleware.RequestID(),
 		middleware.Recover(),
+		middleware.CORS(),
 		h.logRequest(),
 		// middleware.CSRF(),
 		echoscs.LoadAndSave(sessionManager),
@@ -42,10 +43,10 @@ func NewHandler(store domain.Store, sessionManager *scs.SessionManager, tmdbClie
 
 	showsApi := h.Group("/api/shows")
 	{
-		showsApi.GET("/popular", shows.PopularShows())
-		showsApi.GET("/:showsId", shows.Show())
-		showsApi.GET("/search", shows.SearchShows())
+		showsApi.GET("/:showId", shows.Show())
+		showsApi.GET("/popular", shows.Popular())
 		showsApi.GET("/releases", shows.UpcomingReleases())
+		showsApi.GET("/search", shows.SearchShows())
 	}
 
 	usersApi := h.Group("/api/users")
@@ -74,7 +75,6 @@ func (h *Handler) withUser() echo.MiddlewareFunc {
 					ctx.Set("user", user)
 				}
 			}
-
 			return next(ctx)
 		}
 	}
@@ -84,10 +84,10 @@ func (h *Handler) logRequest() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
-				util.LogError("Http error occurred: request=[%v %v %v] error=[%v] latency=[%v]",
+				LogError("Http error occurred: request=[%v %v %v] error=[%v] latency=[%v]",
 					v.Method, v.URI, v.Status, v.Error, v.Latency)
-			} else if v.Latency > 3*time.Second {
-				util.LogWarn("Latency surpassed 3 seconds: request=[%v %v %v] error=[%v] latency=[%v]",
+			} else if v.Latency > 5*time.Second {
+				LogWarning("Latency surpassed 5 seconds: request=[%v %v %v] error=[%v] latency=[%v]",
 					v.Method, v.URI, v.Status, v.Error, v.Latency)
 			}
 			return nil

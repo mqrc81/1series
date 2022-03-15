@@ -5,7 +5,7 @@ import (
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/util"
+	. "github.com/mqrc81/zeries/util"
 )
 
 const (
@@ -63,17 +63,20 @@ func showsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []
 	return shows
 }
 
-func releaseFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int, airDate time.Time) domain.Release {
+func releaseFromTmdbShow(
+	dto *tmdb.TVDetails, seasonNumber int, airDate time.Time, anticipationLevel domain.AnticipationLevel,
+) domain.Release {
 	return domain.Release{
-		Show:    showFromTmdbShow(dto),
-		Season:  seasonFromTmdbShow(dto, seasonNumber),
-		AirDate: airDate,
+		Show:              showFromTmdbShow(dto),
+		Season:            seasonFromTmdbShow(dto, seasonNumber),
+		AirDate:           airDate,
+		AnticipationLevel: anticipationLevel,
 	}
 }
 
 func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	if seasonNumber > len(dto.Seasons) {
-		util.LogError("Tmdb show [%d, %v] has no season [%v]", dto.ID, dto.Name, seasonNumber)
+		LogError("Tmdb show [%d, %v] has no season [%v]", dto.ID, dto.Name, seasonNumber)
 		return domain.Season{}
 	}
 	season := dto.Seasons[seasonNumber-1]
