@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
@@ -26,47 +25,65 @@ func (s *ReleaseStore) GetReleases(amount int, offset int) (releases []domain.Re
 	return releases, err
 }
 
-func (s *ReleaseStore) SaveRelease(release domain.ReleaseRef, expiry time.Time) (err error) {
+func (s *ReleaseStore) SaveReleases(releases []domain.ReleaseRef, pastReleasesCount int) error {
 
-	// Insert if combination of show_id & season_number doesn't exist, else update
-	if _, err = s.Exec(
-		`INSERT INTO releases(show_id, season_number, air_date, anticipation_level, expiry) VALUES($1, $2, $3, $4, $5) 
-		 ON CONFLICT (show_id, season_number) DO UPDATE SET air_date = $3, anticipation_level = $4, expiry = $5`,
+	txn, err := s.Beginx()
+	if err != nil {
+		return fmt.Errorf("error beginning transaction: %w", err)
+	}
+
+	defer func() {
+		if err == nil {
+			err = txn.Commit()
+		} else {
+			_ = txn.Rollback()
+		}
+	}()
+
+	if err = s.deleteAllReleasesInTransaction(txn); err != nil {
+		return err
+	}
+
+	for _, release := range releases {
+		if err = s.saveReleaseInTransaction(txn, release); err != nil {
+			return err
+		}
+	}
+
+	if err = s.savePastReleasesCountInTransaction(txn, pastReleasesCount); err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (s *ReleaseStore) saveReleaseInTransaction(txn *sqlx.Tx, release domain.ReleaseRef) (err error) {
+	if _, err = txn.Exec(`INSERT INTO releases(show_id, season_number, air_date, anticipation_level) VALUES($1, $2, $3, $4)`,
 		release.ShowId,
 		release.SeasonNumber,
 		release.AirDate,
 		release.AnticipationLevel,
-		expiry,
 	); err != nil {
 		err = fmt.Errorf("error saving release: %w", err)
 	}
-
-	return err
-
-}
-
-func (s *ReleaseStore) ClearExpiredReleases(now time.Time, airDate time.Time) (err error) {
-
-	if _, err = s.Exec(
-		`DELETE FROM releases r WHERE r.expiry < $1 AND r.air_date < $2`,
-		now,
-		airDate,
-	); err != nil {
-		err = fmt.Errorf("error clearing expired releases: %w", err)
-	}
-
 	return err
 }
 
-func (s *ReleaseStore) SetPastReleasesCount(amount int) (err error) {
-
-	if _, err = s.Exec(
+func (s *ReleaseStore) savePastReleasesCountInTransaction(txn *sqlx.Tx, pastReleasesCount int) (err error) {
+	if _, err = txn.Exec(
 		`UPDATE past_releases SET amount = $1 WHERE past_releases_id = 69`,
-		amount,
+		pastReleasesCount,
 	); err != nil {
 		err = fmt.Errorf("error setting past releases count: %w", err)
 	}
+	return err
+}
 
+func (s *ReleaseStore) deleteAllReleasesInTransaction(txn *sqlx.Tx) (err error) {
+	//goland:noinspection SqlWithoutWhere
+	if _, err = txn.Exec(`DELETE FROM releases`); err != nil {
+		err = fmt.Errorf("error deleting releases: %w", err)
+	}
 	return err
 }
 

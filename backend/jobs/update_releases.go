@@ -21,10 +21,7 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 	var (
 		releases          []domain.ReleaseRef
 		pastReleasesCount int
-		now               = time.Now()
-		// Start at 30 days in the past to allow users to view past releases
-		startDate = now.Add(-thirtyDays)
-		expiry    = now.Add(3 * time.Hour)
+		startDate         = time.Now().Add(-thirtyDays)
 	)
 
 	traktShowsAnticipated, err := e.trakt.GetAnticipatedShows(1, 10)
@@ -53,9 +50,8 @@ func (e UpdateReleasesJobExecutor) Execute() error {
 		startDate = startDate.Add(thirtyDays)
 	}
 
-	err = e.updateReleases(releases, expiry, pastReleasesCount, now)
-	if err != nil {
-		return err
+	if err = e.store.SaveReleases(releases, pastReleasesCount); err != nil {
+		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
 	}
 
 	return e.logEnd(len(releases))
@@ -86,29 +82,6 @@ func (e UpdateReleasesJobExecutor) filterAndCollectReleases(
 	return releases, nil
 }
 
-func (e UpdateReleasesJobExecutor) updateReleases(
-	releases []domain.ReleaseRef, expiry time.Time, pastReleasesCount int, now time.Time,
-) (err error) {
-	var updatedPastReleasesCount bool
-	for i, release := range releases {
-		if err = e.store.SaveRelease(release, expiry); err != nil {
-			return fmt.Errorf("%v: %w", defaultErrorMessage, err)
-		}
-		if err = e.store.ClearExpiredReleases(now, release.AirDate); err != nil {
-			return fmt.Errorf("%v: %w", defaultErrorMessage, err)
-		}
-		if !updatedPastReleasesCount && i >= pastReleasesCount {
-			if err = e.store.SetPastReleasesCount(pastReleasesCount); err != nil {
-				return fmt.Errorf("%v: %w", defaultErrorMessage, err)
-			}
-		}
-	}
-	if err = e.store.ClearExpiredReleases(now, now.Add(12*30*24*time.Hour)); err != nil {
-		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
-	}
-	return nil
-}
-
 func hasRelevantIds(release trakt.SeasonPremieresDto) bool {
 	ids := release.Show.Ids
 	return ids.Tmdb != 0 && ids.Tvdb != 0 && ids.Imdb != "" && ids.Slug != ""
@@ -133,14 +106,15 @@ func hasEnglishTranslation(translations *tmdb.TVTranslations) bool {
 }
 
 func hasRelevantType(show *tmdb.TVDetails) bool {
-	t := show.Type
-	if t == "Scripted" || t == "Miniseries" || t == "Documentary" {
+	switch show.Type {
+	case "Scripted", "Miniseries", "Documentary":
 		return true
-	}
-	if t != "Reality" && t != "News" && t != "Talk Show" && t != "Video" {
+	case "Reality", "News", "Talk Show", "Video":
+		return false
+	default:
 		LogWarning("Unknown type [%v] detected for show [%d, %v]", show.Type, show.ID, show.Name)
+		return false
 	}
-	return false
 }
 
 func hasMatchingSeasons(release trakt.SeasonPremieresDto, show *tmdb.TVDetails) bool {
