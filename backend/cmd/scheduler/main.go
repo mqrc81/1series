@@ -1,6 +1,6 @@
 // Package cmd/jobs is the entry-point for a daily jobs
 // which notifies users of new releases & recommendations
-// and updates list of upcoming releases stored in DB
+// and updates list of upcoming releases stored in db
 package main
 
 import (

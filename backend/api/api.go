@@ -45,8 +45,8 @@ func NewHandler(store domain.Store, sessionManager *scs.SessionManager, tmdbClie
 	{
 		showsApi.GET("/:showId", shows.Show())
 		showsApi.GET("/popular", shows.Popular())
-		showsApi.GET("/releases", shows.UpcomingReleases())
-		showsApi.GET("/search", shows.SearchShows())
+		showsApi.GET("/releases", shows.Releases())
+		showsApi.GET("/search", shows.Search())
 	}
 
 	usersApi := h.Group("/api/users")

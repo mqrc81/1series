@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
@@ -19,7 +18,7 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		form := new(RegisterForm)
 		if err := ctx.Bind(form); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("error binding register-form: %v", err.Error()))
+			return NewHttpError(Form, err)
 		}
 
 		if _, err := h.store.GetUserByUsername(form.Username); err == nil {

@@ -35,16 +35,14 @@ func (h *ShowHandler) Popular() echo.HandlerFunc {
 
 		traktShows, err := h.trakt.GetShowsWatchedWeekly(page, 20)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("trakt error fetching most-watched-shows [%v]: %v", page, err.Error()))
+			return NewHttpError(Trakt, err, page)
 		}
 
 		var shows []domain.Show
 		for _, traktShow := range traktShows {
 			tmdbShow, err := h.tmdb.GetTVDetails(traktShow.TmdbId(), nil)
 			if err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError,
-					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", traktShow.Ids(), err.Error()))
+				return NewHttpError(Tmdb, err, traktShow.Ids())
 			}
 
 			shows = append(shows, showFromTmdbShow(tmdbShow))
@@ -54,61 +52,59 @@ func (h *ShowHandler) Popular() echo.HandlerFunc {
 	}
 }
 
-// Show GET /api/shows/{showId}
+// Show GET /api/shows/:showId
 func (h *ShowHandler) Show() echo.HandlerFunc {
 	const showIdParam UrlParam = "showId"
 
 	return func(ctx echo.Context) error {
 		showId, err := strconv.Atoi(ctx.Param(showIdParam))
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid show-id [%v]", ctx.Param(showIdParam)))
+			return NewHttpError(Parameter, fmt.Errorf("invalid show-id"), ctx.Param(showIdParam))
 		}
 
 		tmdbShow, err := h.tmdb.GetTVDetails(showId, nil)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("tmdb error fetching tv-details [%d]: %v", showId, err.Error()))
+			return NewHttpError(Tmdb, err, showId)
 		}
 
 		return ctx.JSON(http.StatusOK, showFromTmdbShow(tmdbShow))
 	}
 }
 
-// SearchShows GET /api/shows/search
-func (h *ShowHandler) SearchShows() echo.HandlerFunc {
+// Search GET /api/shows/search
+func (h *ShowHandler) Search() echo.HandlerFunc {
 	const searchTermParam QueryParam = "searchTerm"
 
 	return func(ctx echo.Context) error {
 		searchTerm := ctx.Param(searchTermParam)
 		if searchTerm == "" {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid search-term [%v]", searchTerm))
+			return NewHttpError(Parameter, fmt.Errorf("invalid search-term"), searchTerm)
 		}
 
 		tmdbShows, err := h.tmdb.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				fmt.Sprintf("tmdb error fetching search-tv-show [%v]: %v", searchTerm, err.Error()))
+			return NewHttpError(Tmdb, err, searchTerm)
 		}
 
 		return ctx.JSON(http.StatusOK, showsFromTmdbShowsSearch(tmdbShows, 8))
 	}
 }
 
-// UpcomingReleases GET /api/shows/releases
-func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
+// Releases GET /api/shows/releases
+func (h *ShowHandler) Releases() echo.HandlerFunc {
 	const pageParam QueryParam = "page"
 
 	return func(ctx echo.Context) error {
 		pastReleases, err := h.store.GetPastReleasesCount()
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return NewHttpError(Database, err)
 		}
 
 		amount, offset := calculateRange(ctx.QueryParam(pageParam), pastReleases)
 
 		releasesRef, err := h.store.GetReleases(amount, offset)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return NewHttpError(Database, err)
 		}
 
 		var releases []domain.Release
@@ -116,8 +112,7 @@ func (h *ShowHandler) UpcomingReleases() echo.HandlerFunc {
 			tmdbRelease, err := h.tmdb.GetTVDetails(releaseRef.ShowId,
 				map[string]string{"append_to_response": "translations"})
 			if err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError,
-					fmt.Sprintf("tmdb error fetching tv-details [%v]: %v", tmdbRelease.Name, err.Error()))
+				return NewHttpError(Tmdb, err, tmdbRelease.Name)
 			}
 
 			releases = append(releases, releaseFromTmdbShow(
