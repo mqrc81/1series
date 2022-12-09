@@ -1,15 +1,10 @@
-// Package cmd/zeries is the entry-point which starts the application
-// and initializes database, external clients, list of genres/networks
 package main
 
 import (
 	"os"
 
-	"github.com/cyruzin/golang-tmdb"
 	"github.com/joho/godotenv"
-	"github.com/mqrc81/zeries/api"
-	"github.com/mqrc81/zeries/postgres"
-	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/zeries/registry"
 	. "github.com/mqrc81/zeries/util"
 )
 
@@ -22,22 +17,23 @@ func main() {
 		checkError(err)
 	}
 
-	store, db, err := postgres.NewStore(os.Getenv("DATABASE_URL"))
+	database, err := registry.NewDatabase(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
-	sessionManager, err := api.NewSessionManager(db)
-
-	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
+	sessionManager, err := registry.NewSessionManager(database)
 	checkError(err)
 
-	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
+	tmdbClient, err := registry.NewTmdbClient(os.Getenv("TMDB_KEY"))
 	checkError(err)
 
-	handler, err := api.NewHandler(*store, sessionManager, tmdbClient, traktClient)
+	traktClient, err := registry.NewTraktClient(os.Getenv("TRAKT_KEY"))
+	checkError(err)
+
+	controller, err := registry.NewController(database, sessionManager, tmdbClient, traktClient)
 	checkError(err)
 
 	LogInfo("Listening on " + os.Getenv("BACKEND_URL"))
-	err = handler.Start(":" + os.Getenv("PORT"))
+	err = controller.Start(":" + os.Getenv("PORT"))
 	checkError(err)
 }
 

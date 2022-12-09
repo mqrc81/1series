@@ -1,16 +1,10 @@
-// Package cmd/jobs is the entry-point for a daily jobs
-// which notifies users of new releases & recommendations
-// and updates list of upcoming releases stored in db
 package main
 
 import (
 	"os"
 
-	"github.com/cyruzin/golang-tmdb"
 	"github.com/joho/godotenv"
-	"github.com/mqrc81/zeries/jobs"
-	"github.com/mqrc81/zeries/postgres"
-	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/zeries/registry"
 	. "github.com/mqrc81/zeries/util"
 )
 
@@ -21,19 +15,19 @@ func main() {
 		checkError(err)
 	}
 
-	store, _, err := postgres.NewStore(os.Getenv("DATABASE_URL"))
+	database, err := registry.NewDatabase(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
-	tmdbClient, err := tmdb.Init(os.Getenv("TMDB_KEY"))
+	tmdbClient, err := registry.NewTmdbClient(os.Getenv("TMDB_KEY"))
 	checkError(err)
 
-	traktClient, err := trakt.Init(os.Getenv("TRAKT_KEY"))
+	traktClient, err := registry.NewTraktClient(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
-	err = jobs.NewUpdateReleasesJob(*store, tmdbClient, traktClient).Execute()
+	err = registry.NewUpdateReleasesJob(database, tmdbClient, traktClient).Execute()
 	checkError(err)
 
-	err = jobs.NewNotifyUsersJob().Execute()
+	err = registry.NewNotifyUsersJob().Execute()
 	checkError(err)
 }
 

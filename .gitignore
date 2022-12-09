@@ -9,5 +9,4 @@
 .env
 resources
 backend/.gitignore
-backend/Procfile
 .run
