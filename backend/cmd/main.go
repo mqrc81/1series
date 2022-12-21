@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/mqrc81/zeries/registry"
 	. "github.com/mqrc81/zeries/util"
 )
