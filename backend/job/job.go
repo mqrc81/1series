@@ -6,20 +6,36 @@ import (
 	"github.com/mqrc81/zeries/trakt"
 )
 
-type JobExecutor interface {
+const (
+	RunOnInitTag = "INIT"
+)
+
+type Executor interface {
 	Execute() error
 }
 
 func NewUpdateReleasesJob(
 	releaseRepository repository.ReleaseRepository, tmdbClient *tmdb.Client, traktClient *trakt.Client,
-) JobExecutor {
+) Executor {
 	return updateReleasesJob{
-		releaseRepository: releaseRepository,
-		tmdbClient:        tmdbClient,
-		traktClient:       traktClient,
+		releaseRepository,
+		tmdbClient,
+		traktClient,
 	}
 }
 
-func NewNotifyUsersJob() JobExecutor {
-	return notifyUsersJob{}
+func NewRefreshGenresAndNetworksJob(
+	genreRepository repository.GenreRepository, networkRepository repository.NetworkRepository, tmdbClient *tmdb.Client,
+) Executor {
+	return refreshGenresAndNetworksJob{
+		genreRepository,
+		networkRepository,
+		tmdbClient,
+	}
+}
+
+func NewNotifyUsersJob(userRepository repository.UserRepository) Executor {
+	return notifyUsersJob{
+		userRepository,
+	}
 }

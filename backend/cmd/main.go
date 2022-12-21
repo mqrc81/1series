@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/mqrc81/zeries/job"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -8,15 +9,16 @@ import (
 	. "github.com/mqrc81/zeries/util"
 )
 
-// TODO: initialize genres & networks
 func main() {
 	LogInfo("Starting application...")
-	// Environment variables need to be initialized from .env file first when ran locally
+
+	// Initialize local environment variables
 	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
 		err := godotenv.Load()
 		checkError(err)
 	}
 
+	// Register interface adapters
 	database, err := registry.NewDatabase(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
@@ -29,7 +31,16 @@ func main() {
 	traktClient, err := registry.NewTraktClient(os.Getenv("TRAKT_KEY"))
 	checkError(err)
 
+	scheduler, err := registry.NewScheduler(database, tmdbClient, traktClient)
+	checkError(err)
+
 	controller, err := registry.NewController(database, sessionManager, tmdbClient, traktClient)
+	checkError(err)
+
+	// Start application
+	LogInfo("Scheduling and running jobs")
+	scheduler.StartAsync()
+	err = scheduler.RunByTag(job.RunOnInitTag)
 	checkError(err)
 
 	LogInfo("Listening on " + os.Getenv("BACKEND_URL"))
