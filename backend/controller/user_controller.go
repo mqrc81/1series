@@ -16,14 +16,8 @@ type UserController interface {
 	RegisterUser(ctx echo.Context) error
 }
 
-func NewUserController(uc usecase.UserUseCase, router *echo.Group) UserController {
-	controller := &userController{uc}
-
-	router.POST("/register", func(ctx echo.Context) error {
-		return controller.RegisterUser(ctx)
-	})
-
-	return controller
+func newUserController(uc usecase.UserUseCase) UserController {
+	return &userController{uc}
 }
 
 func (c *userController) RegisterUser(ctx echo.Context) error {

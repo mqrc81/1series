@@ -19,23 +19,8 @@ type ShowController interface {
 	GetUpcomingReleases(ctx echo.Context) error
 }
 
-func NewShowController(uc usecase.ShowUseCase, router *echo.Group) ShowController {
-	controller := &showController{uc}
-
-	router.GET("/:showId", func(ctx echo.Context) error {
-		return controller.GetShow(ctx)
-	})
-	router.GET("/popular", func(ctx echo.Context) error {
-		return controller.GetPopularShows(ctx)
-	})
-	router.GET("/releases", func(ctx echo.Context) error {
-		return controller.GetUpcomingReleases(ctx)
-	})
-	router.GET("/search", func(ctx echo.Context) error {
-		return controller.SearchShows(ctx)
-	})
-
-	return controller
+func newShowController(uc usecase.ShowUseCase) ShowController {
+	return &showController{uc}
 }
 
 func (c *showController) GetShow(ctx echo.Context) error {
