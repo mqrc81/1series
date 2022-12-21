@@ -14,7 +14,7 @@ func main() {
 	LogInfo("Starting application...")
 
 	// Initialize local environment variables
-	if os.Getenv("ENVIRONMENT") != "PRODUCTION" {
+	if os.Getenv("ENVIRONMENT") != "RAILWAY" {
 		err := godotenv.Load()
 		checkError(err)
 	}
