@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/mqrc81/zeries/job"
-	"os"
-
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/mqrc81/zeries/job"
 	"github.com/mqrc81/zeries/registry"
 	. "github.com/mqrc81/zeries/util"
+	"os"
+	"time"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 	// Start application
 	LogInfo("Scheduling and running jobs")
 	scheduler.StartAsync()
-	err = scheduler.RunByTag(job.RunOnInitTag)
+	err = scheduler.RunByTagWithDelay(job.RunOnInitTag, time.Second)
 	checkError(err)
 
 	LogInfo("Listening on " + os.Getenv("BACKEND_URL"))

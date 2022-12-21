@@ -16,7 +16,7 @@ const (
 	defaultErrorMessage = "error executing update-releases job"
 )
 
-func (e updateReleasesJob) Execute() error {
+func (e updateReleasesJob) execute() error {
 	LogInfo("Running update-releases job")
 
 	var (

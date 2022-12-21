@@ -51,21 +51,22 @@ func NewScheduler(
 	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
 ) (*gocron.Scheduler, error) {
 	scheduler := gocron.NewScheduler(time.UTC)
+	scheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)
 
 	refreshGenresAndNetworksJob := job.NewRefreshGenresAndNetworksJob(repository.NewGenreRepository(database), repository.NewNetworkRepository(database), tmdbClient)
-	_, err := scheduler.Tag(job.RunOnInitTag).Every(1).Day().At("00:00").Do(refreshGenresAndNetworksJob.Execute)
+	_, err := scheduler.Every(1).Day().At("00:00").Tag(job.RunOnInitTag).Do(refreshGenresAndNetworksJob)
 	if err != nil {
 		return nil, err
 	}
 
 	updateReleasesJob := job.NewUpdateReleasesJob(repository.NewReleaseRepository(database), tmdbClient, traktClient)
-	_, err = scheduler.Tag(job.RunOnInitTag).Every(1).Day().At("00:30").Do(updateReleasesJob.Execute)
+	_, err = scheduler.Every(1).Day().At("00:05").Tag(job.RunOnInitTag).Do(updateReleasesJob)
 	if err != nil {
 		return nil, err
 	}
 
 	notifyUsersJob := job.NewNotifyUsersJob(repository.NewUserRepository(database))
-	_, err = scheduler.Every(3).Days().At("01:00").Do(notifyUsersJob.Execute)
+	_, err = scheduler.Every(1).Monday().At("00:10").Do(notifyUsersJob)
 	if err != nil {
 		return nil, err
 	}
