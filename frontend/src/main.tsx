@@ -7,6 +7,7 @@ import { QueryClient } from './api';
 import { ConfigProvider as AntConfigProvider } from 'antd';
 import { AntTheme } from './theme';
 
+document.body.classList.add('bg-background');
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
         <QueryClientProvider client={QueryClient}>
