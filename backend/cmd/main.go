@@ -15,8 +15,8 @@ var (
 )
 
 type config struct {
-	BackendUrl    string `env:"BACKEND_URL"`
 	Port          string `env:"PORT"`
+	BackendUrl    string `env:"BACKEND_URL"`
 	DatabaseUrl   string `env:"DATABASE_URL"`
 	TmdbKey       string `env:"TMDB_KEY"`
 	TraktKey      string `env:"TRAKT_KEY"`

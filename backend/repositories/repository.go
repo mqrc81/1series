@@ -17,6 +17,7 @@ type UserRepository interface {
 type GenreRepository interface {
 	FindAll() ([]domain.Genre, error)
 	Save(genre domain.Genre) error
+	ReplaceAll(genres []domain.Genre) error
 }
 
 type NetworkRepository interface {
@@ -26,7 +27,7 @@ type NetworkRepository interface {
 
 type ReleaseRepository interface {
 	FindAllInRange(amount int, offset int) ([]domain.ReleaseRef, error)
-	SaveAll(releases []domain.ReleaseRef, pastReleasesCount int) error
+	ReplaceAll(releases []domain.ReleaseRef, pastReleasesCount int) error
 	CountPastReleases() (int, error)
 }
 

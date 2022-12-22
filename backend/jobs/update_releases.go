@@ -54,11 +54,11 @@ func (job updateReleasesJob) execute() error {
 		startDate = startDate.Add(thirtyDays)
 	}
 
-	if err = job.releaseRepository.SaveAll(releases, pastReleasesCount); err != nil {
+	if err = job.releaseRepository.ReplaceAll(releases, pastReleasesCount); err != nil {
 		return fmt.Errorf("%v: %w", errorMsg(job), err)
 	}
 
-	logger.Info("Completed %v with %d releases updated", job.name(), len(releases))
+	logger.Info("Completed %v with %d releases saved", job.name(), len(releases))
 	return nil
 }
 

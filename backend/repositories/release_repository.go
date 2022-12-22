@@ -25,7 +25,7 @@ func (r *releaseRepository) FindAllInRange(amount int, offset int) (releases []d
 	return releases, err
 }
 
-func (r *releaseRepository) SaveAll(releases []domain.ReleaseRef, pastReleasesCount int) error {
+func (r *releaseRepository) ReplaceAll(releases []domain.ReleaseRef, pastReleasesCount int) error {
 
 	txn, err := r.Beginx()
 	if err != nil {
