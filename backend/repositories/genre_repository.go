@@ -26,11 +26,11 @@ func (r *genreRepository) FindAll() (genres []domain.Genre, err error) {
 func (r *genreRepository) Save(genre domain.Genre) (err error) {
 
 	if _, err = r.Exec(
-		`INSERT INTO genres(id, name) VALUES ($1, $2)`,
-		genre.Id,
+		`INSERT INTO genres(tmdb_id, name) VALUES ($1, $2)`,
+		genre.TmdbId,
 		genre.Name,
 	); err != nil {
-		err = fmt.Errorf("error adding genre [%v, %v]: %w", genre.Id, genre.Name, err)
+		err = fmt.Errorf("error adding genre [%v, %v]: %w", genre.TmdbId, genre.Name, err)
 	}
 
 	return err

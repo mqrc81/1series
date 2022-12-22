@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"github.com/cyruzin/golang-tmdb"
+	"github.com/go-co-op/gocron"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/zeries/usecases/jobs"
 	"github.com/mqrc81/zeries/usecases/shows"
 	"github.com/mqrc81/zeries/usecases/users"
 	"io"
@@ -28,7 +30,7 @@ type controller struct {
 }
 
 func NewController(
-	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
+	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
 ) (Controller, error) {
 
 	userRepository := repositories.NewUserRepository(database)
@@ -38,11 +40,11 @@ func NewController(
 
 	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
 	userUseCase := users.NewUseCase(userRepository)
+	jobUseCase := jobs.NewUseCase(scheduler)
 
 	validate := validator.New()
 
 	controller := newController(userRepository)
-
 	baseRouter := controller.Group("/api")
 	{
 		baseRouter.GET("/ping", controller.ping)
@@ -65,6 +67,12 @@ func NewController(
 	{
 		userRouter.POST("/register", userController.RegisterUser)
 		userRouter.POST("/login", userController.LoginUser)
+	}
+
+	jobsController := newJobController(jobUseCase)
+	jobsRouter := baseRouter.Group("/jobs")
+	{
+		jobsRouter.GET("/runByTag", jobsController.RunJobsByTag)
 	}
 
 	controller.Use(

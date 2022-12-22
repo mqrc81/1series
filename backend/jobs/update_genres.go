@@ -33,7 +33,7 @@ func (job updateGenresJob) execute() error {
 		return fmt.Errorf("%v whilst saving genres: %w", errorMsg(job), err)
 	}
 
-	logger.Info("Completed %v with %d genres updated", job.name(), len(genres))
+	logger.Info("Completed %v with %d genres saved", job.name(), len(genres))
 	return nil
 }
 
