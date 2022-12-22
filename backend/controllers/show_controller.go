@@ -15,8 +15,10 @@ type showController struct {
 type ShowController interface {
 	GetShow(ctx echo.Context) error
 	GetPopularShows(ctx echo.Context) error
-	SearchShows(ctx echo.Context) error
 	GetUpcomingReleases(ctx echo.Context) error
+	SearchShows(ctx echo.Context) error
+	GetGenres(ctx echo.Context) error
+	GetNetworks(ctx echo.Context) error
 }
 
 func newShowController(uc shows.UseCase) ShowController {
@@ -57,6 +59,20 @@ func (c *showController) GetPopularShows(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, output)
 }
 
+func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
+	// Input
+	page, _ := strconv.Atoi(ctx.QueryParam("page"))
+
+	// Use-Case
+	releases, err := c.showUseCase.GetUpcomingReleases(page)
+	if err != nil {
+		return err
+	}
+
+	// Output
+	return ctx.JSON(http.StatusOK, releases)
+}
+
 func (c *showController) SearchShows(ctx echo.Context) error {
 	// Input
 	searchTerm := ctx.QueryParam("searchTerm")
@@ -74,16 +90,30 @@ func (c *showController) SearchShows(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, shows)
 }
 
-func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
+func (c *showController) GetGenres(ctx echo.Context) error {
 	// Input
-	page, _ := strconv.Atoi(ctx.QueryParam("page"))
+	// -
 
 	// Use-Case
-	releases, err := c.showUseCase.GetUpcomingReleases(page)
+	genres, err := c.showUseCase.GetGenres()
 	if err != nil {
 		return err
 	}
 
 	// Output
-	return ctx.JSON(http.StatusOK, releases)
+	return ctx.JSON(http.StatusOK, genres)
+}
+
+func (c *showController) GetNetworks(ctx echo.Context) error {
+	// Input
+	// -
+
+	// Use-Case
+	networks, err := c.showUseCase.GetNetworks()
+	if err != nil {
+		return err
+	}
+
+	// Output
+	return ctx.JSON(http.StatusOK, networks)
 }

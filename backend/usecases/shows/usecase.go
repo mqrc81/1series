@@ -15,6 +15,8 @@ const (
 type useCase struct {
 	userRepository    repositories.UserRepository
 	releaseRepository repositories.ReleaseRepository
+	genreRepository   repositories.GenreRepository
+	networkRepository repositories.NetworkRepository
 	traktClient       *trakt.Client
 	tmdbClient        *tmdb.Client
 }
@@ -24,11 +26,21 @@ type UseCase interface {
 	GetPopularShows(page int) ([]domain.Show, error)
 	GetUpcomingReleases(page int) ([]domain.Release, error)
 	SearchShows(searchTerm string) ([]domain.Show, error)
+	GetGenres() ([]domain.Genre, error)
+	GetNetworks() ([]domain.Network, error)
 }
 
 func NewUseCase(
 	userRepository repositories.UserRepository, releaseRepository repositories.ReleaseRepository,
+	genreRepository repositories.GenreRepository, networkRepository repositories.NetworkRepository,
 	traktClient *trakt.Client, tmdbClient *tmdb.Client,
 ) UseCase {
-	return &useCase{userRepository, releaseRepository, traktClient, tmdbClient}
+	return &useCase{
+		userRepository,
+		releaseRepository,
+		genreRepository,
+		networkRepository,
+		traktClient,
+		tmdbClient,
+	}
 }

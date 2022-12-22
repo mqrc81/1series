@@ -8,7 +8,7 @@ type (
 	}
 
 	LoginForm struct {
-		EmailOrUsername string `json:"email-or-username" validate:"required,email|alphanum"`
+		EmailOrUsername string `json:"emailOrUsername" validate:"required,email|alphanum"`
 		Password        string `json:"password" validate:"required"`
 	}
 )

@@ -18,5 +18,7 @@ type useCase struct {
 func NewUseCase(
 	userRepository repositories.UserRepository,
 ) UseCase {
-	return &useCase{userRepository}
+	return &useCase{
+		userRepository,
+	}
 }

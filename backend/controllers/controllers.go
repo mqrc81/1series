@@ -31,13 +31,15 @@ func NewController(
 	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
 ) (Controller, error) {
 
-	validate := validator.New()
-
 	userRepository := repositories.NewUserRepository(database)
 	releaseRepository := repositories.NewReleaseRepository(database)
+	genreRepository := repositories.NewGenreRepository(database)
+	networkRepository := repositories.NewNetworkRepository(database)
 
-	showUseCase := shows.NewUseCase(userRepository, releaseRepository, traktClient, tmdbClient)
+	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
 	userUseCase := users.NewUseCase(userRepository)
+
+	validate := validator.New()
 
 	controller := newController(userRepository)
 
@@ -54,6 +56,8 @@ func NewController(
 		showRouter.GET("/popular", showController.GetPopularShows)
 		showRouter.GET("/releases", showController.GetUpcomingReleases)
 		showRouter.GET("/search", showController.SearchShows)
+		showRouter.GET("/genres", showController.GetGenres)
+		showRouter.GET("/networks", showController.GetNetworks)
 	}
 
 	userController := newUserController(userUseCase, validate)
