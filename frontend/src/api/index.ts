@@ -12,7 +12,7 @@ export const QueryClient = new ReactQueryClient({
 });
 
 export const Apisauce = create({
-    baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: import.meta.env.VITE_BACKEND_URL + '/api',
     xsrfCookieName: '_csrf',
     xsrfHeaderName: 'X-CSRF-Token',
 });
