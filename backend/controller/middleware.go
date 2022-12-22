@@ -1,15 +1,22 @@
 package controller
 
 import (
-	"github.com/alexedwards/scs/v2"
+	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/mqrc81/zeries/repository"
 	. "github.com/mqrc81/zeries/util"
 	"time"
 )
 
-func logRequest() echo.MiddlewareFunc {
+const (
+	sessionKey       = "session"
+	sessionUserIdKey = "userId"
+	sessionUserKey   = "user"
+)
+
+func (c *controller) logger() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(ctx echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
@@ -29,22 +36,31 @@ func logRequest() echo.MiddlewareFunc {
 	})
 }
 
-func withUser(
-	sessionManager *scs.SessionManager, userRepository repository.UserRepository,
-) echo.MiddlewareFunc {
+func (c *controller) session() echo.MiddlewareFunc {
+	key := securecookie.GenerateRandomKey(32)
+	store := sessions.NewCookieStore(key)
+	return session.Middleware(store)
+}
+
+func (c *controller) withUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			userId := sessionManager.GetInt(ctx.Request().Context(), "userId")
-			if userId <= 0 {
+			currentSession, err := session.Get(sessionKey, ctx)
+			if err != nil {
+				return err
+			}
+
+			userId, ok := currentSession.Values[sessionUserIdKey].(int)
+			if !ok {
 				return next(ctx)
 			}
 
-			user, err := userRepository.Find(userId)
+			user, err := c.userRepository.Find(userId)
 			if err != nil {
 				return next(ctx)
 			}
 
-			ctx.Set("user", user)
+			ctx.Set(sessionUserKey, user)
 			return next(ctx)
 		}
 	}

@@ -1,29 +1,26 @@
 package usecase
 
 import (
-	"context"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (uc *userUseCase) LoginUser(form LoginForm, reqCtx context.Context) (domain.User, error) {
+func (uc *userUseCase) LoginUser(form LoginForm) (user domain.User, err error) {
 
-	user, err := uc.userRepository.FindByUsername(form.Identifier)
+	user, err = uc.userRepository.FindByUsername(form.EmailOrUsername)
 	if err != nil {
-
-		user, err = uc.userRepository.FindByEmail(form.Identifier)
+		user, err = uc.userRepository.FindByEmail(form.EmailOrUsername)
 		if err != nil {
-			form.IdentifierNotFound = true
+			return user, echo.NewHTTPError(http.StatusBadRequest, "invalid email or username")
 		}
 	}
 
-	if formErrors := form.Validate(); formErrors != nil {
-		return domain.User{}, echo.NewHTTPError(http.StatusBadRequest, formErrors)
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
+		return user, echo.NewHTTPError(http.StatusBadRequest, "invalid password")
 	}
 
-	uc.sessionManager.Put(reqCtx, "userId", user.Id)
-
-	return user, nil
+	return user, err
 }

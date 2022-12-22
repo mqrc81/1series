@@ -23,9 +23,6 @@ func main() {
 	database, err := registry.NewDatabase(os.Getenv("DATABASE_URL"))
 	checkError(err)
 
-	sessionManager, err := registry.NewSessionManager(database)
-	checkError(err)
-
 	tmdbClient, err := registry.NewTmdbClient(os.Getenv("TMDB_KEY"))
 	checkError(err)
 
@@ -35,7 +32,7 @@ func main() {
 	scheduler, err := registry.NewScheduler(database, tmdbClient, traktClient)
 	checkError(err)
 
-	controller, err := registry.NewController(database, sessionManager, tmdbClient, traktClient)
+	controller, err := registry.NewController(database, tmdbClient, traktClient)
 	checkError(err)
 
 	// Start application

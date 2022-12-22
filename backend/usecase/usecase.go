@@ -1,9 +1,6 @@
 package usecase
 
 import (
-	"context"
-
-	"github.com/alexedwards/scs/v2"
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/repository"
@@ -24,7 +21,6 @@ type showUseCase struct {
 
 type userUseCase struct {
 	userRepository repository.UserRepository
-	sessionManager *scs.SessionManager
 }
 
 type ShowUseCase interface {
@@ -35,7 +31,8 @@ type ShowUseCase interface {
 }
 
 type UserUseCase interface {
-	RegisterUser(form RegisterForm, reqCtx context.Context) (domain.User, error)
+	RegisterUser(form RegisterForm) (domain.User, error)
+	LoginUser(form LoginForm) (domain.User, error)
 }
 
 func NewShowUseCase(
@@ -46,7 +43,7 @@ func NewShowUseCase(
 }
 
 func NewUserUseCase(
-	userRepository repository.UserRepository, sessionManager *scs.SessionManager,
+	userRepository repository.UserRepository,
 ) UserUseCase {
-	return &userUseCase{userRepository, sessionManager}
+	return &userUseCase{userRepository}
 }

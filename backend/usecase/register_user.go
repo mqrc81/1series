@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -9,22 +8,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (uc *userUseCase) RegisterUser(form RegisterForm, reqCtx context.Context) (domain.User, error) {
+func (uc *userUseCase) RegisterUser(form RegisterForm) (user domain.User, err error) {
 
-	if _, err := uc.userRepository.FindByUsername(form.Username); err == nil {
-		form.UsernameTaken = true
+	if _, err = uc.userRepository.FindByUsername(form.Username); err == nil {
+		return user, echo.NewHTTPError(http.StatusBadRequest, "username is already taken")
 	}
-	if _, err := uc.userRepository.FindByEmail(form.Email); err == nil {
-		form.EmailTaken = true
-	}
-
-	if formErrors := form.Validate(); formErrors != nil {
-		return domain.User{}, echo.NewHTTPError(http.StatusBadRequest, formErrors)
+	if _, err = uc.userRepository.FindByEmail(form.Email); err == nil {
+		return user, echo.NewHTTPError(http.StatusBadRequest, "email is already taken")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return domain.User{}, echo.NewHTTPError(http.StatusConflict, "error hashing password: "+err.Error())
+		return user, echo.NewHTTPError(http.StatusConflict, "error hashing password: "+err.Error())
 	}
 
 	userId, err := uc.userRepository.Save(domain.User{
@@ -33,15 +28,13 @@ func (uc *userUseCase) RegisterUser(form RegisterForm, reqCtx context.Context) (
 		Password: string(hashedPassword),
 	})
 	if err != nil {
-		return domain.User{}, echo.NewHTTPError(http.StatusConflict, err.Error())
+		return user, echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	user, err := uc.userRepository.Find(userId)
+	user, err = uc.userRepository.Find(userId)
 	if err != nil {
-		return domain.User{}, echo.NewHTTPError(http.StatusConflict, err.Error())
+		return user, echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
-
-	uc.sessionManager.Put(reqCtx, "userId", userId)
 
 	return user, nil
 }

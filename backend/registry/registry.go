@@ -4,8 +4,6 @@ import (
 	"github.com/go-co-op/gocron"
 	"time"
 
-	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/v2"
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/controller"
@@ -18,15 +16,6 @@ func NewDatabase(
 	dataSourceName string,
 ) (*sqlx.DB, error) {
 	return sqlx.Connect("postgres", dataSourceName)
-}
-
-func NewSessionManager(
-	db *sqlx.DB,
-) (*scs.SessionManager, error) {
-	sessionManager := scs.New()
-	sessionManager.Store = postgresstore.NewWithCleanupInterval(db.DB, 1*time.Hour)
-	sessionManager.Lifetime = 24 * time.Hour
-	return sessionManager, nil
 }
 
 func NewTmdbClient(
@@ -42,9 +31,9 @@ func NewTraktClient(
 }
 
 func NewController(
-	database *sqlx.DB, sessionManager *scs.SessionManager, tmdbClient *tmdb.Client, traktClient *trakt.Client,
+	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
 ) (controller.Controller, error) {
-	return controller.NewController(database, sessionManager, tmdbClient, traktClient)
+	return controller.NewController(database, tmdbClient, traktClient)
 }
 
 func NewScheduler(
