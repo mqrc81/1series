@@ -1,4 +1,4 @@
-package job
+package jobs
 
 import (
 	"fmt"
@@ -6,18 +6,21 @@ import (
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/repository"
+	"github.com/mqrc81/zeries/logger"
+	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
-	. "github.com/mqrc81/zeries/util"
 )
 
 const (
-	thirtyDays          = 30 * 24 * time.Hour
-	defaultErrorMessage = "error executing update-releases job"
+	thirtyDays = 30 * 24 * time.Hour
 )
 
-func (e updateReleasesJob) execute() error {
-	LogInfo("Running update-releases job")
+func (job updateReleasesJob) name() string {
+	return "UPDATE-RELEASES job"
+}
+
+func (job updateReleasesJob) execute() error {
+	logger.Info("Running " + job.name())
 
 	var (
 		releases          []domain.ReleaseRef
@@ -25,20 +28,20 @@ func (e updateReleasesJob) execute() error {
 		startDate         = time.Now().Add(-thirtyDays)
 	)
 
-	traktShowsAnticipated, err := e.traktClient.GetAnticipatedShows(1, 10)
+	traktShowsAnticipated, err := job.traktClient.GetAnticipatedShows(1, 10)
 	if err != nil {
-		return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
+		return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", errorMsg(job), err)
 	}
 
 	// Trakt's limit is 33 days per request, but we want 9 * 30 days
 	for i := 0; i < 9; i++ {
 
-		traktReleases, err := e.traktClient.GetSeasonPremieres(startDate, 30)
+		traktReleases, err := job.traktClient.GetSeasonPremieres(startDate, 30)
 		if err != nil {
-			return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", defaultErrorMessage, err)
+			return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", errorMsg(job), err)
 		}
 
-		releases, err = e.filterAndCollectReleases(releases, traktReleases, traktShowsAnticipated)
+		releases, err = job.filterAndCollectReleases(releases, traktReleases, traktShowsAnticipated)
 		if err != nil {
 			return err
 		}
@@ -51,15 +54,15 @@ func (e updateReleasesJob) execute() error {
 		startDate = startDate.Add(thirtyDays)
 	}
 
-	if err = e.releaseRepository.SaveAll(releases, pastReleasesCount); err != nil {
-		return fmt.Errorf("%v: %w", defaultErrorMessage, err)
+	if err = job.releaseRepository.SaveAll(releases, pastReleasesCount); err != nil {
+		return fmt.Errorf("%v: %w", errorMsg(job), err)
 	}
 
-	LogInfo("Completed update-releases job with %d releases updated", len(releases))
+	logger.Info("Completed %v with %d releases updated", job.name(), len(releases))
 	return nil
 }
 
-func (e updateReleasesJob) filterAndCollectReleases(
+func (job updateReleasesJob) filterAndCollectReleases(
 	releases []domain.ReleaseRef, traktReleases []trakt.SeasonPremieresDto, traktShows []trakt.ShowsAnticipatedDto,
 ) ([]domain.ReleaseRef, error) {
 	for _, traktRelease := range traktReleases {
@@ -67,7 +70,7 @@ func (e updateReleasesJob) filterAndCollectReleases(
 			continue
 		}
 
-		tmdbShow, err := e.tmdbClient.GetTVDetails(traktRelease.TmdbId(),
+		tmdbShow, err := job.tmdbClient.GetTVDetails(traktRelease.TmdbId(),
 			map[string]string{"append_to_response": "translations"})
 
 		if err != nil || !hasRelevantInfo(tmdbShow) || !hasMatchingSeasons(traktRelease, tmdbShow) {
@@ -114,7 +117,7 @@ func hasRelevantType(show *tmdb.TVDetails) bool {
 	case "Reality", "News", "Talk Show", "Video":
 		return false
 	default:
-		LogWarning("Unknown type [%v] detected for show [%d, %v]", show.Type, show.ID, show.Name)
+		logger.Warning("Unknown type [%v] detected for show [%d, %v]", show.Type, show.ID, show.Name)
 		return false
 	}
 }
@@ -127,11 +130,11 @@ func anticipationLevelFor(releaseId int, showsAnticipated []trakt.ShowsAnticipat
 	for i, showAnticipated := range showsAnticipated {
 		if releaseId == showAnticipated.TmdbId() {
 			if i == 0 {
-				return domain.Zamn
+				return domain.Extreme
 			} else if i < 3 {
-				return domain.Bussin
+				return domain.High
 			} else if i < 10 {
-				return domain.Mid
+				return domain.Moderate
 			}
 		}
 	}
@@ -139,7 +142,7 @@ func anticipationLevelFor(releaseId int, showsAnticipated []trakt.ShowsAnticipat
 }
 
 type updateReleasesJob struct {
-	releaseRepository repository.ReleaseRepository
+	releaseRepository repositories.ReleaseRepository
 	tmdbClient        *tmdb.Client
 	traktClient       *trakt.Client
 }

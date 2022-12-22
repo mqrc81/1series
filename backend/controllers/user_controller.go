@@ -1,17 +1,18 @@
-package controller
+package controllers
 
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/usecases/users"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/usecase"
+	"github.com/mqrc81/zeries/usecases"
 )
 
 type userController struct {
-	userUseCase usecase.UserUseCase
+	userUseCase users.UseCase
 	validate    *validator.Validate
 }
 
@@ -20,13 +21,13 @@ type UserController interface {
 	LoginUser(ctx echo.Context) error
 }
 
-func newUserController(userUseCase usecase.UserUseCase, validate *validator.Validate) UserController {
+func newUserController(userUseCase users.UseCase, validate *validator.Validate) UserController {
 	return &userController{userUseCase, validate}
 }
 
 func (c *userController) RegisterUser(ctx echo.Context) (err error) {
 	// Input
-	form := new(usecase.RegisterForm)
+	form := new(usecases.RegisterForm)
 	if err = ctx.Bind(form); err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
@@ -49,7 +50,7 @@ func (c *userController) RegisterUser(ctx echo.Context) (err error) {
 
 func (c *userController) LoginUser(ctx echo.Context) (err error) {
 	// Input
-	form := new(usecase.LoginForm)
+	form := new(usecases.LoginForm)
 	if err = ctx.Bind(form); err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}

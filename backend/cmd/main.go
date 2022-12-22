@@ -3,15 +3,15 @@ package main
 import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/mqrc81/zeries/job"
+	"github.com/mqrc81/zeries/jobs"
+	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/registry"
-	. "github.com/mqrc81/zeries/util"
 	"os"
 	"time"
 )
 
 func main() {
-	LogInfo("Starting application...")
+	logger.Info("Starting application...")
 
 	// Initialize local environment variables
 	if os.Getenv("ENVIRONMENT") != "RAILWAY" {
@@ -36,18 +36,18 @@ func main() {
 	checkError(err)
 
 	// Start application
-	LogInfo("Scheduling and running jobs")
+	logger.Info("Scheduling and running jobs")
 	scheduler.StartAsync()
-	err = scheduler.RunByTagWithDelay(job.RunOnInitTag, time.Second)
+	err = scheduler.RunByTagWithDelay(jobs.RunOnInitTag, time.Second)
 	checkError(err)
 
-	LogInfo("Listening on " + os.Getenv("BACKEND_URL"))
+	logger.Info("Listening on " + os.Getenv("BACKEND_URL"))
 	err = controller.Start(":" + os.Getenv("PORT"))
 	checkError(err)
 }
 
 func checkError(err error) {
 	if err != nil {
-		LogPanic(err)
+		logger.Fatal(err)
 	}
 }

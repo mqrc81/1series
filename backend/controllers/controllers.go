@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 import (
 	"github.com/cyruzin/golang-tmdb"
@@ -6,9 +6,10 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/mqrc81/zeries/repository"
+	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/usecase"
+	"github.com/mqrc81/zeries/usecases/shows"
+	"github.com/mqrc81/zeries/usecases/users"
 	"io"
 	"net/http"
 )
@@ -23,7 +24,7 @@ type Controller interface {
 
 type controller struct {
 	*echo.Echo
-	userRepository repository.UserRepository
+	userRepository repositories.UserRepository
 }
 
 func NewController(
@@ -32,11 +33,11 @@ func NewController(
 
 	validate := validator.New()
 
-	userRepository := repository.NewUserRepository(database)
-	releaseRepository := repository.NewReleaseRepository(database)
+	userRepository := repositories.NewUserRepository(database)
+	releaseRepository := repositories.NewReleaseRepository(database)
 
-	showUseCase := usecase.NewShowUseCase(userRepository, releaseRepository, traktClient, tmdbClient)
-	userUseCase := usecase.NewUserUseCase(userRepository)
+	showUseCase := shows.NewUseCase(userRepository, releaseRepository, traktClient, tmdbClient)
+	userUseCase := users.NewUseCase(userRepository)
 
 	controller := newController(userRepository)
 
@@ -75,7 +76,7 @@ func NewController(
 	return controller, nil
 }
 
-func newController(userRepository repository.UserRepository) controller {
+func newController(userRepository repositories.UserRepository) controller {
 	echoEngine := echo.New()
 	echoEngine.Logger.SetOutput(io.Discard)
 	echoEngine.HideBanner = true

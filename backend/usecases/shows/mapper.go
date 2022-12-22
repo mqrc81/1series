@@ -1,11 +1,11 @@
-package usecase
+package shows
 
 import (
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
-	. "github.com/mqrc81/zeries/util"
+	"github.com/mqrc81/zeries/logger"
 )
 
 func showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
@@ -60,7 +60,7 @@ func releaseFromTmdbShow(
 
 func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	if seasonNumber > len(dto.Seasons) {
-		LogError("Tmdb show [%d, %v] has no season [%v]", dto.ID, dto.Name, seasonNumber)
+		logger.Error("Tmdb show [%d, %v] has no season [%v]", dto.ID, dto.Name, seasonNumber)
 		return domain.Season{}
 	}
 	season := dto.Seasons[seasonNumber-1]

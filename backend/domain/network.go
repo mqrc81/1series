@@ -5,3 +5,5 @@ type Network struct {
 	Name string
 	Logo string
 }
+
+var Networks = []Network{}

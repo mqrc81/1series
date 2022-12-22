@@ -1,6 +1,7 @@
-package usecase
+package users
 
 import (
+	"github.com/mqrc81/zeries/usecases"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -8,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (uc *userUseCase) RegisterUser(form RegisterForm) (user domain.User, err error) {
+func (uc *useCase) RegisterUser(form usecases.RegisterForm) (user domain.User, err error) {
 
 	if _, err = uc.userRepository.FindByUsername(form.Username); err == nil {
 		return user, echo.NewHTTPError(http.StatusBadRequest, "username is already taken")

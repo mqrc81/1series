@@ -1,10 +1,10 @@
-package usecase
+package shows
 
 import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (uc *showUseCase) GetPopularShows(page int) ([]domain.Show, error) {
+func (uc *useCase) GetPopularShows(page int) ([]domain.Show, error) {
 	traktShows, err := uc.traktClient.GetShowsWatchedWeekly(page, 20)
 	if err != nil {
 		return []domain.Show{}, err

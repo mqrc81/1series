@@ -18,11 +18,11 @@ type ReleaseRef struct {
 	AnticipationLevel AnticipationLevel `db:"anticipation_level"`
 }
 
-type AnticipationLevel = int
+type AnticipationLevel int
 
 const (
-	Zero   AnticipationLevel = iota
-	Mid                      // top 10
-	Bussin                   // top 3
-	Zamn                     // top 1
+	Zero     AnticipationLevel = iota
+	Moderate                   // top 10
+	High                       // top 3
+	Extreme                    // top 1
 )

@@ -1,6 +1,7 @@
-package usecase
+package users
 
 import (
+	"github.com/mqrc81/zeries/usecases"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (uc *userUseCase) LoginUser(form LoginForm) (user domain.User, err error) {
+func (uc *useCase) LoginUser(form usecases.LoginForm) (user domain.User, err error) {
 
 	user, err = uc.userRepository.FindByUsername(form.EmailOrUsername)
 	if err != nil {

@@ -6,9 +6,9 @@ import (
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/jmoiron/sqlx"
-	"github.com/mqrc81/zeries/controller"
-	"github.com/mqrc81/zeries/job"
-	"github.com/mqrc81/zeries/repository"
+	"github.com/mqrc81/zeries/controllers"
+	"github.com/mqrc81/zeries/jobs"
+	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
 )
 
@@ -32,8 +32,8 @@ func NewTraktClient(
 
 func NewController(
 	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
-) (controller.Controller, error) {
-	return controller.NewController(database, tmdbClient, traktClient)
+) (controllers.Controller, error) {
+	return controllers.NewController(database, tmdbClient, traktClient)
 }
 
 func NewScheduler(
@@ -42,19 +42,19 @@ func NewScheduler(
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)
 
-	refreshGenresAndNetworksJob := job.NewRefreshGenresAndNetworksJob(repository.NewGenreRepository(database), repository.NewNetworkRepository(database), tmdbClient)
-	_, err := scheduler.Every(1).Day().At("00:00").Tag(job.RunOnInitTag).Do(refreshGenresAndNetworksJob)
+	updateGenresJob := jobs.NewUpdateGenresJob(repositories.NewGenreRepository(database), tmdbClient)
+	_, err := scheduler.Every(1).Monday().At("00:00").Tag(jobs.RunOnInitTag).Do(updateGenresJob)
 	if err != nil {
 		return nil, err
 	}
 
-	updateReleasesJob := job.NewUpdateReleasesJob(repository.NewReleaseRepository(database), tmdbClient, traktClient)
-	_, err = scheduler.Every(1).Day().At("00:05").Tag(job.RunOnInitTag).Do(updateReleasesJob)
+	updateReleasesJob := jobs.NewUpdateReleasesJob(repositories.NewReleaseRepository(database), tmdbClient, traktClient)
+	_, err = scheduler.Every(1).Day().At("00:05").Tag(jobs.RunOnInitTag).Do(updateReleasesJob)
 	if err != nil {
 		return nil, err
 	}
 
-	notifyUsersJob := job.NewNotifyUsersJob(repository.NewUserRepository(database))
+	notifyUsersJob := jobs.NewNotifyUsersJob(repositories.NewUserRepository(database))
 	_, err = scheduler.Every(1).Monday().At("00:10").Do(notifyUsersJob)
 	if err != nil {
 		return nil, err

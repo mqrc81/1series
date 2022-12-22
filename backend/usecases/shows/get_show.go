@@ -1,4 +1,4 @@
-package usecase
+package shows
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (uc *showUseCase) GetShow(showId int) (domain.Show, error) {
+func (uc *useCase) GetShow(showId int) (domain.Show, error) {
 
 	tmdbShow, err := uc.tmdbClient.GetTVDetails(showId, nil)
 	if err != nil {
