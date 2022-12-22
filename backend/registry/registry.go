@@ -31,9 +31,9 @@ func NewTraktClient(
 }
 
 func NewController(
-	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
+	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
 ) (controllers.Controller, error) {
-	return controllers.NewController(database, tmdbClient, traktClient)
+	return controllers.NewController(database, tmdbClient, traktClient, scheduler)
 }
 
 func NewScheduler(

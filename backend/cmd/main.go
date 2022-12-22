@@ -44,7 +44,7 @@ func main() {
 	scheduler, err := registry.NewScheduler(database, tmdbClient, traktClient)
 	checkError(err)
 
-	controller, err := registry.NewController(database, tmdbClient, traktClient)
+	controller, err := registry.NewController(database, tmdbClient, traktClient, scheduler)
 	checkError(err)
 
 	// Start application
