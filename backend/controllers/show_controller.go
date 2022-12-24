@@ -50,13 +50,16 @@ func (c *showController) GetPopularShows(ctx echo.Context) error {
 	}
 
 	// Use-Case
-	output, err := c.showUseCase.GetPopularShows(page)
+	shows, err := c.showUseCase.GetPopularShows(page)
 	if err != nil {
 		return err
 	}
 
 	// Output
-	return ctx.JSON(http.StatusOK, output)
+	return ctx.JSON(http.StatusOK, popularShowsDto{
+		NextPage: page + 1,
+		Shows:    shows,
+	})
 }
 
 func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
