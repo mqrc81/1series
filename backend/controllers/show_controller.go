@@ -73,7 +73,11 @@ func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
 	}
 
 	// Output
-	return ctx.JSON(http.StatusOK, releases)
+	return ctx.JSON(http.StatusOK, upcomingReleasesDto{
+		PreviousPage: page - 1,
+		NextPage:     page + 1,
+		Releases:     releases,
+	})
 }
 
 func (c *showController) SearchShows(ctx echo.Context) error {

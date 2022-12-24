@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Image } from 'antd';
-import { ShowDto } from '../../../api';
+import { ShowDto } from '../../api';
 
 type Props = {
     show: ShowDto;

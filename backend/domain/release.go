@@ -5,10 +5,10 @@ import (
 )
 
 type Release struct {
-	Show              Show
-	Season            Season
-	AirDate           time.Time
-	AnticipationLevel AnticipationLevel
+	Show              Show              `json:"show"`
+	Season            Season            `json:"season"`
+	AirDate           time.Time         `json:"airDate"`
+	AnticipationLevel AnticipationLevel `json:"anticipationLevel"`
 }
 
 type ReleaseRef struct {

@@ -2,12 +2,16 @@ import React from 'react';
 import { useGetPopularShowsQuery } from '../../api';
 import { Spin } from 'antd';
 import { useToast } from '../../hooks/use-toast/use-toast';
-import { ShowCard } from '../elements';
+import { ShowCard } from '../../components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 const PopularShows: React.FC = () => {
     const {errorToast, toastContextHolder} = useToast();
-    const {data: showsData, isLoading, isSuccess, fetchNextPage, isFetchingNextPage, hasNextPage} = useGetPopularShowsQuery({
+    const {
+        data: showsData,
+        isSuccess, isLoading, isFetching,
+        fetchNextPage, hasNextPage,
+    } = useGetPopularShowsQuery({
         onError: () => errorToast('Error fetching popular shows...'),
     });
 
@@ -29,7 +33,7 @@ const PopularShows: React.FC = () => {
                     </div>
                 </InfiniteScroll>
             }
-            {(isLoading || isFetchingNextPage) && <Spin className="m-auto mt-5" spinning size="large"/>}
+            {(isLoading || isFetching) && <Spin className="m-auto mt-5" spinning size="large"/>}
             {toastContextHolder}
         </div>
     );
