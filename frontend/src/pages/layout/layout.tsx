@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faFireFlameCurved } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faFireFlameCurved, faHome } from '@fortawesome/free-solid-svg-icons';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Layout } from 'antd';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
@@ -12,6 +12,13 @@ const AppLayout: React.FC = () => {
                 <Layout className="divide-y divide-white">
                     <Header className="md:px-60">
                         <nav>
+                            <NavLink
+                                to="/"
+                                className={({isActive}) => ('font-semibold mr-8 ' + (isActive ? 'text-pink-500' : 'hover:text-cyan-400'))}
+                            >
+                                <FontAwesomeIcon icon={faHome}/>
+                                <span className="pl-3">Home</span>
+                            </NavLink>
                             <NavLink
                                 to="/shows/popular"
                                 className={({isActive}) => ('font-semibold mr-8 ' + (isActive ? 'text-pink-500' : 'hover:text-cyan-400'))}
