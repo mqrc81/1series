@@ -13,3 +13,9 @@ type Show struct {
 	Genres        []Genre   `json:"genres"`
 	Networks      []Network `json:"networks"`
 }
+
+type WatchedShow struct {
+	UserId int `db:"user_id"`
+	ShowId int `db:"show_id"`
+	Rating int `db:"rating"`
+}
