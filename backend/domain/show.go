@@ -6,10 +6,10 @@ type Show struct {
 	Overview      string    `json:"overview,omitempty"`
 	Year          int       `json:"year,omitempty"`
 	Poster        string    `json:"poster,omitempty"`
-	Rating        float32   `json:"rating,omitempty"`
+	Rating        float32   `json:"rating"`
 	Homepage      string    `json:"homepage,omitempty"`
-	SeasonsCount  int       `json:"seasonsCount,omitempty"`
-	EpisodesCount int       `json:"episodesCount,omitempty"`
-	Genres        []Genre   `json:"genres,omitempty"`
-	Networks      []Network `json:"networks,omitempty"`
+	SeasonsCount  int       `json:"seasonsCount"`
+	EpisodesCount int       `json:"episodesCount"`
+	Genres        []Genre   `json:"genres"`
+	Networks      []Network `json:"networks"`
 }

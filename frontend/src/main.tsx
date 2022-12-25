@@ -2,13 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { QueryClientProvider } from 'react-query';
-import { QueryClient } from './api';
 import { ConfigProvider as AntConfigProvider } from 'antd';
-import { AntTheme } from './theme';
 import { RouterProvider } from 'react-router-dom';
-import { Router } from './routing';
+import { AntTheme, QueryClient, Router } from './providers';
 
-document.body.classList.add('bg-background');
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
         <QueryClientProvider client={QueryClient}>

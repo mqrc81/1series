@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	tmdbImageUrl       = "https://image.tmdb.org/t/p/original"
-	releasesPerRequest = 20
+	tmdbImageBaseUrl           = "https://image.tmdb.org/t/p/original"
+	upcomingReleasesPerRequest = 20
+	popularShowsPerRequest     = 20
+	showSearchesPerRequest     = 8
 )
 
 type useCase struct {
@@ -24,7 +26,7 @@ type useCase struct {
 type UseCase interface {
 	GetShow(showId int) (domain.Show, error)
 	GetPopularShows(page int) ([]domain.Show, error)
-	GetUpcomingReleases(page int) ([]domain.Release, error)
+	GetUpcomingReleases(page int) ([]domain.Release, bool, error)
 	SearchShows(searchTerm string) ([]domain.Show, error)
 	GetGenres() ([]domain.Genre, error)
 	GetNetworks() ([]domain.Network, error)

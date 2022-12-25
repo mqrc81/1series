@@ -26,7 +26,7 @@ const PopularShows: React.FC = () => {
                     dataLength={showsData.pages.length}
                     scrollThreshold={0.9}
                 >
-                    <div className="grid grid-cols-4 gap-5 m-10">
+                    <div className="grid grid-cols-5 gap-5">
                         {showsData.pages.flatMap(({shows}) => shows).map((show, i) => (
                             <ShowCard key={i} show={show}/>
                         ))}

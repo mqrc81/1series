@@ -10,7 +10,7 @@ type PopularShowsDto struct {
 }
 
 func (uc *useCase) GetPopularShows(page int) ([]domain.Show, error) {
-	traktShows, err := uc.traktClient.GetShowsWatchedWeekly(page, 20)
+	traktShows, err := uc.traktClient.GetShowsWatchedWeekly(page, popularShowsPerRequest)
 	if err != nil {
 		return []domain.Show{}, err
 	}

@@ -23,7 +23,7 @@ func showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 		networks = append(networks, domain.Network{
 			Id:   int(network.ID),
 			Name: network.Name,
-			Logo: tmdbImageUrl + network.LogoPath,
+			Logo: tmdbImageUrlFromImagePath(network.LogoPath),
 		})
 	}
 
@@ -37,7 +37,7 @@ func showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 		Name:          dto.Name,
 		Overview:      dto.Overview,
 		Year:          airDate.Year(),
-		Poster:        tmdbImageUrl + dto.PosterPath,
+		Poster:        tmdbImageUrlFromImagePath(dto.PosterPath),
 		Rating:        dto.VoteAverage,
 		Genres:        genres,
 		Networks:      networks,
@@ -69,7 +69,7 @@ func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 		Number:        season.SeasonNumber,
 		Name:          season.Name,
 		Overview:      season.Overview,
-		Poster:        tmdbImageUrl + season.PosterPath,
+		Poster:        tmdbImageUrlFromImagePath(season.PosterPath),
 		EpisodesCount: season.EpisodeCount,
 	}
 }
@@ -79,9 +79,16 @@ func showsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []
 		shows = append(shows, domain.Show{
 			Id:     int(result.ID),
 			Name:   result.Name,
-			Poster: tmdbImageUrl + result.PosterPath,
+			Poster: tmdbImageUrlFromImagePath(result.PosterPath),
 			Rating: result.VoteAverage,
 		})
 	}
 	return shows
+}
+
+func tmdbImageUrlFromImagePath(imagePath string) string {
+	if len(imagePath) > 0 {
+		return tmdbImageBaseUrl + imagePath
+	}
+	return ""
 }

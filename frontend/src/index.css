@@ -1,3 +1,17 @@
+/*@import url('https://fonts.googleapis.com/css2?family=Jost:wght@100,200;300;400;500;600;700;800,900&display=swap');*/
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;500;600;700;800;900;1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-rubik text-gray-100;
+    }
+
+    #content {
+        background-image: linear-gradient(to right, #FCE7F3, #374151, #374151, #374151, #374151, #374151, #374151, #374151, #374151, #FCE7F3);
+    }
+}

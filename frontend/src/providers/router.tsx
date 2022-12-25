@@ -1,6 +1,7 @@
-import { lazy } from 'react';
+import React, { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
-import App from '../app';
+import App from '../pages/app';
+import ErrorFallback from '../pages/error-fallback/error-fallback';
 
 const PopularShows = lazy(() => import('../pages/popular-shows/popular-shows'));
 const UpcomingReleases = lazy(() => import('../pages/upcoming-releases/upcoming-releases'));
@@ -9,6 +10,7 @@ export const Router = createBrowserRouter([
     {
         path: '/',
         element: <App/>,
+        errorElement: <ErrorFallback/>,
         children: [
             {
                 path: '/shows/popular',

@@ -7,18 +7,18 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, error) {
+func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, bool, error) {
 
 	pastReleases, err := uc.releaseRepository.CountPastReleases()
 	if err != nil {
-		return []domain.Release{}, err
+		return []domain.Release{}, false, err
 	}
 
-	amount, offset := calculateRange(page, pastReleases)
+	amount, offset, possiblyHasMore := calculateRange(page, pastReleases)
 
 	releasesRef, err := uc.releaseRepository.FindAllInRange(amount, offset)
 	if err != nil {
-		return []domain.Release{}, echo.NewHTTPError(http.StatusConflict, err.Error())
+		return []domain.Release{}, false, echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
 	var releases []domain.Release
@@ -27,7 +27,7 @@ func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, error) {
 			releaseRef.ShowId, map[string]string{"append_to_response": "translations"},
 		)
 		if err != nil {
-			return []domain.Release{}, echo.NewHTTPError(http.StatusConflict, err.Error())
+			return []domain.Release{}, false, echo.NewHTTPError(http.StatusConflict, err.Error())
 		}
 
 		releases = append(
@@ -35,29 +35,31 @@ func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, error) {
 			releaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate, releaseRef.AnticipationLevel),
 		)
 	}
-	return releases, nil
+	return releases, possiblyHasMore && len(releases) >= 20, nil
 }
 
-func calculateRange(page int, pastReleases int) (int, int) {
+func calculateRange(page int, pastReleases int) (int, int, bool) {
 	if page < 0 {
 		return calculateRangeForPastReleases(pastReleases, page)
 	}
 	return calculateRangeForUpcomingReleases(pastReleases, page)
 }
 
-func calculateRangeForUpcomingReleases(pastReleases int, page int) (int, int) {
-	// For pages 0+ return 20 releases
-	return releasesPerRequest, pastReleases + releasesPerRequest*page
+func calculateRangeForUpcomingReleases(pastReleases int, page int) (int, int, bool) {
+	// For pages > 0 return 20 releases
+	return upcomingReleasesPerRequest, pastReleases + upcomingReleasesPerRequest*(page-1), true
 }
 
-func calculateRangeForPastReleases(pastReleases int, page int) (int, int) {
-	// For negative pages return 20 releases or max releases left for last page
-	offset := pastReleases + releasesPerRequest*page
-	amount := releasesPerRequest
+func calculateRangeForPastReleases(pastReleases int, page int) (int, int, bool) {
+	// For pages < 0 return 20 releases or max releases left for last page
+	offset := pastReleases + upcomingReleasesPerRequest*page
+	amount := upcomingReleasesPerRequest
+	hasMore := true
 	if offset <= 0 {
 		// The last possible page for past releases has been reached
+		hasMore = false
 		amount += offset
 		offset = 0
 	}
-	return amount, offset
+	return amount, offset, hasMore
 }

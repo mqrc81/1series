@@ -1,10 +1,10 @@
 package domain
 
 type Season struct {
-	ShowId        int    `json:"showId"`
+	ShowId        int    `json:"showId,omitempty"`
 	Number        int    `json:"number"`
-	Name          string `json:"name"`
-	Overview      string `json:"overview"`
-	Poster        string `json:"poster"`
+	Name          string `json:"name,omitempty"`
+	Overview      string `json:"overview,omitempty"`
+	Poster        string `json:"poster,omitempty"`
 	EpisodesCount int    `json:"episodesCount"`
 }

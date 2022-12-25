@@ -65,19 +65,35 @@ func (c *showController) GetPopularShows(ctx echo.Context) error {
 func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
 	// Input
 	page, _ := strconv.Atoi(ctx.QueryParam("page"))
+	if page == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "parameter page must be positive or negative")
+	}
 
 	// Use-Case
-	releases, err := c.showUseCase.GetUpcomingReleases(page)
+	releases, hasMoreReleases, err := c.showUseCase.GetUpcomingReleases(page)
 	if err != nil {
 		return err
 	}
 
 	// Output
+	previousPage, nextPage := paginationForUpcomingReleases(page, hasMoreReleases)
 	return ctx.JSON(http.StatusOK, upcomingReleasesDto{
-		PreviousPage: page - 1,
-		NextPage:     page + 1,
+		PreviousPage: previousPage,
+		NextPage:     nextPage,
 		Releases:     releases,
 	})
+}
+
+func paginationForUpcomingReleases(currentPage int, hasMoreReleases bool) (previousPage int, nextPage int) {
+	if currentPage == 1 {
+		previousPage = -1
+	}
+	if hasMoreReleases && currentPage > 0 {
+		nextPage = currentPage + 1
+	} else if hasMoreReleases && currentPage < 0 {
+		previousPage = currentPage - 1
+	}
+	return previousPage, nextPage
 }
 
 func (c *showController) SearchShows(ctx echo.Context) error {

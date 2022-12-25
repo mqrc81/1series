@@ -1,4 +1,4 @@
 export type Paginated<T> = T & {
-    nextPage: number;
+    nextPage?: number;
     previousPage?: number;
 }
