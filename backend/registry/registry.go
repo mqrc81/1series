@@ -51,20 +51,17 @@ func NewScheduler(
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)
 
-	updateGenresJob := jobs.NewUpdateGenresJob(repositories.NewGenreRepository(database), tmdbClient)
-	_, err := scheduler.Every(1).Monday().At("00:00").Tag(jobs.RunOnInitTag).Do(updateGenresJob)
+	err := jobs.RegisterUpdateGenresJob(scheduler, repositories.NewGenreRepository(database), tmdbClient)
 	if err != nil {
 		return nil, err
 	}
 
-	updateReleasesJob := jobs.NewUpdateReleasesJob(repositories.NewReleaseRepository(database), tmdbClient, traktClient)
-	_, err = scheduler.Every(1).Day().At("00:05").Tag(jobs.RunOnInitTag).Do(updateReleasesJob)
+	err = jobs.RegisterUpdateReleasesJob(scheduler, repositories.NewReleaseRepository(database), tmdbClient, traktClient)
 	if err != nil {
 		return nil, err
 	}
 
-	notifyUsersJob := jobs.NewNotifyUsersJob(repositories.NewUserRepository(database))
-	_, err = scheduler.Every(1).Monday().At("00:10").Do(notifyUsersJob)
+	err = jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewWatchedShowRepository(database))
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"github.com/cyruzin/golang-tmdb"
+	"github.com/go-co-op/gocron"
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
@@ -11,48 +12,50 @@ const (
 	RunOnInitTag = "INIT"
 )
 
-func executor(job job) func() {
-	return func() {
-		err := job.
-			execute()
-		if err != nil {
-			logger.Error(err.Error())
-		}
-	}
-}
-
-func errorMsg(job job) string {
-	return "error executing " + job.name()
-}
-
 type job interface {
 	execute() error
 	name() string
 }
 
-func NewUpdateReleasesJob(
-	releaseRepository repositories.ReleaseRepository, tmdbClient *tmdb.Client, traktClient *trakt.Client,
-) func() {
-	return executor(updateReleasesJob{
-		releaseRepository,
-		tmdbClient,
-		traktClient,
-	})
+func RegisterUpdateGenresJob(
+	scheduler *gocron.Scheduler, genreRepository repositories.GenreRepository, tmdbClient *tmdb.Client,
+) error {
+	return registerJob(
+		updateGenresJob{genreRepository, tmdbClient},
+		scheduler.Every(1).Monday().At("00:00").Tag(RunOnInitTag).Do,
+	)
 }
 
-func NewUpdateGenresJob(
-	genreRepository repositories.GenreRepository, tmdbClient *tmdb.Client,
-) func() {
-	return executor(updateGenresJob{
-		genreRepository,
-		tmdbClient,
-	})
+func RegisterUpdateReleasesJob(
+	scheduler *gocron.Scheduler, releaseRepository repositories.ReleaseRepository, tmdbClient *tmdb.Client, traktClient *trakt.Client,
+) error {
+	return registerJob(
+		updateReleasesJob{releaseRepository, tmdbClient, traktClient},
+		scheduler.Every(1).Day().At("00:05").Tag(RunOnInitTag).Do,
+	)
 }
 
-func NewNotifyUsersJob(
-	userRepository repositories.UserRepository,
-) func() {
-	return executor(notifyUsersJob{
-		userRepository,
-	})
+func RegisterNotifyUsersAboutReleasesJob(
+	scheduler *gocron.Scheduler, userRepository repositories.UserRepository, watchedShowRepository repositories.WatchedShowRepository,
+) error {
+	return registerJob(
+		notifyUsersAboutReleasesJob{userRepository, watchedShowRepository},
+		scheduler.Every(1).Monday().At("00:10").Do,
+	)
+}
+
+type scheduleJobFunc = func(jobFun interface{}, params ...interface{}) (*gocron.Job, error)
+
+func registerJob(job job, scheduleJobFunc scheduleJobFunc) error {
+	executeJobFunc := func() {
+		if err := job.execute(); err != nil {
+			logger.Error(err.Error())
+		}
+	}
+	_, err := scheduleJobFunc(executeJobFunc)
+	return err
+}
+
+func errorMsg(job job) string {
+	return "error executing " + job.name()
 }
