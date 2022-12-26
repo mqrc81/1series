@@ -2,6 +2,9 @@ package registry
 
 import (
 	"github.com/go-co-op/gocron"
+	"github.com/mqrc81/zeries/logger"
+	"github.com/mqrc81/zeries/sql"
+	"github.com/pressly/goose/v3"
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
@@ -9,13 +12,19 @@ import (
 	"github.com/mqrc81/zeries/controllers"
 	"github.com/mqrc81/zeries/jobs"
 	"github.com/mqrc81/zeries/repositories"
+	_ "github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
 )
 
 func NewDatabase(
 	dataSourceName string,
-) (*sqlx.DB, error) {
-	return sqlx.Connect("postgres", dataSourceName)
+) (*sql.Database, error) {
+	database, err := sqlx.Connect("postgres", dataSourceName)
+	if err == nil {
+		goose.SetLogger(logger.DefaultLogger)
+		err = goose.SetDialect("postgres")
+	}
+	return &sql.Database{DB: database}, err
 }
 
 func NewTmdbClient(
@@ -31,13 +40,13 @@ func NewTraktClient(
 }
 
 func NewController(
-	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
+	database *sql.Database, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
 ) (controllers.Controller, error) {
 	return controllers.NewController(database, tmdbClient, traktClient, scheduler)
 }
 
 func NewScheduler(
-	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client,
+	database *sql.Database, tmdbClient *tmdb.Client, traktClient *trakt.Client,
 ) (*gocron.Scheduler, error) {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)

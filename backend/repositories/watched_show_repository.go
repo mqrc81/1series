@@ -2,12 +2,12 @@ package repositories
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/sql"
 )
 
 type watchedShowRepository struct {
-	*sqlx.DB
+	*sql.Database
 }
 
 func (r *watchedShowRepository) FindAllByUser(user domain.User) (watchedShows []domain.WatchedShow, err error) {

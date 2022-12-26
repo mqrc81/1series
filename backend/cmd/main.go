@@ -2,11 +2,14 @@ package main
 
 import (
 	"github.com/caarlos0/env/v6"
+	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/mqrc81/zeries/controllers"
 	"github.com/mqrc81/zeries/jobs"
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/registry"
+	"github.com/mqrc81/zeries/sql"
 	"time"
 )
 
@@ -48,15 +51,29 @@ func main() {
 	checkError(err)
 
 	// Start application
+	migrateDatabase(database)
+	scheduleAndRunJobs(scheduler)
+	serveApplication(controller)
+}
+
+func migrateDatabase(database *sql.Database) {
+	logger.Info("Migrating database")
+	err := database.Migrate()
+	checkError(err)
+}
+
+func scheduleAndRunJobs(scheduler *gocron.Scheduler) {
 	logger.Info("Scheduling and running jobs")
 	scheduler.StartAsync()
 	if Config.RunJobsOnInit {
-		err = scheduler.RunByTagWithDelay(jobs.RunOnInitTag, time.Second)
+		err := scheduler.RunByTagWithDelay(jobs.RunOnInitTag, time.Second)
 		checkError(err)
 	}
+}
 
+func serveApplication(controller controllers.Controller) {
 	logger.Info("Listening on " + Config.BackendUrl)
-	err = controller.Start(":" + Config.Port)
+	err := controller.Start(":" + Config.Port)
 	checkError(err)
 }
 

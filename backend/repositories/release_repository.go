@@ -2,13 +2,14 @@ package repositories
 
 import (
 	"fmt"
+	"github.com/mqrc81/zeries/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
 )
 
 type releaseRepository struct {
-	*sqlx.DB
+	*sql.Database
 }
 
 func (r *releaseRepository) FindAllInRange(amount int, offset int) (releases []domain.ReleaseRef, err error) {

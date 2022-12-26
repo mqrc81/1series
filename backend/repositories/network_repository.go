@@ -2,13 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"github.com/mqrc81/zeries/sql"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
 )
 
 type networkRepository struct {
-	*sqlx.DB
+	*sql.Database
 }
 
 func (r *networkRepository) FindAll() (networks []domain.Network, err error) {

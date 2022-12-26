@@ -1,8 +1,5 @@
 module github.com/mqrc81/zeries
 
-// +heroku goVersion go1.17
-// +heroku install ./cmd/...
-
 go 1.17
 
 require (
@@ -16,8 +13,9 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo-contrib v0.13.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/lib/pq v1.10.4
+	github.com/lib/pq v1.10.6
 	github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32
+	github.com/pressly/goose/v3 v3.7.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
 
@@ -36,9 +34,9 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
-	golang.org/x/net v0.0.0-20220728030405-41545e8bf201 // indirect
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 )

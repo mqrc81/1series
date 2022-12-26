@@ -1,10 +1,10 @@
 package repositories
 
 import (
-	"database/sql"
+	sqlx "database/sql"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/sql"
 )
 
 type UserRepository interface {
@@ -35,27 +35,27 @@ type WatchedShowRepository interface {
 	FindAllByUser(user domain.User) ([]domain.WatchedShow, error)
 }
 
-func NewUserRepository(database *sqlx.DB) UserRepository {
+func NewUserRepository(database *sql.Database) UserRepository {
 	return &userRepository{database}
 }
 
-func NewReleaseRepository(database *sqlx.DB) ReleaseRepository {
+func NewReleaseRepository(database *sql.Database) ReleaseRepository {
 	return &releaseRepository{database}
 }
 
-func NewGenreRepository(database *sqlx.DB) GenreRepository {
+func NewGenreRepository(database *sql.Database) GenreRepository {
 	return &genreRepository{database}
 }
 
-func NewNetworkRepository(database *sqlx.DB) NetworkRepository {
+func NewNetworkRepository(database *sql.Database) NetworkRepository {
 	return &networkRepository{database}
 }
 
-func NewWatchedShowRepository(database *sqlx.DB) WatchedShowRepository {
+func NewWatchedShowRepository(database *sql.Database) WatchedShowRepository {
 	return &watchedShowRepository{database}
 }
 
-func newId(res sql.Result) int {
+func newId(res sqlx.Result) int {
 	id, _ := res.LastInsertId()
 	return int(id)
 }

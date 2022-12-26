@@ -10,6 +10,7 @@ var (
 	warningLogger = log.New(log.Writer(), "WARNING:: ", log.Ldate|log.Ltime)
 	errorLogger   = log.New(log.Writer(), "ERROR:: ", log.Ldate|log.Ltime)
 	fatalLogger   = log.New(log.Writer(), "FATAL:: ", log.Ldate|log.Ltime)
+	DefaultLogger = infoLogger
 )
 
 func Info(msg string, args ...interface{}) {

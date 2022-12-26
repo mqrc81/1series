@@ -2,13 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"github.com/mqrc81/zeries/sql"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
 )
 
 type userRepository struct {
-	*sqlx.DB
+	*sql.Database
 }
 
 func (r *userRepository) Find(userId int) (user domain.User, err error) {

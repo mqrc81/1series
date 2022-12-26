@@ -4,10 +4,10 @@ import (
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/go-co-op/gocron"
 	"github.com/go-playground/validator/v10"
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/repositories"
+	"github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
 	"github.com/mqrc81/zeries/usecases/jobs"
 	"github.com/mqrc81/zeries/usecases/shows"
@@ -30,7 +30,7 @@ type controller struct {
 }
 
 func NewController(
-	database *sqlx.DB, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
+	database *sql.Database, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
 ) (Controller, error) {
 
 	userRepository := repositories.NewUserRepository(database)
