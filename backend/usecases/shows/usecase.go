@@ -1,7 +1,7 @@
 package shows
 
 import (
-	tmdb "github.com/cyruzin/golang-tmdb"
+	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"

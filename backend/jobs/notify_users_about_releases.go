@@ -2,7 +2,7 @@ package jobs
 
 import (
 	"errors"
-	tmdb "github.com/cyruzin/golang-tmdb"
+	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/logger"

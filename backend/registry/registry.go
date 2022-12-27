@@ -56,18 +56,19 @@ func NewScheduler(
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)
 
-	err := jobs.RegisterUpdateGenresJob(scheduler, repositories.NewGenreRepository(database), tmdbClient)
-	if err != nil {
+	if err := jobs.RegisterUpdateGenresJob(scheduler, repositories.NewGenreRepository(database), tmdbClient); err != nil {
 		return nil, err
 	}
 
-	err = jobs.RegisterUpdateReleasesJob(scheduler, repositories.NewReleaseRepository(database), tmdbClient, traktClient)
-	if err != nil {
+	if err := jobs.RegisterUpdateReleasesJob(scheduler, repositories.NewReleaseRepository(database), tmdbClient, traktClient); err != nil {
 		return nil, err
 	}
 
-	err = jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewReleaseRepository(database), repositories.NewWatchedShowRepository(database), tmdbClient, emailClient)
-	if err != nil {
+	if err := jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewReleaseRepository(database), repositories.NewWatchedShowRepository(database), tmdbClient, emailClient); err != nil {
+		return nil, err
+	}
+
+	if err := jobs.RegisterNotifyUsersAboutRecommendationsJob(scheduler, repositories.NewUserRepository(database), repositories.NewWatchedShowRepository(database), tmdbClient, emailClient); err != nil {
 		return nil, err
 	}
 

@@ -7,11 +7,12 @@ import (
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
+	"time"
 )
 
 const (
-	RunOnInitTag         = "INIT"
-	EmailNotificationTag = "NOTIFICATION"
+	PopulateDatabaseTag = "DATABASE"
+	NotifyUsersTag      = "NOTIFICATION"
 )
 
 type job interface {
@@ -26,7 +27,7 @@ func RegisterUpdateGenresJob(
 ) error {
 	return registerJob(
 		updateGenresJob{genreRepository, tmdbClient},
-		scheduler.Every(1).Monday().At("00:00").Tag(RunOnInitTag).Do,
+		scheduler.Every(1).Monday().At("00:00").Tag(PopulateDatabaseTag).Do,
 	)
 }
 
@@ -38,7 +39,7 @@ func RegisterUpdateReleasesJob(
 ) error {
 	return registerJob(
 		updateReleasesJob{releaseRepository, tmdbClient, traktClient},
-		scheduler.Every(1).Day().At("00:05").Tag(RunOnInitTag).Do,
+		scheduler.Every(1).Day().At("00:05").Tag(PopulateDatabaseTag).Do,
 	)
 }
 
@@ -52,7 +53,20 @@ func RegisterNotifyUsersAboutReleasesJob(
 ) error {
 	return registerJob(
 		notifyUsersAboutReleasesJob{userRepository, releaseRepository, watchedShowRepository, tmdbClient, emailClient},
-		scheduler.Every(1).Monday().At("00:10").Tag(EmailNotificationTag).Do,
+		scheduler.Every(1).Monday().At("00:10").Tag(NotifyUsersTag).Do,
+	)
+}
+
+func RegisterNotifyUsersAboutRecommendationsJob(
+	scheduler *gocron.Scheduler,
+	userRepository repositories.UserRepository,
+	watchedShowRepository repositories.WatchedShowRepository,
+	tmdbClient *tmdb.Client,
+	emailClient *email.Client,
+) error {
+	return registerJob(
+		notifyUsersAboutRecommendationsJob{userRepository, watchedShowRepository, tmdbClient, emailClient},
+		scheduler.Every(5).Weekday(time.Friday).At("00:15").Tag(NotifyUsersTag).Do,
 	)
 }
 

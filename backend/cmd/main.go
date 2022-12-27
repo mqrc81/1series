@@ -6,7 +6,6 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/mqrc81/zeries/controllers"
-	"github.com/mqrc81/zeries/jobs"
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/registry"
 	"github.com/mqrc81/zeries/sql"
@@ -15,14 +14,14 @@ import (
 
 var (
 	config struct {
-		Port                string `env:"PORT"`
-		BackendUrl          string `env:"BACKEND_URL"`
-		DatabaseUrl         string `env:"DATABASE_URL"`
-		TmdbKey             string `env:"TMDB_KEY"`
-		TraktKey            string `env:"TRAKT_KEY"`
-		RunJobsOnInit       bool   `env:"RUN_JOBS_ON_INIT" envDefault:"true"`
-		SendGridKey         string `env:"SENDGRID_KEY"`
-		SendGridSenderEmail string `env:"SENDGRID_SENDER_EMAIL"`
+		Port                string   `env:"PORT"`
+		BackendUrl          string   `env:"BACKEND_URL"`
+		DatabaseUrl         string   `env:"DATABASE_URL"`
+		TmdbKey             string   `env:"TMDB_KEY"`
+		TraktKey            string   `env:"TRAKT_KEY"`
+		SendGridKey         string   `env:"SENDGRID_KEY"`
+		SendGridSenderEmail string   `env:"SENDGRID_SENDER_EMAIL"`
+		JobTagsOnInit       []string `env:"JOB_TAGS_ON_INIT" envDefault:""`
 	}
 )
 
@@ -68,8 +67,8 @@ func migrateDatabase(database *sql.Database) {
 func scheduleAndRunJobs(scheduler *gocron.Scheduler) {
 	logger.Info("Scheduling and running jobs")
 	scheduler.StartAsync()
-	if config.RunJobsOnInit {
-		err := scheduler.RunByTagWithDelay(jobs.RunOnInitTag, time.Second)
+	for _, tag := range config.JobTagsOnInit {
+		err := scheduler.RunByTagWithDelay(tag, time.Second)
 		checkError(err)
 	}
 }
