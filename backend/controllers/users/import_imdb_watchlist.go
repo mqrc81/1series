@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-const (
-	imdbWatchlistExportFileName = "WATCHLIST.csv"
-	imdbTitleTypeTvSeries       = "tvSeries"
-	imdbTitleTypeTvMiniSeries   = "tvMiniSeries"
-)
-
 type exportedImdbWatchlistRow struct {
 	Position    int       `csv:"-"`
 	Const       string    `csv:"Const"`
@@ -41,7 +35,7 @@ func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
 	}
-	formFile, err := ctx.FormFile(imdbWatchlistExportFileName)
+	formFile, err := ctx.FormFile(imdbWatchlistImportFileName)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
 	}
@@ -51,25 +45,22 @@ func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	}
 	defer file.Close()
 
-	// Use-Case
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
 	if err = gocsv.Unmarshal(file, &exportedImdbWatchlist); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file: "+err.Error())
 	}
 
+	// Use-Case
+	var failedImports []failedImdbWatchlistImports
 	for _, row := range exportedImdbWatchlist {
-		if row.TitleType != imdbTitleTypeTvSeries && row.TitleType != imdbTitleTypeTvMiniSeries {
+		if !(row.TitleType == imdbTitleTypeTvSeries || row.TitleType == imdbTitleTypeTvMiniSeries) {
 			continue
 		}
 		results, err := c.tmdbClient.GetFindByID(row.Const, map[string]string{"external_source": "imdb_id"})
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "unable to find tmdb show by imdb id: "+err.Error())
 		}
-		if len(results.TvResults) > 1 {
-			logger.Warning("Multiple tmdb shows found for imdb id %v", row.Const)
-		} else if len(results.TvResults) < 1 {
-			// TODO return failed imports
-		} else {
+		if len(results.TvResults) == 1 {
 			if err = c.trackedShowRepository.Save(domain.TrackedShow{
 				UserId: user.Id,
 				ShowId: int(results.TvResults[0].ID),
@@ -77,9 +68,22 @@ func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 			}); err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
+			logger.Warning("Multiple tmdb shows found for imdb id %v", row.Const)
+		} else if len(results.TvResults) < 1 {
+			failedImports = append(failedImports, failedImdbWatchlistImports{
+				ImdbId: row.Const,
+				Title:  row.Title,
+				Reason: "No series found in the TMDb-database for that IMDb-ID",
+			})
+		} else {
+			failedImports = append(failedImports, failedImdbWatchlistImports{
+				ImdbId: row.Const,
+				Title:  row.Title,
+				Reason: "Multiple series found in the TMDb-database for that IMDb-ID",
+			})
 		}
 	}
 
 	// Output
-	return ctx.NoContent(http.StatusOK)
+	return ctx.JSON(http.StatusOK, failedImports)
 }

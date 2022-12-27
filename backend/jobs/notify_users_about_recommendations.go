@@ -2,11 +2,11 @@ package jobs
 
 import (
 	"github.com/cyruzin/golang-tmdb"
+	"github.com/mqrc81/zeries/controllers/shows"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/repositories"
-	"github.com/mqrc81/zeries/usecases/shows"
 	"sort"
 )
 

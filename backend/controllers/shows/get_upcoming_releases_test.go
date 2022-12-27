@@ -48,7 +48,8 @@ func Test_calculateRange(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotAmount, gotOffset := calculateRange(tt.args.page, tt.args.pastReleases)
+			// TODO ms: test 'possiblyHasMore'
+			gotAmount, gotOffset, _ := calculateRange(tt.args.page, tt.args.pastReleases)
 
 			st.Expect(t, gotAmount, tt.amount)
 			st.Expect(t, gotOffset, tt.offset)

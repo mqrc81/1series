@@ -2,7 +2,7 @@ package shows
 
 import (
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/mqrc81/zeries/domain"
+	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/trakt"
 )
@@ -14,7 +14,7 @@ const (
 	showSearchesPerRequest     = 8
 )
 
-type useCase struct {
+type showController struct {
 	userRepository    repositories.UserRepository
 	releaseRepository repositories.ReleaseRepository
 	genreRepository   repositories.GenreRepository
@@ -23,21 +23,23 @@ type useCase struct {
 	tmdbClient        *tmdb.Client
 }
 
-type UseCase interface {
-	GetShow(showId int) (domain.Show, error)
-	GetPopularShows(page int) ([]domain.Show, error)
-	GetUpcomingReleases(page int) ([]domain.Release, bool, error)
-	SearchShows(searchTerm string) ([]domain.Show, error)
-	GetGenres() ([]domain.Genre, error)
-	GetNetworks() ([]domain.Network, error)
+type Controller interface {
+	GetShow(ctx echo.Context) error
+	GetPopularShows(ctx echo.Context) error
+	GetUpcomingReleases(ctx echo.Context) error
+	SearchShows(ctx echo.Context) error
+	GetGenres(ctx echo.Context) error
+	GetNetworks(ctx echo.Context) error
 }
 
-func NewUseCase(
-	userRepository repositories.UserRepository, releaseRepository repositories.ReleaseRepository,
-	genreRepository repositories.GenreRepository, networkRepository repositories.NetworkRepository,
+func NewController(
+	userRepository repositories.UserRepository,
+	releaseRepository repositories.ReleaseRepository,
+	genreRepository repositories.GenreRepository,
+	networkRepository repositories.NetworkRepository,
 	traktClient *trakt.Client, tmdbClient *tmdb.Client,
-) UseCase {
-	return &useCase{
+) Controller {
+	return &showController{
 		userRepository,
 		releaseRepository,
 		genreRepository,

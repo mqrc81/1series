@@ -6,13 +6,13 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/mqrc81/zeries/controllers/jobs"
+	"github.com/mqrc81/zeries/controllers/shows"
 	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/mqrc81/zeries/usecases/jobs"
-	"github.com/mqrc81/zeries/usecases/shows"
 	"io"
 	"net/http"
 )
@@ -47,17 +47,15 @@ func NewController(
 	validate := validator.New()
 
 	userController := users.NewController(userRepository, trackedShowRepository, tmdbClient, emailClient, validate)
-	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
-	jobUseCase := jobs.NewUseCase(scheduler)
+	showController := shows.NewController(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
+	jobController := jobs.NewController(scheduler)
 
 	controller := newController(userRepository)
 	baseRouter := controller.Group("/api")
 	{
 		baseRouter.GET("/ping", controller.ping)
-
 	}
 
-	showController := newShowController(showUseCase)
 	showRouter := baseRouter.Group("/shows")
 	{
 		showRouter.GET("/:showId", showController.GetShow)
@@ -75,10 +73,9 @@ func NewController(
 		userRouter.POST("/importImdbWatchlist", userController.ImportImdbWatchlist)
 	}
 
-	jobsController := newJobController(jobUseCase)
-	jobsRouter := baseRouter.Group("/jobs")
+	jobRouter := baseRouter.Group("/jobs")
 	{
-		jobsRouter.GET("/runByTag", jobsController.RunJobsByTag)
+		jobRouter.GET("/runByTag", jobController.RunJobsByTag)
 	}
 
 	controller.Use(

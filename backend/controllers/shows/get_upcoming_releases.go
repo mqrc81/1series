@@ -2,30 +2,37 @@ package shows
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, bool, error) {
+func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
+	// Input
+	page, _ := strconv.Atoi(ctx.QueryParam("page"))
+	if page == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "parameter page must be positive or negative")
+	}
 
-	pastReleases, err := uc.releaseRepository.CountPastReleases()
+	// Use-Case
+	pastReleases, err := c.releaseRepository.CountPastReleases()
 	if err != nil {
-		return []domain.Release{}, false, err
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	amount, offset, possiblyHasMore := calculateRange(page, pastReleases)
 
-	releasesRef, err := uc.releaseRepository.FindAllInRange(amount, offset)
+	releasesRef, err := c.releaseRepository.FindAllInRange(amount, offset)
 	if err != nil {
-		return []domain.Release{}, false, echo.NewHTTPError(http.StatusConflict, err.Error())
+		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
 	var releases []domain.Release
 	for _, releaseRef := range releasesRef {
-		tmdbRelease, err := uc.tmdbClient.GetTVDetails(releaseRef.ShowId, map[string]string{"append_to_response": "translations"})
+		tmdbRelease, err := c.tmdbClient.GetTVDetails(releaseRef.ShowId, map[string]string{"append_to_response": "translations"})
 		if err != nil {
-			return []domain.Release{}, false, echo.NewHTTPError(http.StatusConflict, err.Error())
+			return echo.NewHTTPError(http.StatusConflict, err.Error())
 		}
 
 		releases = append(
@@ -33,7 +40,14 @@ func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, bool, error)
 			ReleaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate, releaseRef.AnticipationLevel),
 		)
 	}
-	return releases, possiblyHasMore && len(releases) >= 20, nil
+
+	// Output
+	previousPage, nextPage := paginationForUpcomingReleases(page, possiblyHasMore && len(releases) >= 20)
+	return ctx.JSON(http.StatusOK, upcomingReleasesDto{
+		PreviousPage: previousPage,
+		NextPage:     nextPage,
+		Releases:     releases,
+	})
 }
 
 func calculateRange(page int, pastReleases int) (int, int, bool) {
@@ -60,4 +74,16 @@ func calculateRangeForPastReleases(pastReleases int, page int) (int, int, bool) 
 		offset = 0
 	}
 	return amount, offset, hasMore
+}
+
+func paginationForUpcomingReleases(currentPage int, hasMoreReleases bool) (previousPage int, nextPage int) {
+	if currentPage == 1 {
+		previousPage = -1
+	}
+	if hasMoreReleases && currentPage > 0 {
+		nextPage = currentPage + 1
+	} else if hasMoreReleases && currentPage < 0 {
+		previousPage = currentPage - 1
+	}
+	return previousPage, nextPage
 }

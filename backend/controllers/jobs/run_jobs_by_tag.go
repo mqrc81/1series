@@ -1,25 +1,13 @@
-package controllers
+package jobs
 
 import (
 	"fmt"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/controllers/users"
-	"github.com/mqrc81/zeries/usecases/jobs"
 	"net/http"
+	"time"
 )
-
-type jobController struct {
-	jobUseCase jobs.UseCase
-}
-
-type JobController interface {
-	RunJobsByTag(ctx echo.Context) error
-}
-
-func newJobController(jobUseCase jobs.UseCase) JobController {
-	return &jobController{jobUseCase}
-}
 
 func (c *jobController) RunJobsByTag(ctx echo.Context) (err error) {
 	// Input
@@ -30,11 +18,14 @@ func (c *jobController) RunJobsByTag(ctx echo.Context) (err error) {
 	}
 
 	// Use-Case
-	amountOfJobs, err := c.jobUseCase.RunJobsByTag(tag)
+	jobs, err := c.scheduler.FindJobsByTag(tag)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if err = c.scheduler.RunByTagWithDelay(tag, time.Second); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// Output
-	return ctx.JSON(http.StatusOK, fmt.Sprintf("Running %d jobs", amountOfJobs))
+	return ctx.JSON(http.StatusOK, fmt.Sprintf("Running %d jobs", len(jobs)))
 }

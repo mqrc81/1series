@@ -8,6 +8,12 @@ import (
 	"github.com/mqrc81/zeries/repositories"
 )
 
+const (
+	imdbWatchlistImportFileName = "WATCHLIST.csv"
+	imdbTitleTypeTvSeries       = "tvSeries"
+	imdbTitleTypeTvMiniSeries   = "tvMiniSeries"
+)
+
 type userController struct {
 	userRepository        repositories.UserRepository
 	trackedShowRepository repositories.TrackedShowRepository
