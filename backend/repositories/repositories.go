@@ -37,6 +37,7 @@ type ReleaseRepository interface {
 type TrackedShowRepository interface {
 	FindAll() ([]domain.TrackedShow, error)
 	FindAllByUser(user domain.User) ([]domain.TrackedShow, error)
+	Save(trackedShow domain.TrackedShow) error
 }
 
 func NewUserRepository(database *sql.Database) UserRepository {

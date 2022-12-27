@@ -42,9 +42,10 @@ func NewController(
 	releaseRepository := repositories.NewReleaseRepository(database)
 	genreRepository := repositories.NewGenreRepository(database)
 	networkRepository := repositories.NewNetworkRepository(database)
+	trackedShowRepository := repositories.NewTrackedShowRepository(database)
 
 	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
-	userUseCase := users.NewUseCase(userRepository, emailClient)
+	userUseCase := users.NewUseCase(userRepository, trackedShowRepository, tmdbClient, emailClient)
 	jobUseCase := jobs.NewUseCase(scheduler)
 
 	validate := validator.New()
@@ -72,6 +73,7 @@ func NewController(
 	{
 		userRouter.POST("/register", userController.RegisterUser)
 		userRouter.POST("/login", userController.LoginUser)
+		userRouter.POST("/importImdbWatchlist", userController.ImportImdbWatchlist)
 	}
 
 	jobsController := newJobController(jobUseCase)

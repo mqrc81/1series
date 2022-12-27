@@ -34,3 +34,17 @@ func (r *trackedShowRepository) FindAllByUser(user domain.User) (trackedShows []
 
 	return trackedShows, err
 }
+
+func (r *trackedShowRepository) Save(trackedShow domain.TrackedShow) (err error) {
+
+	if _, err = r.Exec(
+		`INSERT INTO tracked_shows(user_id, show_id, rating) VALUES($1, $2, $3)`,
+		trackedShow.UserId,
+		trackedShow.ShowId,
+		trackedShow.Rating,
+	); err != nil {
+		err = fmt.Errorf("error saving tracked show [%v]: %w", trackedShow, err)
+	}
+
+	return err
+}

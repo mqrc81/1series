@@ -11,6 +11,10 @@ import (
 	"github.com/mqrc81/zeries/usecases"
 )
 
+const (
+	imdbWatchlistExportFileName = "WATCHLIST.csv"
+)
+
 type userController struct {
 	userUseCase users.UseCase
 	validate    *validator.Validate
@@ -19,6 +23,7 @@ type userController struct {
 type UserController interface {
 	RegisterUser(ctx echo.Context) error
 	LoginUser(ctx echo.Context) error
+	ImportImdbWatchlist(ctx echo.Context) error
 }
 
 func newUserController(userUseCase users.UseCase, validate *validator.Validate) UserController {
@@ -69,6 +74,27 @@ func (c *userController) LoginUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, user)
+}
+
+func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
+	// Input
+	formFile, err := ctx.FormFile(imdbWatchlistExportFileName)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
+	}
+	file, err := formFile.Open()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "unable to open the imdb watchlist export file")
+	}
+	defer file.Close()
+
+	// Use-Case
+	if err = c.userUseCase.ImportImdbWatchlist(file); err != nil {
+		return err
+	}
+
+	// Output
+	return ctx.NoContent(http.StatusOK)
 }
 
 func (c *userController) addUserToSession(ctx echo.Context, user domain.User) error {
