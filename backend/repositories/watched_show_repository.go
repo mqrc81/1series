@@ -6,31 +6,31 @@ import (
 	"github.com/mqrc81/zeries/sql"
 )
 
-type watchedShowRepository struct {
+type trackedShowRepository struct {
 	*sql.Database
 }
 
-func (r *watchedShowRepository) FindAll() (watchedShows []domain.WatchedShow, err error) {
+func (r *trackedShowRepository) FindAll() (trackedShows []domain.TrackedShow, err error) {
 
-	if err = r.Get(
-		&watchedShows,
-		`SELECT ws.* FROM watched_shows ws`,
+	if err = r.Select(
+		&trackedShows,
+		`SELECT ws.* FROM tracked_shows ws`,
 	); err != nil {
-		err = fmt.Errorf("error finding watched shows: %w", err)
+		err = fmt.Errorf("error finding tracked shows: %w", err)
 	}
 
-	return watchedShows, err
+	return trackedShows, err
 }
 
-func (r *watchedShowRepository) FindAllByUser(user domain.User) (watchedShows []domain.WatchedShow, err error) {
+func (r *trackedShowRepository) FindAllByUser(user domain.User) (trackedShows []domain.TrackedShow, err error) {
 
-	if err = r.Get(
-		&watchedShows,
-		`SELECT ws.* FROM watched_shows ws WHERE ws.user_id = $1`,
+	if err = r.Select(
+		&trackedShows,
+		`SELECT ws.* FROM tracked_shows ws WHERE ws.user_id = $1`,
 		user.Id,
 	); err != nil {
-		err = fmt.Errorf("error finding watched shows [%v]: %w", user.Id, err)
+		err = fmt.Errorf("error finding tracked shows [%v]: %w", user.Id, err)
 	}
 
-	return watchedShows, err
+	return trackedShows, err
 }

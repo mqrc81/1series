@@ -34,14 +34,17 @@ func (job notifyUsersAboutReleasesJob) execute() error {
 		return err
 	}
 	for _, user := range users {
-		upcomingWatchedShowReleases, err := job.findUpcomingWatchedShowReleasesOfUser(user, upcomingReleasesMap)
+		if !user.NotificationOptions.Releases {
+			continue
+		}
+		upcomingTrackedShowReleases, err := job.findUpcomingTrackedShowReleasesOfUser(user, upcomingReleasesMap)
 		if err != nil {
 			return err
 		}
-		if len(upcomingWatchedShowReleases) > 0 {
-			emailData := email.WatchedShowsReleasingEmail{
+		if len(upcomingTrackedShowReleases) > 0 {
+			emailData := email.TrackedShowsReleasingEmail{
 				Recipient: user,
-				Releases:  upcomingWatchedShowReleases,
+				Releases:  upcomingTrackedShowReleases,
 			}
 			if err = job.emailClient.Send(emailData); err != nil {
 				return err
@@ -54,21 +57,21 @@ func (job notifyUsersAboutReleasesJob) execute() error {
 	return nil
 }
 
-func (job notifyUsersAboutReleasesJob) findUpcomingWatchedShowReleasesOfUser(
+func (job notifyUsersAboutReleasesJob) findUpcomingTrackedShowReleasesOfUser(
 	user domain.User, upcomingReleasesMap map[int]*domain.Release,
 ) ([]domain.Release, error) {
-	var upcomingWatchedShowReleases []domain.Release
+	var upcomingTrackedShowReleases []domain.Release
 
-	watchedShows, err := job.watchedShowRepository.FindAllByUser(user)
+	trackedShows, err := job.trackedShowRepository.FindAllByUser(user)
 	if err != nil {
 		return nil, err
 	}
-	for _, watchedShow := range watchedShows {
-		if upcomingReleasesMap[watchedShow.ShowId] != nil {
-			upcomingWatchedShowReleases = append(upcomingWatchedShowReleases, *upcomingReleasesMap[watchedShow.ShowId])
+	for _, trackedShow := range trackedShows {
+		if upcomingReleasesMap[trackedShow.ShowId] != nil {
+			upcomingTrackedShowReleases = append(upcomingTrackedShowReleases, *upcomingReleasesMap[trackedShow.ShowId])
 		}
 	}
-	return upcomingWatchedShowReleases, nil
+	return upcomingTrackedShowReleases, nil
 }
 
 func (job notifyUsersAboutReleasesJob) fetchReleasesAiringWithinTheNextWeek() (map[int]*domain.Release, error) {
@@ -102,7 +105,7 @@ func atBeginningOfDay(t time.Time) time.Time {
 type notifyUsersAboutReleasesJob struct {
 	userRepository        repositories.UserRepository
 	releaseRepository     repositories.ReleaseRepository
-	watchedShowRepository repositories.WatchedShowRepository
+	trackedShowRepository repositories.TrackedShowRepository
 	tmdbClient            *tmdb.Client
 	emailClient           *email.Client
 }

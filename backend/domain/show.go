@@ -14,7 +14,7 @@ type Show struct {
 	Networks      []Network `json:"networks"`
 }
 
-type WatchedShow struct {
+type TrackedShow struct {
 	UserId int `db:"user_id"`
 	ShowId int `db:"show_id"`
 	Rating int `db:"rating"`

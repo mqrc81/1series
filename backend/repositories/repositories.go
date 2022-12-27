@@ -34,9 +34,9 @@ type ReleaseRepository interface {
 	CountPastReleases() (int, error)
 }
 
-type WatchedShowRepository interface {
-	FindAll() ([]domain.WatchedShow, error)
-	FindAllByUser(user domain.User) ([]domain.WatchedShow, error)
+type TrackedShowRepository interface {
+	FindAll() ([]domain.TrackedShow, error)
+	FindAllByUser(user domain.User) ([]domain.TrackedShow, error)
 }
 
 func NewUserRepository(database *sql.Database) UserRepository {
@@ -55,8 +55,8 @@ func NewNetworkRepository(database *sql.Database) NetworkRepository {
 	return &networkRepository{database}
 }
 
-func NewWatchedShowRepository(database *sql.Database) WatchedShowRepository {
-	return &watchedShowRepository{database}
+func NewTrackedShowRepository(database *sql.Database) TrackedShowRepository {
+	return &trackedShowRepository{database}
 }
 
 func newId(res sqlx.Result) int {

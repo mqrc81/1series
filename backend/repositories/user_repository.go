@@ -28,7 +28,7 @@ func (r *userRepository) FindAll() (users []domain.User, err error) {
 
 	if err = r.Select(
 		&users,
-		`SELECT u.* FROM users`,
+		`SELECT u.* FROM users u`,
 	); err != nil {
 		err = fmt.Errorf("error finding users: %w", err)
 	}

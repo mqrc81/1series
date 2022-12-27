@@ -21,7 +21,7 @@ func (job notifyUsersAboutRecommendationsJob) execute() error {
 
 type notifyUsersAboutRecommendationsJob struct {
 	userRepository        repositories.UserRepository
-	watchedShowRepository repositories.WatchedShowRepository
+	trackedShowRepository repositories.TrackedShowRepository
 	tmdbClient            *tmdb.Client
 	emailClient           *email.Client
 }

@@ -47,12 +47,12 @@ func RegisterNotifyUsersAboutReleasesJob(
 	scheduler *gocron.Scheduler,
 	userRepository repositories.UserRepository,
 	releaseRepository repositories.ReleaseRepository,
-	watchedShowRepository repositories.WatchedShowRepository,
+	trackedShowRepository repositories.TrackedShowRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
 ) error {
 	return registerJob(
-		notifyUsersAboutReleasesJob{userRepository, releaseRepository, watchedShowRepository, tmdbClient, emailClient},
+		notifyUsersAboutReleasesJob{userRepository, releaseRepository, trackedShowRepository, tmdbClient, emailClient},
 		scheduler.Every(1).Monday().At("00:10").Tag(NotifyUsersTag).Do,
 	)
 }
@@ -60,12 +60,12 @@ func RegisterNotifyUsersAboutReleasesJob(
 func RegisterNotifyUsersAboutRecommendationsJob(
 	scheduler *gocron.Scheduler,
 	userRepository repositories.UserRepository,
-	watchedShowRepository repositories.WatchedShowRepository,
+	trackedShowRepository repositories.TrackedShowRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
 ) error {
 	return registerJob(
-		notifyUsersAboutRecommendationsJob{userRepository, watchedShowRepository, tmdbClient, emailClient},
+		notifyUsersAboutRecommendationsJob{userRepository, trackedShowRepository, tmdbClient, emailClient},
 		scheduler.Every(5).Weekday(time.Friday).At("00:15").Tag(NotifyUsersTag).Do,
 	)
 }

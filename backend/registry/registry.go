@@ -64,11 +64,11 @@ func NewScheduler(
 		return nil, err
 	}
 
-	if err := jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewReleaseRepository(database), repositories.NewWatchedShowRepository(database), tmdbClient, emailClient); err != nil {
+	if err := jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewReleaseRepository(database), repositories.NewTrackedShowRepository(database), tmdbClient, emailClient); err != nil {
 		return nil, err
 	}
 
-	if err := jobs.RegisterNotifyUsersAboutRecommendationsJob(scheduler, repositories.NewUserRepository(database), repositories.NewWatchedShowRepository(database), tmdbClient, emailClient); err != nil {
+	if err := jobs.RegisterNotifyUsersAboutRecommendationsJob(scheduler, repositories.NewUserRepository(database), repositories.NewTrackedShowRepository(database), tmdbClient, emailClient); err != nil {
 		return nil, err
 	}
 

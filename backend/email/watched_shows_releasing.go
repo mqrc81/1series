@@ -7,17 +7,17 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
-type WatchedShowsReleasingEmail struct {
+type TrackedShowsReleasingEmail struct {
 	Recipient domain.User
 	Releases  []domain.Release
 }
 
-func (e WatchedShowsReleasingEmail) create(sender *mail.Email) *mail.SGMailV3 {
-	logger.Warning("WatchedShowsReleasingEmail only implemented temporarily")
+func (e TrackedShowsReleasingEmail) create(sender *mail.Email) *mail.SGMailV3 {
+	logger.Warning("TrackedShowsReleasingEmail only implemented temporarily")
 	return mail.NewV3MailInit(sender, e.subject(), e.recipient(), e.content())
 }
 
-func (e WatchedShowsReleasingEmail) subject() string {
+func (e TrackedShowsReleasingEmail) subject() string {
 	var showsSubject string
 	for i := 0; i < 3 && i < len(e.Releases); i++ {
 		showsSubject += e.Releases[i].Show.Name + ", "
@@ -25,14 +25,14 @@ func (e WatchedShowsReleasingEmail) subject() string {
 	return fmt.Sprintf("New Seasons from %v and more!", showsSubject)
 }
 
-func (e WatchedShowsReleasingEmail) recipient() *mail.Email {
+func (e TrackedShowsReleasingEmail) recipient() *mail.Email {
 	return &mail.Email{
 		Name:    e.Recipient.Username,
 		Address: e.Recipient.Email,
 	}
 }
 
-func (e WatchedShowsReleasingEmail) content() *mail.Content {
+func (e TrackedShowsReleasingEmail) content() *mail.Content {
 	var releasesContent string
 	for _, release := range e.Releases {
 		releasesContent += fmt.Sprintf("\t- %v: %v (airing %v)\n",
