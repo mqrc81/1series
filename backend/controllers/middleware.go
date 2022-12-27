@@ -6,14 +6,9 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/logger"
 	"time"
-)
-
-const (
-	sessionKey       = "session"
-	sessionUserIdKey = "userId"
-	sessionUserKey   = "user"
 )
 
 func (c *controller) logger() echo.MiddlewareFunc {
@@ -45,12 +40,12 @@ func (c *controller) session() echo.MiddlewareFunc {
 func (c *controller) withUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			currentSession, err := session.Get(sessionKey, ctx)
+			currentSession, err := session.Get(users.SessionKey, ctx)
 			if err != nil {
 				return err
 			}
 
-			userId, ok := currentSession.Values[sessionUserIdKey].(int)
+			userId, ok := currentSession.Values[users.SessionUserIdKey].(int)
 			if !ok {
 				return next(ctx)
 			}
@@ -60,7 +55,7 @@ func (c *controller) withUser() echo.MiddlewareFunc {
 				return next(ctx)
 			}
 
-			ctx.Set(sessionUserKey, user)
+			ctx.Set(users.SessionUserKey, user)
 			return next(ctx)
 		}
 	}

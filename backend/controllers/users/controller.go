@@ -2,36 +2,38 @@ package users
 
 import (
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/mqrc81/zeries/domain"
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/repositories"
-	"github.com/mqrc81/zeries/usecases"
-	"mime/multipart"
 )
 
-type UseCase interface {
-	RegisterUser(form usecases.RegisterForm) (domain.User, error)
-	LoginUser(form usecases.LoginForm) (domain.User, error)
-	ImportImdbWatchlist(file multipart.File) error
-}
-
-type useCase struct {
+type userController struct {
 	userRepository        repositories.UserRepository
 	trackedShowRepository repositories.TrackedShowRepository
 	tmdbClient            *tmdb.Client
 	emailClient           *email.Client
+	validate              *validator.Validate
 }
 
-func NewUseCase(
+type Controller interface {
+	RegisterUser(ctx echo.Context) error
+	LoginUser(ctx echo.Context) error
+	ImportImdbWatchlist(ctx echo.Context) error
+}
+
+func NewController(
 	userRepository repositories.UserRepository,
 	trackedShowRepository repositories.TrackedShowRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
-) UseCase {
-	return &useCase{
+	validate *validator.Validate,
+) Controller {
+	return &userController{
 		userRepository,
 		trackedShowRepository,
 		tmdbClient,
 		emailClient,
+		validate,
 	}
 }

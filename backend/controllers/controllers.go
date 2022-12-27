@@ -6,13 +6,13 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
 	"github.com/mqrc81/zeries/usecases/jobs"
 	"github.com/mqrc81/zeries/usecases/shows"
-	"github.com/mqrc81/zeries/usecases/users"
 	"io"
 	"net/http"
 )
@@ -44,11 +44,11 @@ func NewController(
 	networkRepository := repositories.NewNetworkRepository(database)
 	trackedShowRepository := repositories.NewTrackedShowRepository(database)
 
-	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
-	userUseCase := users.NewUseCase(userRepository, trackedShowRepository, tmdbClient, emailClient)
-	jobUseCase := jobs.NewUseCase(scheduler)
-
 	validate := validator.New()
+
+	userController := users.NewController(userRepository, trackedShowRepository, tmdbClient, emailClient, validate)
+	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
+	jobUseCase := jobs.NewUseCase(scheduler)
 
 	controller := newController(userRepository)
 	baseRouter := controller.Group("/api")
@@ -68,7 +68,6 @@ func NewController(
 		showRouter.GET("/networks", showController.GetNetworks)
 	}
 
-	userController := newUserController(userUseCase, validate)
 	userRouter := baseRouter.Group("/users")
 	{
 		userRouter.POST("/register", userController.RegisterUser)
