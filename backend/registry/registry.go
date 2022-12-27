@@ -2,6 +2,7 @@ package registry
 
 import (
 	"github.com/go-co-op/gocron"
+	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/sql"
 	"github.com/pressly/goose/v3"
@@ -39,14 +40,18 @@ func NewTraktClient(
 	return trakt.Init(traktKey)
 }
 
-func NewController(
-	database *sql.Database, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
-) (controllers.Controller, error) {
-	return controllers.NewController(database, tmdbClient, traktClient, scheduler)
+func NewEmailClient(
+	sendGridKey string,
+	sendGridSenderEmail string,
+) (*email.Client, error) {
+	return email.NewEmailClient(sendGridKey, sendGridSenderEmail)
 }
 
 func NewScheduler(
-	database *sql.Database, tmdbClient *tmdb.Client, traktClient *trakt.Client,
+	database *sql.Database,
+	tmdbClient *tmdb.Client,
+	traktClient *trakt.Client,
+	emailClient *email.Client,
 ) (*gocron.Scheduler, error) {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.SetMaxConcurrentJobs(1, gocron.WaitMode)
@@ -61,10 +66,20 @@ func NewScheduler(
 		return nil, err
 	}
 
-	err = jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewWatchedShowRepository(database))
+	err = jobs.RegisterNotifyUsersAboutReleasesJob(scheduler, repositories.NewUserRepository(database), repositories.NewReleaseRepository(database), repositories.NewWatchedShowRepository(database), tmdbClient, emailClient)
 	if err != nil {
 		return nil, err
 	}
 
 	return scheduler, nil
+}
+
+func NewController(
+	database *sql.Database,
+	tmdbClient *tmdb.Client,
+	traktClient *trakt.Client,
+	emailClient *email.Client,
+	scheduler *gocron.Scheduler,
+) (controllers.Controller, error) {
+	return controllers.NewController(database, tmdbClient, traktClient, emailClient, scheduler)
 }

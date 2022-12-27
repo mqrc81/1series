@@ -24,6 +24,18 @@ func (r *userRepository) Find(userId int) (user domain.User, err error) {
 	return user, err
 }
 
+func (r *userRepository) FindAll() (users []domain.User, err error) {
+
+	if err = r.Select(
+		&users,
+		`SELECT u.* FROM users`,
+	); err != nil {
+		err = fmt.Errorf("error finding users: %w", err)
+	}
+
+	return users, err
+}
+
 func (r *userRepository) FindByUsername(username string) (user domain.User, err error) {
 
 	if err = r.Get(

@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/usecases"
 )
@@ -13,12 +14,14 @@ type UseCase interface {
 
 type useCase struct {
 	userRepository repositories.UserRepository
+	emailClient    *email.Client
 }
 
 func NewUseCase(
-	userRepository repositories.UserRepository,
+	userRepository repositories.UserRepository, emailClient *email.Client,
 ) UseCase {
 	return &useCase{
 		userRepository,
+		emailClient,
 	}
 }

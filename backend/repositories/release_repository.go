@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 	"github.com/mqrc81/zeries/sql"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
@@ -19,6 +20,20 @@ func (r *releaseRepository) FindAllInRange(amount int, offset int) (releases []d
 		`SELECT r.show_id, r.season_number, r.air_date, r.anticipation_level FROM releases r ORDER BY r.air_date LIMIT $1 OFFSET $2`,
 		amount,
 		offset,
+	); err != nil {
+		err = fmt.Errorf("error finding releases: %w", err)
+	}
+
+	return releases, err
+}
+
+func (r *releaseRepository) FindAllAiringBetween(startDate time.Time, endDate time.Time) (releases []domain.ReleaseRef, err error) {
+
+	if err = r.Select(
+		&releases,
+		`SELECT r.show_id, r.season_number, r.air_date, r.anticipation_level FROM releases r WHERE r.air_date BETWEEN $1 AND $2 ORDER BY r.air_date`,
+		startDate,
+		endDate,
 	); err != nil {
 		err = fmt.Errorf("error finding releases: %w", err)
 	}
@@ -59,7 +74,8 @@ func (r *releaseRepository) ReplaceAll(releases []domain.ReleaseRef, pastRelease
 }
 
 func (r *releaseRepository) saveReleaseInTransaction(txn *sqlx.Tx, release domain.ReleaseRef) (err error) {
-	if _, err = txn.Exec(`INSERT INTO releases(show_id, season_number, air_date, anticipation_level) VALUES($1, $2, $3, $4)`,
+	if _, err = txn.Exec(
+		`INSERT INTO releases(show_id, season_number, air_date, anticipation_level) VALUES($1, $2, $3, $4)`,
 		release.ShowId,
 		release.SeasonNumber,
 		release.AirDate,
@@ -82,7 +98,9 @@ func (r *releaseRepository) savePastReleasesCountInTransaction(txn *sqlx.Tx, pas
 
 func (r *releaseRepository) deleteAllReleasesInTransaction(txn *sqlx.Tx) (err error) {
 	//goland:noinspection SqlWithoutWhere
-	if _, err = txn.Exec(`DELETE FROM releases`); err != nil {
+	if _, err = txn.Exec(
+		`DELETE FROM releases`,
+	); err != nil {
 		err = fmt.Errorf("error deleting releases: %w", err)
 	}
 	return err

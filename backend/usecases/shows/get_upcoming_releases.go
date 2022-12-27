@@ -23,16 +23,14 @@ func (uc *useCase) GetUpcomingReleases(page int) ([]domain.Release, bool, error)
 
 	var releases []domain.Release
 	for _, releaseRef := range releasesRef {
-		tmdbRelease, err := uc.tmdbClient.GetTVDetails(
-			releaseRef.ShowId, map[string]string{"append_to_response": "translations"},
-		)
+		tmdbRelease, err := uc.tmdbClient.GetTVDetails(releaseRef.ShowId, map[string]string{"append_to_response": "translations"})
 		if err != nil {
 			return []domain.Release{}, false, echo.NewHTTPError(http.StatusConflict, err.Error())
 		}
 
 		releases = append(
 			releases,
-			releaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate, releaseRef.AnticipationLevel),
+			ReleaseFromTmdbShow(tmdbRelease, releaseRef.SeasonNumber, releaseRef.AirDate, releaseRef.AnticipationLevel),
 		)
 	}
 	return releases, possiblyHasMore && len(releases) >= 20, nil

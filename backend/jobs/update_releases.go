@@ -1,7 +1,6 @@
 package jobs
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
@@ -20,7 +19,7 @@ func (job updateReleasesJob) name() string {
 }
 
 func (job updateReleasesJob) execute() error {
-	logger.Info("Running " + job.name())
+	logger.Info("Running %v", job.name())
 
 	var (
 		releases          []domain.ReleaseRef
@@ -30,7 +29,7 @@ func (job updateReleasesJob) execute() error {
 
 	traktShowsAnticipated, err := job.traktClient.GetAnticipatedShows(1, 10)
 	if err != nil {
-		return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", errorMsg(job), err)
+		return err
 	}
 
 	// Trakt's limit is 33 days per request, but we want 9 * 30 days
@@ -38,7 +37,7 @@ func (job updateReleasesJob) execute() error {
 
 		traktReleases, err := job.traktClient.GetSeasonPremieres(startDate, 30)
 		if err != nil {
-			return fmt.Errorf("%v whilst fetching trakt season-premieres: %w", errorMsg(job), err)
+			return err
 		}
 
 		releases, err = job.filterAndCollectReleases(releases, traktReleases, traktShowsAnticipated)
@@ -55,7 +54,7 @@ func (job updateReleasesJob) execute() error {
 	}
 
 	if err = job.releaseRepository.ReplaceAll(releases, pastReleasesCount); err != nil {
-		return fmt.Errorf("%v: %w", errorMsg(job), err)
+		return err
 	}
 
 	logger.Info("Completed %v with %d releases saved", job.name(), len(releases))
@@ -70,8 +69,7 @@ func (job updateReleasesJob) filterAndCollectReleases(
 			continue
 		}
 
-		tmdbShow, err := job.tmdbClient.GetTVDetails(traktRelease.TmdbId(),
-			map[string]string{"append_to_response": "translations"})
+		tmdbShow, err := job.tmdbClient.GetTVDetails(traktRelease.TmdbId(), map[string]string{"append_to_response": "translations"})
 
 		if err != nil || !hasRelevantInfo(tmdbShow) || !hasMatchingSeasons(traktRelease, tmdbShow) {
 			continue

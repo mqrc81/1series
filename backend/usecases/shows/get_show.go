@@ -14,5 +14,5 @@ func (uc *useCase) GetShow(showId int) (domain.Show, error) {
 		return domain.Show{}, echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	return showFromTmdbShow(tmdbShow), nil
+	return ShowFromTmdbShow(tmdbShow), nil
 }

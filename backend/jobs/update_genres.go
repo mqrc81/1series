@@ -1,7 +1,6 @@
 package jobs
 
 import (
-	"fmt"
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/logger"
@@ -17,7 +16,7 @@ func (job updateGenresJob) execute() error {
 
 	tmdbGenres, err := job.tmdbClient.GetGenreTVList(nil)
 	if err != nil {
-		return fmt.Errorf("%v whilst getting tmdb genres: %w", errorMsg(job), err)
+		return err
 	}
 
 	var genres []domain.Genre
@@ -28,9 +27,8 @@ func (job updateGenresJob) execute() error {
 		})
 	}
 
-	err = job.genreRepository.ReplaceAll(genres)
-	if err != nil {
-		return fmt.Errorf("%v whilst saving genres: %w", errorMsg(job), err)
+	if err = job.genreRepository.ReplaceAll(genres); err != nil {
+		return err
 	}
 
 	logger.Info("Completed %v with %d genres saved", job.name(), len(genres))

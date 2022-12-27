@@ -14,40 +14,43 @@ import (
 )
 
 var (
-	Config config
+	config struct {
+		Port                string `env:"PORT"`
+		BackendUrl          string `env:"BACKEND_URL"`
+		DatabaseUrl         string `env:"DATABASE_URL"`
+		TmdbKey             string `env:"TMDB_KEY"`
+		TraktKey            string `env:"TRAKT_KEY"`
+		RunJobsOnInit       bool   `env:"RUN_JOBS_ON_INIT" envDefault:"true"`
+		SendGridKey         string `env:"SENDGRID_KEY"`
+		SendGridSenderEmail string `env:"SENDGRID_SENDER_EMAIL"`
+	}
 )
-
-type config struct {
-	Port          string `env:"PORT"`
-	BackendUrl    string `env:"BACKEND_URL"`
-	DatabaseUrl   string `env:"DATABASE_URL"`
-	TmdbKey       string `env:"TMDB_KEY"`
-	TraktKey      string `env:"TRAKT_KEY"`
-	RunJobsOnInit bool   `env:"RUN_JOBS_ON_INIT" envDefault:"true"`
-}
 
 func main() {
 	logger.Info("Starting application...")
 
 	// Load environment variables
 	_ = godotenv.Load()
-	err := env.Parse(&Config, env.Options{RequiredIfNoDef: true})
+	err := env.Parse(&config, env.Options{RequiredIfNoDef: true})
 	checkError(err)
 
 	// Register interface adapters
-	database, err := registry.NewDatabase(Config.DatabaseUrl)
+	database, err := registry.NewDatabase(config.DatabaseUrl)
 	checkError(err)
 
-	tmdbClient, err := registry.NewTmdbClient(Config.TmdbKey)
+	tmdbClient, err := registry.NewTmdbClient(config.TmdbKey)
 	checkError(err)
 
-	traktClient, err := registry.NewTraktClient(Config.TraktKey)
+	traktClient, err := registry.NewTraktClient(config.TraktKey)
 	checkError(err)
 
-	scheduler, err := registry.NewScheduler(database, tmdbClient, traktClient)
+	emailClient, err := registry.NewEmailClient(config.SendGridKey, config.SendGridSenderEmail)
 	checkError(err)
 
-	controller, err := registry.NewController(database, tmdbClient, traktClient, scheduler)
+	scheduler, err := registry.NewScheduler(database, tmdbClient, traktClient, emailClient)
+	checkError(err)
+
+	controller, err := registry.NewController(database, tmdbClient, traktClient, emailClient, scheduler)
 	checkError(err)
 
 	// Start application
@@ -65,15 +68,15 @@ func migrateDatabase(database *sql.Database) {
 func scheduleAndRunJobs(scheduler *gocron.Scheduler) {
 	logger.Info("Scheduling and running jobs")
 	scheduler.StartAsync()
-	if Config.RunJobsOnInit {
+	if config.RunJobsOnInit {
 		err := scheduler.RunByTagWithDelay(jobs.RunOnInitTag, time.Second)
 		checkError(err)
 	}
 }
 
 func serveApplication(controller controllers.Controller) {
-	logger.Info("Listening on " + Config.BackendUrl)
-	err := controller.Start(":" + Config.Port)
+	logger.Info("Listening on " + config.BackendUrl)
+	err := controller.Start(":" + config.Port)
 	checkError(err)
 }
 

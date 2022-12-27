@@ -22,7 +22,7 @@ func (uc *useCase) GetPopularShows(page int) ([]domain.Show, error) {
 			return []domain.Show{}, err
 		}
 
-		shows = append(shows, showFromTmdbShow(tmdbShow))
+		shows = append(shows, ShowFromTmdbShow(tmdbShow))
 	}
 	return shows, nil
 }

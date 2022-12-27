@@ -2,6 +2,7 @@ package repositories
 
 import (
 	sqlx "database/sql"
+	"time"
 
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/sql"
@@ -9,6 +10,7 @@ import (
 
 type UserRepository interface {
 	Find(userId int) (domain.User, error)
+	FindAll() ([]domain.User, error)
 	FindByUsername(username string) (domain.User, error)
 	FindByEmail(email string) (domain.User, error)
 	Save(user domain.User) (int, error)
@@ -27,11 +29,13 @@ type NetworkRepository interface {
 
 type ReleaseRepository interface {
 	FindAllInRange(amount int, offset int) ([]domain.ReleaseRef, error)
+	FindAllAiringBetween(startDate time.Time, endDate time.Time) ([]domain.ReleaseRef, error)
 	ReplaceAll(releases []domain.ReleaseRef, pastReleasesCount int) error
 	CountPastReleases() (int, error)
 }
 
 type WatchedShowRepository interface {
+	FindAll() ([]domain.WatchedShow, error)
 	FindAllByUser(user domain.User) ([]domain.WatchedShow, error)
 }
 

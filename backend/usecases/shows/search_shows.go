@@ -11,5 +11,5 @@ func (uc *useCase) SearchShows(searchTerm string) ([]domain.Show, error) {
 		return []domain.Show{}, err
 	}
 
-	return showsFromTmdbShowsSearch(tmdbShows, showSearchesPerRequest), nil
+	return ShowsFromTmdbShowsSearch(tmdbShows, showSearchesPerRequest), nil
 }

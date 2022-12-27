@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/mqrc81/zeries/email"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
@@ -30,7 +31,11 @@ type controller struct {
 }
 
 func NewController(
-	database *sql.Database, tmdbClient *tmdb.Client, traktClient *trakt.Client, scheduler *gocron.Scheduler,
+	database *sql.Database,
+	tmdbClient *tmdb.Client,
+	traktClient *trakt.Client,
+	emailClient *email.Client,
+	scheduler *gocron.Scheduler,
 ) (Controller, error) {
 
 	userRepository := repositories.NewUserRepository(database)
@@ -39,7 +44,7 @@ func NewController(
 	networkRepository := repositories.NewNetworkRepository(database)
 
 	showUseCase := shows.NewUseCase(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
-	userUseCase := users.NewUseCase(userRepository)
+	userUseCase := users.NewUseCase(userRepository, emailClient)
 	jobUseCase := jobs.NewUseCase(scheduler)
 
 	validate := validator.New()

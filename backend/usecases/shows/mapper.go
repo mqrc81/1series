@@ -8,7 +8,7 @@ import (
 	"github.com/mqrc81/zeries/logger"
 )
 
-func showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
+func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 
 	var genres []domain.Genre
 	for _, genre := range dto.Genres {
@@ -47,18 +47,18 @@ func showFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	}
 }
 
-func releaseFromTmdbShow(
+func ReleaseFromTmdbShow(
 	dto *tmdb.TVDetails, seasonNumber int, airDate time.Time, anticipationLevel domain.AnticipationLevel,
 ) domain.Release {
 	return domain.Release{
-		Show:              showFromTmdbShow(dto),
-		Season:            seasonFromTmdbShow(dto, seasonNumber),
+		Show:              ShowFromTmdbShow(dto),
+		Season:            SeasonFromTmdbShow(dto, seasonNumber),
 		AirDate:           airDate,
 		AnticipationLevel: anticipationLevel,
 	}
 }
 
-func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
+func SeasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	if seasonNumber > len(dto.Seasons) {
 		logger.Error("Tmdb show [%d, %v] has no season [%v]", dto.ID, dto.Name, seasonNumber)
 		return domain.Season{}
@@ -74,7 +74,8 @@ func seasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	}
 }
 
-func showsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []domain.Show) {
+//goland:noinspection GoNameStartsWithPackageName
+func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []domain.Show) {
 	for _, result := range dto.Results[:maxResults] {
 		shows = append(shows, domain.Show{
 			Id:     int(result.ID),
