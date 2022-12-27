@@ -57,23 +57,6 @@ func (job notifyUsersAboutReleasesJob) execute() error {
 	return nil
 }
 
-func (job notifyUsersAboutReleasesJob) findUpcomingTrackedShowReleasesOfUser(
-	user domain.User, upcomingReleasesMap map[int]*domain.Release,
-) ([]domain.Release, error) {
-	var upcomingTrackedShowReleases []domain.Release
-
-	trackedShows, err := job.trackedShowRepository.FindAllByUser(user)
-	if err != nil {
-		return nil, err
-	}
-	for _, trackedShow := range trackedShows {
-		if upcomingReleasesMap[trackedShow.ShowId] != nil {
-			upcomingTrackedShowReleases = append(upcomingTrackedShowReleases, *upcomingReleasesMap[trackedShow.ShowId])
-		}
-	}
-	return upcomingTrackedShowReleases, nil
-}
-
 func (job notifyUsersAboutReleasesJob) fetchReleasesAiringWithinTheNextWeek() (map[int]*domain.Release, error) {
 	var (
 		today               = atBeginningOfDay(time.Now().UTC())
@@ -96,6 +79,23 @@ func (job notifyUsersAboutReleasesJob) fetchReleasesAiringWithinTheNextWeek() (m
 		upcomingReleasesMap[releaseRef.ShowId] = &show
 	}
 	return upcomingReleasesMap, nil
+}
+
+func (job notifyUsersAboutReleasesJob) findUpcomingTrackedShowReleasesOfUser(
+	user domain.User, upcomingReleasesMap map[int]*domain.Release,
+) ([]domain.Release, error) {
+	var upcomingTrackedShowReleases []domain.Release
+
+	trackedShows, err := job.trackedShowRepository.FindAllByUser(user)
+	if err != nil {
+		return nil, err
+	}
+	for _, trackedShow := range trackedShows {
+		if upcomingReleasesMap[trackedShow.ShowId] != nil {
+			upcomingTrackedShowReleases = append(upcomingTrackedShowReleases, *upcomingReleasesMap[trackedShow.ShowId])
+		}
+	}
+	return upcomingTrackedShowReleases, nil
 }
 
 func atBeginningOfDay(t time.Time) time.Time {
