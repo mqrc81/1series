@@ -35,18 +35,24 @@ func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
 	}
-	formFile, err := ctx.FormFile(imdbWatchlistImportFileName)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
-	}
-	file, err := formFile.Open()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "unable to open the imdb watchlist export file")
-	}
-	defer file.Close()
+	// formFile, err := ctx.FormFile(imdbWatchlistImportFileName)
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file: "+err.Error())
+	// }
+	// file, err := formFile.Open()
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, "unable to open the imdb watchlist export file")
+	// }
+	// defer file.Close()
 
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
-	if err = gocsv.Unmarshal(file, &exportedImdbWatchlist); err != nil {
+	var textContent struct {
+		Content string `json:"content"`
+	}
+	if err = ctx.Bind(&textContent); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "unable to parse content: "+err.Error())
+	}
+	if err = gocsv.UnmarshalString(textContent.Content, &exportedImdbWatchlist); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file: "+err.Error())
 	}
 
@@ -68,14 +74,15 @@ func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 			}); err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
-			logger.Warning("Multiple tmdb shows found for imdb id %v", row.Const)
 		} else if len(results.TvResults) < 1 {
+			logger.Warning("No tmdb shows found for imdb id %v", row.Const)
 			failedImports = append(failedImports, failedImdbWatchlistImports{
 				ImdbId: row.Const,
 				Title:  row.Title,
 				Reason: "No series found in the TMDb-database for that IMDb-ID",
 			})
 		} else {
+			logger.Warning("Multiple tmdb shows found for imdb id %v", row.Const)
 			failedImports = append(failedImports, failedImdbWatchlistImports{
 				ImdbId: row.Const,
 				Title:  row.Title,

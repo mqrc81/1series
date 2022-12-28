@@ -38,7 +38,7 @@ func (r *trackedShowRepository) FindAllByUser(user domain.User) (trackedShows []
 func (r *trackedShowRepository) Save(trackedShow domain.TrackedShow) (err error) {
 
 	if _, err = r.Exec(
-		`INSERT INTO tracked_shows(user_id, show_id, rating) VALUES($1, $2, $3)`,
+		`INSERT INTO tracked_shows(user_id, show_id, rating) VALUES($1, $2, $3) ON CONFLICT DO NOTHING`,
 		trackedShow.UserId,
 		trackedShow.ShowId,
 		trackedShow.Rating,

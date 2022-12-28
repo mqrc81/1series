@@ -11,9 +11,12 @@ import (
 )
 
 const (
-	defaultRating                = 6
-	trackedShowRatingWeight      = 1
-	recommendationPositionWeight = 1
+	trackedShowRatingMin             = 5
+	trackedShowDefaultRating         = trackedShowRatingMin + 1
+	trackedShowRatingWeight          = 1
+	showRecommendationPositionWeight = 1
+	showRecommendationDepth          = 3
+	totalRecommendationsAmount       = 4
 )
 
 func (job notifyUsersAboutRecommendationsJob) name() string {
@@ -43,19 +46,25 @@ func (job notifyUsersAboutRecommendationsJob) execute() error {
 			if err != nil {
 				return err
 			}
-			rating := trackedShow.Rating
-			if rating == 0 {
-				rating = defaultRating
+			if trackedShow.Rating == 0 {
+				trackedShow.Rating = trackedShowDefaultRating
 			}
-			for i := 0; i < 3 && i < len(recommendations.Results); i++ {
+			for i := 0; i < showRecommendationDepth && i < len(recommendations.Results); i++ {
 				recommendation := recommendations.Results[i]
-				recommendedShowsMap[int(recommendation.ID)] += trackedShowRatingWeight*rating + recommendationPositionWeight*(3-i)
+				recommendedShowsMap[int(recommendation.ID)] +=
+					trackedShowRatingWeight*(trackedShow.Rating-trackedShowRatingMin) +
+						showRecommendationPositionWeight*(showRecommendationDepth-i)
 			}
 		}
 		for _, trackedShow := range trackedShows {
 			delete(recommendedShowsMap, trackedShow.ShowId)
 		}
-		if len(recommendedShowsMap) < 3 {
+		for key, val := range recommendedShowsMap {
+			if val <= 0 {
+				delete(recommendedShowsMap, key)
+			}
+		}
+		if len(recommendedShowsMap) < totalRecommendationsAmount {
 			continue
 		}
 		recommendedShowsPairs := mapToSlice(recommendedShowsMap)
@@ -63,7 +72,7 @@ func (job notifyUsersAboutRecommendationsJob) execute() error {
 			return recommendedShowsPairs[i].val > recommendedShowsPairs[j].val
 		})
 		var recommendedShows []domain.Show
-		for _, recommendedShowPair := range recommendedShowsPairs[:3] {
+		for _, recommendedShowPair := range recommendedShowsPairs[:totalRecommendationsAmount] {
 			tmdbShow, err := job.tmdbClient.GetTVDetails(recommendedShowPair.key, nil)
 			if err != nil {
 				return err
@@ -84,20 +93,20 @@ func (job notifyUsersAboutRecommendationsJob) execute() error {
 	return nil
 }
 
-func mapToSlice(in map[int]int) []pair {
-	pairs := make([]pair, len(in))
+type pair struct {
+	key int
+	val int
+}
+
+func mapToSlice(m map[int]int) []pair {
+	pairs := make([]pair, len(m))
 	i := 0
-	for k, v := range in {
+	for k, v := range m {
 		pairs[i].key = k
 		pairs[i].val = v
 		i++
 	}
 	return pairs
-}
-
-type pair struct {
-	key int
-	val int
 }
 
 type notifyUsersAboutRecommendationsJob struct {

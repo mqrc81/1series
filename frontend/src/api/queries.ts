@@ -11,7 +11,7 @@ export const getPreviousPageParam: GetPreviousPageParamFunction<Paginated<unknow
 export const getNextPageParam: GetNextPageParamFunction<Paginated<unknown>> = ({nextPage = undefined}) => nextPage;
 
 export const GetQuery = <TData>(url: string, params = {}): (params: {}) => Promise<TData> => {
-    return async () => {
+    return async (params?) => {
         const {data} = await ApiClient.get<TData>(url, params);
 
         return data;

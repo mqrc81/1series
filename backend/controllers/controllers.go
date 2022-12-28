@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	corsAllowOrigins = []string{"*localhost:*", "*127.0.0.1:*", "*.up.railway.app*"}
+	corsAllowOrigins = []string{"http://127.0.0.1:4000", "https://next.up.railway.app", "https://dev-next.up.railway.app"}
 )
 
 type Controller interface {
@@ -82,8 +82,8 @@ func NewController(
 		middleware.RequestID(),
 		middleware.Recover(),
 		controller.logger(),
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: corsAllowOrigins}),
-		middleware.CSRF(),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: corsAllowOrigins, AllowCredentials: true}),
+		// middleware.CSRF(),
 		controller.session(),
 		controller.withUser(),
 	)

@@ -31,7 +31,7 @@ func (e ShowRecommendationsEmail) recipient() *mail.Email {
 func (e ShowRecommendationsEmail) content() *mail.Content {
 	var recommendationsContent string
 	for i, show := range e.Shows {
-		recommendationsContent += fmt.Sprintf("\t%v. %v: %.1f/10 (%v)\n", i+1, show.Name, show.Rating, show.Poster)
+		recommendationsContent += fmt.Sprintf("\t%v. %v: %.1f/10 (%v)\n", i+1, show.Name, show.Rating, show.Overview)
 	}
 	return &mail.Content{
 		Type: "text/plain",
