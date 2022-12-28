@@ -5,7 +5,7 @@ import { Paginated } from '../dtos';
 
 export const useGetPopularShowsQuery = (options?: InfiniteQueryOptions<Paginated<{ shows: ShowDto[] }>>) => {
     return useInfiniteQuery<Paginated<{ shows: ShowDto[] }>>(
-        ['popular-shows'],
+        ['shows', 'popular'],
         GetInfiniteQuery(`/shows/popular`),
         {
             getNextPageParam,
@@ -16,7 +16,7 @@ export const useGetPopularShowsQuery = (options?: InfiniteQueryOptions<Paginated
 
 export const useGetUpcomingReleasesQuery = (options?: InfiniteQueryOptions<Paginated<{ releases: ReleaseDto[] }>>) => {
     return useInfiniteQuery<Paginated<{ releases: ReleaseDto[] }>>(
-        ['upcoming-releases'],
+        ['shows', 'releases'],
         GetInfiniteQuery(`/shows/releases`),
         {
             getPreviousPageParam,
