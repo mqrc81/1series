@@ -8,7 +8,7 @@ import (
 	"github.com/mqrc81/zeries/sql"
 )
 
-type UserRepository interface {
+type UsersRepository interface {
 	Find(userId int) (domain.User, error)
 	FindAll() ([]domain.User, error)
 	FindByUsername(username string) (domain.User, error)
@@ -16,48 +16,48 @@ type UserRepository interface {
 	Save(user domain.User) (int, error)
 }
 
-type GenreRepository interface {
+type GenresRepository interface {
 	FindAll() ([]domain.Genre, error)
 	Save(genre domain.Genre) error
 	ReplaceAll(genres []domain.Genre) error
 }
 
-type NetworkRepository interface {
+type NetworksRepository interface {
 	FindAll() ([]domain.Network, error)
 	Save(network domain.Network) error
 }
 
-type ReleaseRepository interface {
+type ReleasesRepository interface {
 	FindAllInRange(amount int, offset int) ([]domain.ReleaseRef, error)
 	FindAllAiringBetween(startDate time.Time, endDate time.Time) ([]domain.ReleaseRef, error)
 	ReplaceAll(releases []domain.ReleaseRef, pastReleasesCount int) error
 	CountPastReleases() (int, error)
 }
 
-type TrackedShowRepository interface {
+type TrackedShowsRepository interface {
 	FindAll() ([]domain.TrackedShow, error)
 	FindAllByUser(user domain.User) ([]domain.TrackedShow, error)
 	Save(trackedShow domain.TrackedShow) error
 }
 
-func NewUserRepository(database *sql.Database) UserRepository {
-	return &userRepository{database}
+func NewUsersRepository(database *sql.Database) UsersRepository {
+	return &usersRepository{database}
 }
 
-func NewReleaseRepository(database *sql.Database) ReleaseRepository {
-	return &releaseRepository{database}
+func NewReleasesRepository(database *sql.Database) ReleasesRepository {
+	return &releasesRepository{database}
 }
 
-func NewGenreRepository(database *sql.Database) GenreRepository {
-	return &genreRepository{database}
+func NewGenresRepository(database *sql.Database) GenresRepository {
+	return &genresRepository{database}
 }
 
-func NewNetworkRepository(database *sql.Database) NetworkRepository {
-	return &networkRepository{database}
+func NewNetworksRepository(database *sql.Database) NetworksRepository {
+	return &networksRepository{database}
 }
 
-func NewTrackedShowRepository(database *sql.Database) TrackedShowRepository {
-	return &trackedShowRepository{database}
+func NewTrackedShowsRepository(database *sql.Database) TrackedShowsRepository {
+	return &trackedShowsRepository{database}
 }
 
 func newId(res sqlx.Result) int {

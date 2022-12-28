@@ -29,7 +29,7 @@ func (job notifyUsersAboutReleasesJob) execute() error {
 		return err
 	}
 
-	users, err := job.userRepository.FindAll()
+	users, err := job.usersRepository.FindAll()
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (job notifyUsersAboutReleasesJob) fetchReleasesAiringWithinTheNextWeek() (m
 		upcomingReleasesMap = make(map[int]*domain.Release)
 	)
 
-	releasesInTheNextWeek, err := job.releaseRepository.FindAllAiringBetween(today, nextWeek)
+	releasesInTheNextWeek, err := job.releasesRepository.FindAllAiringBetween(today, nextWeek)
 	if err != nil {
 		return nil, err
 	} else if len(releasesInTheNextWeek) == 0 {
@@ -86,7 +86,7 @@ func (job notifyUsersAboutReleasesJob) findUpcomingTrackedShowReleasesOfUser(
 ) ([]domain.Release, error) {
 	var upcomingTrackedShowReleases []domain.Release
 
-	trackedShows, err := job.trackedShowRepository.FindAllByUser(user)
+	trackedShows, err := job.trackedShowsRepository.FindAllByUser(user)
 	if err != nil {
 		return nil, err
 	}
@@ -103,9 +103,9 @@ func atBeginningOfDay(t time.Time) time.Time {
 }
 
 type notifyUsersAboutReleasesJob struct {
-	userRepository        repositories.UserRepository
-	releaseRepository     repositories.ReleaseRepository
-	trackedShowRepository repositories.TrackedShowRepository
-	tmdbClient            *tmdb.Client
-	emailClient           *email.Client
+	usersRepository        repositories.UsersRepository
+	releasesRepository     repositories.ReleasesRepository
+	trackedShowsRepository repositories.TrackedShowsRepository
+	tmdbClient             *tmdb.Client
+	emailClient            *email.Client
 }

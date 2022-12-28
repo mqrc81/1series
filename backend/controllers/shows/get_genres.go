@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-func (c *showController) GetGenres(ctx echo.Context) error {
+func (c *showsController) GetGenres(ctx echo.Context) error {
 	// Input
 	// -
 
 	// Use-Case
-	genres, err := c.genreRepository.FindAll()
+	genres, err := c.genresRepository.FindAll()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

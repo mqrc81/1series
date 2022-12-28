@@ -14,13 +14,13 @@ const (
 	showSearchesPerRequest     = 8
 )
 
-type showController struct {
-	userRepository    repositories.UserRepository
-	releaseRepository repositories.ReleaseRepository
-	genreRepository   repositories.GenreRepository
-	networkRepository repositories.NetworkRepository
-	traktClient       *trakt.Client
-	tmdbClient        *tmdb.Client
+type showsController struct {
+	usersRepository    repositories.UsersRepository
+	releasesRepository repositories.ReleasesRepository
+	genresRepository   repositories.GenresRepository
+	networksRepository repositories.NetworksRepository
+	traktClient        *trakt.Client
+	tmdbClient         *tmdb.Client
 }
 
 type Controller interface {
@@ -33,17 +33,17 @@ type Controller interface {
 }
 
 func NewController(
-	userRepository repositories.UserRepository,
-	releaseRepository repositories.ReleaseRepository,
-	genreRepository repositories.GenreRepository,
-	networkRepository repositories.NetworkRepository,
+	usersRepository repositories.UsersRepository,
+	releasesRepository repositories.ReleasesRepository,
+	genresRepository repositories.GenresRepository,
+	networksRepository repositories.NetworksRepository,
 	traktClient *trakt.Client, tmdbClient *tmdb.Client,
 ) Controller {
-	return &showController{
-		userRepository,
-		releaseRepository,
-		genreRepository,
-		networkRepository,
+	return &showsController{
+		usersRepository,
+		releasesRepository,
+		genresRepository,
+		networksRepository,
 		traktClient,
 		tmdbClient,
 	}

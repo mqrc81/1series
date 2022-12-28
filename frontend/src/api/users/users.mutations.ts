@@ -6,8 +6,6 @@ export const useImportImdbWatchlistMutation = (options?: MutationOptions<FailedI
     return useMutation<FailedImdbImport[], unknown, File>(
         ['import-imdb-watchlist'],
         FileUploadMutation(`/users/importImdbWatchlist`),
-        {
-            ...options,
-        },
+        options,
     );
 };

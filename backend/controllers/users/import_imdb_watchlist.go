@@ -29,7 +29,7 @@ type exportedImdbWatchlistRow struct {
 	DateRated   time.Time `csv:"-"`
 }
 
-func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
+func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// Input
 	user, err := GetUserFromSession(ctx)
 	if err != nil {
@@ -67,7 +67,7 @@ func (c *userController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusInternalServerError, "unable to find tmdb show by imdb id: "+err.Error())
 		}
 		if len(results.TvResults) == 1 {
-			if err = c.trackedShowRepository.Save(domain.TrackedShow{
+			if err = c.trackedShowsRepository.Save(domain.TrackedShow{
 				UserId: user.Id,
 				ShowId: int(results.TvResults[0].ID),
 				Rating: row.YourRating,

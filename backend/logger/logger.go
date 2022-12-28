@@ -25,7 +25,9 @@ func Error(msg string, args ...interface{}) {
 	errorLogger.Printf(msg+"\n", args...)
 }
 
-func Fatal(err error) {
-	fatalLogger.Println(err.Error())
-	os.Exit(1)
+func FatalOnError(err error) {
+	if err != nil {
+		fatalLogger.Println(err.Error())
+		os.Exit(1)
+	}
 }

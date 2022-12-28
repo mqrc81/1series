@@ -8,7 +8,7 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
+func (c *showsController) GetUpcomingReleases(ctx echo.Context) error {
 	// Input
 	page, _ := strconv.Atoi(ctx.QueryParam("page"))
 	if page == 0 {
@@ -16,14 +16,14 @@ func (c *showController) GetUpcomingReleases(ctx echo.Context) error {
 	}
 
 	// Use-Case
-	pastReleases, err := c.releaseRepository.CountPastReleases()
+	pastReleases, err := c.releasesRepository.CountPastReleases()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	amount, offset, possiblyHasMore := calculateRange(page, pastReleases)
 
-	releasesRef, err := c.releaseRepository.FindAllInRange(amount, offset)
+	releasesRef, err := c.releasesRepository.FindAllInRange(amount, offset)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}

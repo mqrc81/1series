@@ -53,7 +53,7 @@ func (job updateReleasesJob) execute() error {
 		startDate = startDate.Add(thirtyDays)
 	}
 
-	if err = job.releaseRepository.ReplaceAll(releases, pastReleasesCount); err != nil {
+	if err = job.releasesRepository.ReplaceAll(releases, pastReleasesCount); err != nil {
 		return err
 	}
 
@@ -140,7 +140,7 @@ func anticipationLevelFor(releaseId int, showsAnticipated []trakt.ShowsAnticipat
 }
 
 type updateReleasesJob struct {
-	releaseRepository repositories.ReleaseRepository
-	tmdbClient        *tmdb.Client
-	traktClient       *trakt.Client
+	releasesRepository repositories.ReleasesRepository
+	tmdbClient         *tmdb.Client
+	traktClient        *trakt.Client
 }

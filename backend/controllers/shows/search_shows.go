@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (c *showController) SearchShows(ctx echo.Context) error {
+func (c *showsController) SearchShows(ctx echo.Context) error {
 	// Input
 	searchTerm := ctx.QueryParam("searchTerm")
 	if searchTerm == "" {

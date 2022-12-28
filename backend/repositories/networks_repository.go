@@ -7,11 +7,11 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-type networkRepository struct {
+type networksRepository struct {
 	*sql.Database
 }
 
-func (r *networkRepository) FindAll() (networks []domain.Network, err error) {
+func (r *networksRepository) FindAll() (networks []domain.Network, err error) {
 
 	if err = r.Select(
 		&networks,
@@ -23,7 +23,7 @@ func (r *networkRepository) FindAll() (networks []domain.Network, err error) {
 	return networks, err
 }
 
-func (r *networkRepository) Save(network domain.Network) (err error) {
+func (r *networksRepository) Save(network domain.Network) (err error) {
 
 	if _, err = r.Exec(
 		`INSERT INTO networks(id, name, logo) VALUES ($1, $2, $3)`,

@@ -27,7 +27,7 @@ func (job updateGenresJob) execute() error {
 		})
 	}
 
-	if err = job.genreRepository.ReplaceAll(genres); err != nil {
+	if err = job.genresRepository.ReplaceAll(genres); err != nil {
 		return err
 	}
 
@@ -36,6 +36,6 @@ func (job updateGenresJob) execute() error {
 }
 
 type updateGenresJob struct {
-	genreRepository repositories.GenreRepository
-	tmdbClient      *tmdb.Client
+	genresRepository repositories.GenresRepository
+	tmdbClient       *tmdb.Client
 }

@@ -1,4 +1,4 @@
-package jobs
+package admin
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func (c *jobController) RunJobsByTag(ctx echo.Context) (err error) {
+func (c *adminController) TriggerJobs(ctx echo.Context) (err error) {
 	// Input
 	tag := ctx.QueryParam("tag")
 	if user, err := users.GetUserFromSession(ctx); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	} else if user.Username != "marc" {
+	} else if !isAdmin(user) {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Only the big boss is allowed to run jobs manually you peasant")
 	}
 

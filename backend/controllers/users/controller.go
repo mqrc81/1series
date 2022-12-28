@@ -14,12 +14,12 @@ const (
 	imdbTitleTypeTvMiniSeries   = "tvMiniSeries"
 )
 
-type userController struct {
-	userRepository        repositories.UserRepository
-	trackedShowRepository repositories.TrackedShowRepository
-	tmdbClient            *tmdb.Client
-	emailClient           *email.Client
-	validate              *validator.Validate
+type usersController struct {
+	usersRepository        repositories.UsersRepository
+	trackedShowsRepository repositories.TrackedShowsRepository
+	tmdbClient             *tmdb.Client
+	emailClient            *email.Client
+	validate               *validator.Validate
 }
 
 type Controller interface {
@@ -29,15 +29,15 @@ type Controller interface {
 }
 
 func NewController(
-	userRepository repositories.UserRepository,
-	trackedShowRepository repositories.TrackedShowRepository,
+	usersRepository repositories.UsersRepository,
+	trackedShowsRepository repositories.TrackedShowsRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
 	validate *validator.Validate,
 ) Controller {
-	return &userController{
-		userRepository,
-		trackedShowRepository,
+	return &usersController{
+		usersRepository,
+		trackedShowsRepository,
 		tmdbClient,
 		emailClient,
 		validate,

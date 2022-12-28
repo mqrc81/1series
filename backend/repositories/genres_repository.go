@@ -8,11 +8,11 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-type genreRepository struct {
+type genresRepository struct {
 	*sql.Database
 }
 
-func (r *genreRepository) FindAll() (genres []domain.Genre, err error) {
+func (r *genresRepository) FindAll() (genres []domain.Genre, err error) {
 
 	if err = r.Select(
 		&genres,
@@ -24,7 +24,7 @@ func (r *genreRepository) FindAll() (genres []domain.Genre, err error) {
 	return genres, err
 }
 
-func (r *genreRepository) Save(genre domain.Genre) (err error) {
+func (r *genresRepository) Save(genre domain.Genre) (err error) {
 
 	if _, err = r.Exec(
 		`INSERT INTO genres(tmdb_id, name) VALUES ($1, $2)`,
@@ -37,7 +37,7 @@ func (r *genreRepository) Save(genre domain.Genre) (err error) {
 	return err
 }
 
-func (r *genreRepository) ReplaceAll(genres []domain.Genre) (err error) {
+func (r *genresRepository) ReplaceAll(genres []domain.Genre) (err error) {
 
 	txn, err := r.Beginx()
 	if err != nil {
@@ -65,7 +65,7 @@ func (r *genreRepository) ReplaceAll(genres []domain.Genre) (err error) {
 	return err
 }
 
-func (r *genreRepository) deleteAllGenresInTransaction(txn *sqlx.Tx) (err error) {
+func (r *genresRepository) deleteAllGenresInTransaction(txn *sqlx.Tx) (err error) {
 	//goland:noinspection SqlWithoutWhere
 	if _, err = txn.Exec(`DELETE FROM genres`); err != nil {
 		err = fmt.Errorf("error deleting genres: %w", err)
@@ -73,7 +73,7 @@ func (r *genreRepository) deleteAllGenresInTransaction(txn *sqlx.Tx) (err error)
 	return err
 }
 
-func (r *genreRepository) saveGenresInTransaction(txn *sqlx.Tx, genre domain.Genre) (err error) {
+func (r *genresRepository) saveGenresInTransaction(txn *sqlx.Tx, genre domain.Genre) (err error) {
 	if _, err = txn.Exec(`INSERT INTO genres(tmdb_id, name) VALUES($1, $2)`,
 		genre.TmdbId,
 		genre.Name,

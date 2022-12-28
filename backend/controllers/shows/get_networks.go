@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-func (c *showController) GetNetworks(ctx echo.Context) error {
+func (c *showsController) GetNetworks(ctx echo.Context) error {
 	// Input
 	// -
 
 	// Use-Case
-	networks, err := c.networkRepository.FindAll()
+	networks, err := c.networksRepository.FindAll()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

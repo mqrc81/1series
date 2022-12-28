@@ -12,7 +12,7 @@ type loginForm struct {
 	Password        string `json:"password" validate:"required"`
 }
 
-func (c *userController) LoginUser(ctx echo.Context) (err error) {
+func (c *usersController) LoginUser(ctx echo.Context) (err error) {
 	// Input
 	form := new(loginForm)
 	if err = ctx.Bind(form); err != nil {
@@ -23,9 +23,9 @@ func (c *userController) LoginUser(ctx echo.Context) (err error) {
 	}
 
 	// Use-Case
-	user, err := c.userRepository.FindByUsername(form.EmailOrUsername)
+	user, err := c.usersRepository.FindByUsername(form.EmailOrUsername)
 	if err != nil {
-		user, err = c.userRepository.FindByEmail(form.EmailOrUsername)
+		user, err = c.usersRepository.FindByEmail(form.EmailOrUsername)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid email or username")
 		}

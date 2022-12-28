@@ -29,7 +29,7 @@ func (job notifyUsersAboutRecommendationsJob) execute() error {
 
 	var usersNotified int
 
-	users, err := job.userRepository.FindAll()
+	users, err := job.usersRepository.FindAll()
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (job notifyUsersAboutRecommendationsJob) execute() error {
 		if !user.NotificationOptions.Recommendations {
 			continue
 		}
-		trackedShows, err := job.trackedShowRepository.FindAllByUser(user)
+		trackedShows, err := job.trackedShowsRepository.FindAllByUser(user)
 		if err != nil {
 			return err
 		}
@@ -111,8 +111,8 @@ func mapToSlice(m map[int]int) []pair {
 }
 
 type notifyUsersAboutRecommendationsJob struct {
-	userRepository        repositories.UserRepository
-	trackedShowRepository repositories.TrackedShowRepository
-	tmdbClient            *tmdb.Client
-	emailClient           *email.Client
+	usersRepository        repositories.UsersRepository
+	trackedShowsRepository repositories.TrackedShowsRepository
+	tmdbClient             *tmdb.Client
+	emailClient            *email.Client
 }

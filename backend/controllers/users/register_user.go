@@ -14,7 +14,7 @@ type registerForm struct {
 	Password string `json:"password" validate:"required,min=3"`
 }
 
-func (c *userController) RegisterUser(ctx echo.Context) (err error) {
+func (c *usersController) RegisterUser(ctx echo.Context) (err error) {
 	// Input
 	form := new(registerForm)
 	if err = ctx.Bind(form); err != nil {
@@ -25,10 +25,10 @@ func (c *userController) RegisterUser(ctx echo.Context) (err error) {
 	}
 
 	// Use-Case
-	if _, err = c.userRepository.FindByUsername(form.Username); err == nil {
+	if _, err = c.usersRepository.FindByUsername(form.Username); err == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "username is already taken")
 	}
-	if _, err = c.userRepository.FindByEmail(form.Email); err == nil {
+	if _, err = c.usersRepository.FindByEmail(form.Email); err == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "email is already taken")
 	}
 
@@ -37,7 +37,7 @@ func (c *userController) RegisterUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusConflict, "error hashing password: "+err.Error())
 	}
 
-	userId, err := c.userRepository.Save(domain.User{
+	userId, err := c.usersRepository.Save(domain.User{
 		Username: form.Username,
 		Email:    form.Email,
 		Password: string(hashedPassword),
@@ -46,7 +46,7 @@ func (c *userController) RegisterUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	user, err := c.userRepository.Find(userId)
+	user, err := c.usersRepository.Find(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}

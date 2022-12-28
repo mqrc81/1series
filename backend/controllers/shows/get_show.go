@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (c *showController) GetShow(ctx echo.Context) error {
+func (c *showsController) GetShow(ctx echo.Context) error {
 	// Input
 	showId, err := strconv.Atoi(ctx.Param("showId"))
 	if err != nil {

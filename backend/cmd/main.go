@@ -1,86 +1,54 @@
 package main
 
 import (
-	"github.com/caarlos0/env/v6"
 	"github.com/go-co-op/gocron"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/mqrc81/zeries/controllers"
+	"github.com/mqrc81/zeries/env"
 	"github.com/mqrc81/zeries/logger"
 	"github.com/mqrc81/zeries/registry"
 	"github.com/mqrc81/zeries/sql"
 	"time"
 )
 
-var (
-	config struct {
-		Port                string   `env:"PORT"`
-		BackendUrl          string   `env:"BACKEND_URL"`
-		DatabaseUrl         string   `env:"DATABASE_URL"`
-		TmdbKey             string   `env:"TMDB_KEY"`
-		TraktKey            string   `env:"TRAKT_KEY"`
-		SendGridKey         string   `env:"SENDGRID_KEY"`
-		SendGridSenderEmail string   `env:"SENDGRID_SENDER_EMAIL"`
-		JobTagsOnInit       []string `env:"JOB_TAGS_ON_INIT" envDefault:""`
-	}
-)
-
 func main() {
 	logger.Info("Starting application...")
 
-	// Load environment variables
-	_ = godotenv.Load()
-	err := env.Parse(&config, env.Options{RequiredIfNoDef: true})
-	checkError(err)
-
 	// Register interface adapters
-	database, err := registry.NewDatabase(config.DatabaseUrl)
-	checkError(err)
+	database := registry.NewDatabase()
 
-	tmdbClient, err := registry.NewTmdbClient(config.TmdbKey)
-	checkError(err)
+	tmdbClient := registry.NewTmdbClient()
 
-	traktClient, err := registry.NewTraktClient(config.TraktKey)
-	checkError(err)
+	traktClient := registry.NewTraktClient()
 
-	emailClient, err := registry.NewEmailClient(config.SendGridKey, config.SendGridSenderEmail)
-	checkError(err)
+	emailClient := registry.NewEmailClient()
 
-	scheduler, err := registry.NewScheduler(database, tmdbClient, traktClient, emailClient)
-	checkError(err)
+	scheduler := registry.NewScheduler(database, tmdbClient, traktClient, emailClient)
 
-	controller, err := registry.NewController(database, tmdbClient, traktClient, emailClient, scheduler)
-	checkError(err)
+	controller := registry.NewController(database, tmdbClient, traktClient, emailClient, scheduler)
 
 	// Start application
 	migrateDatabase(database)
+
 	scheduleAndRunJobs(scheduler)
+
 	serveApplication(controller)
 }
 
 func migrateDatabase(database *sql.Database) {
 	logger.Info("Migrating database")
-	err := database.Migrate()
-	checkError(err)
+	logger.FatalOnError(database.Migrate())
 }
 
 func scheduleAndRunJobs(scheduler *gocron.Scheduler) {
 	logger.Info("Scheduling and running jobs")
 	scheduler.StartAsync()
-	for _, tag := range config.JobTagsOnInit {
-		err := scheduler.RunByTagWithDelay(tag, time.Second)
-		checkError(err)
+	for _, tag := range env.Config.JobTagsOnInit {
+		logger.FatalOnError(scheduler.RunByTagWithDelay(tag, time.Second))
 	}
 }
 
 func serveApplication(controller controllers.Controller) {
-	logger.Info("Listening on " + config.BackendUrl)
-	err := controller.Start(":" + config.Port)
-	checkError(err)
-}
-
-func checkError(err error) {
-	if err != nil {
-		logger.Fatal(err)
-	}
+	logger.Info("Listening on " + env.Config.BackendUrl)
+	logger.FatalOnError(controller.Start(":" + env.Config.Port))
 }

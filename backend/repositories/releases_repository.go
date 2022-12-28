@@ -9,11 +9,11 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-type releaseRepository struct {
+type releasesRepository struct {
 	*sql.Database
 }
 
-func (r *releaseRepository) FindAllInRange(amount int, offset int) (releases []domain.ReleaseRef, err error) {
+func (r *releasesRepository) FindAllInRange(amount int, offset int) (releases []domain.ReleaseRef, err error) {
 
 	if err = r.Select(
 		&releases,
@@ -27,7 +27,7 @@ func (r *releaseRepository) FindAllInRange(amount int, offset int) (releases []d
 	return releases, err
 }
 
-func (r *releaseRepository) FindAllAiringBetween(startDate time.Time, endDate time.Time) (releases []domain.ReleaseRef, err error) {
+func (r *releasesRepository) FindAllAiringBetween(startDate time.Time, endDate time.Time) (releases []domain.ReleaseRef, err error) {
 
 	if err = r.Select(
 		&releases,
@@ -41,7 +41,7 @@ func (r *releaseRepository) FindAllAiringBetween(startDate time.Time, endDate ti
 	return releases, err
 }
 
-func (r *releaseRepository) ReplaceAll(releases []domain.ReleaseRef, pastReleasesCount int) error {
+func (r *releasesRepository) ReplaceAll(releases []domain.ReleaseRef, pastReleasesCount int) error {
 
 	txn, err := r.Beginx()
 	if err != nil {
@@ -73,7 +73,7 @@ func (r *releaseRepository) ReplaceAll(releases []domain.ReleaseRef, pastRelease
 	return err
 }
 
-func (r *releaseRepository) saveReleaseInTransaction(txn *sqlx.Tx, release domain.ReleaseRef) (err error) {
+func (r *releasesRepository) saveReleaseInTransaction(txn *sqlx.Tx, release domain.ReleaseRef) (err error) {
 	if _, err = txn.Exec(
 		`INSERT INTO releases(show_id, season_number, air_date, anticipation_level) VALUES($1, $2, $3, $4)`,
 		release.ShowId,
@@ -86,7 +86,7 @@ func (r *releaseRepository) saveReleaseInTransaction(txn *sqlx.Tx, release domai
 	return err
 }
 
-func (r *releaseRepository) savePastReleasesCountInTransaction(txn *sqlx.Tx, pastReleasesCount int) (err error) {
+func (r *releasesRepository) savePastReleasesCountInTransaction(txn *sqlx.Tx, pastReleasesCount int) (err error) {
 	if _, err = txn.Exec(
 		`UPDATE past_releases SET amount = $1 WHERE past_releases_id = 69`,
 		pastReleasesCount,
@@ -96,7 +96,7 @@ func (r *releaseRepository) savePastReleasesCountInTransaction(txn *sqlx.Tx, pas
 	return err
 }
 
-func (r *releaseRepository) deleteAllReleasesInTransaction(txn *sqlx.Tx) (err error) {
+func (r *releasesRepository) deleteAllReleasesInTransaction(txn *sqlx.Tx) (err error) {
 	//goland:noinspection SqlWithoutWhere
 	if _, err = txn.Exec(
 		`DELETE FROM releases`,
@@ -106,7 +106,7 @@ func (r *releaseRepository) deleteAllReleasesInTransaction(txn *sqlx.Tx) (err er
 	return err
 }
 
-func (r *releaseRepository) CountPastReleases() (amount int, err error) {
+func (r *releasesRepository) CountPastReleases() (amount int, err error) {
 
 	if err = r.Get(
 		&amount,

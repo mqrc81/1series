@@ -66,7 +66,7 @@ func (c *controller) withUser() echo.MiddlewareFunc {
 				return next(ctx)
 			}
 
-			user, err := c.userRepository.Find(userId)
+			user, err := c.usersRepository.Find(userId)
 			if err != nil {
 				return next(ctx)
 			}

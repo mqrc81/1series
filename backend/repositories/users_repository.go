@@ -7,11 +7,11 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
-type userRepository struct {
+type usersRepository struct {
 	*sql.Database
 }
 
-func (r *userRepository) Find(userId int) (user domain.User, err error) {
+func (r *usersRepository) Find(userId int) (user domain.User, err error) {
 
 	if err = r.Get(
 		&user,
@@ -24,7 +24,7 @@ func (r *userRepository) Find(userId int) (user domain.User, err error) {
 	return user, err
 }
 
-func (r *userRepository) FindAll() (users []domain.User, err error) {
+func (r *usersRepository) FindAll() (users []domain.User, err error) {
 
 	if err = r.Select(
 		&users,
@@ -36,7 +36,7 @@ func (r *userRepository) FindAll() (users []domain.User, err error) {
 	return users, err
 }
 
-func (r *userRepository) FindByUsername(username string) (user domain.User, err error) {
+func (r *usersRepository) FindByUsername(username string) (user domain.User, err error) {
 
 	if err = r.Get(
 		&user,
@@ -49,7 +49,7 @@ func (r *userRepository) FindByUsername(username string) (user domain.User, err 
 	return user, err
 }
 
-func (r *userRepository) FindByEmail(email string) (user domain.User, err error) {
+func (r *usersRepository) FindByEmail(email string) (user domain.User, err error) {
 
 	if err = r.Get(
 		&user,
@@ -62,7 +62,7 @@ func (r *userRepository) FindByEmail(email string) (user domain.User, err error)
 	return user, err
 }
 
-func (r *userRepository) Save(user domain.User) (id int, err error) {
+func (r *usersRepository) Save(user domain.User) (id int, err error) {
 
 	if res, err := r.Exec(`INSERT INTO users(username, password, email) VALUES ($1, $2, $3)`,
 		user.Username,

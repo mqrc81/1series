@@ -22,50 +22,50 @@ type job interface {
 
 func RegisterUpdateGenresJob(
 	scheduler *gocron.Scheduler,
-	genreRepository repositories.GenreRepository,
+	genresRepository repositories.GenresRepository,
 	tmdbClient *tmdb.Client,
 ) error {
 	return registerJob(
-		updateGenresJob{genreRepository, tmdbClient},
+		updateGenresJob{genresRepository, tmdbClient},
 		scheduler.Every(1).Monday().At("00:00").Tag(PopulateDatabaseTag).Do,
 	)
 }
 
 func RegisterUpdateReleasesJob(
 	scheduler *gocron.Scheduler,
-	releaseRepository repositories.ReleaseRepository,
+	releasesRepository repositories.ReleasesRepository,
 	tmdbClient *tmdb.Client,
 	traktClient *trakt.Client,
 ) error {
 	return registerJob(
-		updateReleasesJob{releaseRepository, tmdbClient, traktClient},
+		updateReleasesJob{releasesRepository, tmdbClient, traktClient},
 		scheduler.Every(1).Day().At("00:05").Tag(PopulateDatabaseTag).Do,
 	)
 }
 
 func RegisterNotifyUsersAboutReleasesJob(
 	scheduler *gocron.Scheduler,
-	userRepository repositories.UserRepository,
-	releaseRepository repositories.ReleaseRepository,
-	trackedShowRepository repositories.TrackedShowRepository,
+	usersRepository repositories.UsersRepository,
+	releasesRepository repositories.ReleasesRepository,
+	trackedShowsRepository repositories.TrackedShowsRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
 ) error {
 	return registerJob(
-		notifyUsersAboutReleasesJob{userRepository, releaseRepository, trackedShowRepository, tmdbClient, emailClient},
+		notifyUsersAboutReleasesJob{usersRepository, releasesRepository, trackedShowsRepository, tmdbClient, emailClient},
 		scheduler.Every(1).Monday().At("00:10").Tag(NotifyUsersTag).Do,
 	)
 }
 
 func RegisterNotifyUsersAboutRecommendationsJob(
 	scheduler *gocron.Scheduler,
-	userRepository repositories.UserRepository,
-	trackedShowRepository repositories.TrackedShowRepository,
+	usersRepository repositories.UsersRepository,
+	trackedShowsRepository repositories.TrackedShowsRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
 ) error {
 	return registerJob(
-		notifyUsersAboutRecommendationsJob{userRepository, trackedShowRepository, tmdbClient, emailClient},
+		notifyUsersAboutRecommendationsJob{usersRepository, trackedShowsRepository, tmdbClient, emailClient},
 		scheduler.Every(5).Weekday(time.Friday).At("00:15").Tag(NotifyUsersTag).Do,
 	)
 }

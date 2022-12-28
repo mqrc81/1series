@@ -12,7 +12,7 @@ type PopularShowsDto struct {
 	shows    []domain.Show
 }
 
-func (c *showController) GetPopularShows(ctx echo.Context) error {
+func (c *showsController) GetPopularShows(ctx echo.Context) error {
 	// Input
 	page, _ := strconv.Atoi(ctx.QueryParam("page"))
 	if page < 1 {
