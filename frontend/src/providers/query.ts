@@ -7,7 +7,6 @@ export const QueryClient = new ReactQueryClient({
         queries: {
             staleTime: THIRTY_SECONDS,
         },
-        mutations: {},
     },
 });
 

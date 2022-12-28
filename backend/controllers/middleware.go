@@ -8,7 +8,14 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/logger"
+	"net/http"
 	"time"
+)
+
+var (
+	endpointsExpectingIncreasedLatency = []string{
+		"/api/importImdbWatchlist",
+	}
 )
 
 func (c *controller) logger() echo.MiddlewareFunc {
@@ -17,7 +24,7 @@ func (c *controller) logger() echo.MiddlewareFunc {
 			if v.Error != nil {
 				logger.Error("Http error occurred: request=[%v %v %v] error=[%v] latency=[%v]",
 					v.Method, v.URI, v.Status, v.Error, v.Latency)
-			} else if v.Latency > 5*time.Second {
+			} else if v.Latency > 5*time.Second && !endpointExpectsIncreasedLatency(ctx.Request()) {
 				logger.Warning("Latency surpassed 5 seconds: request=[%v %v %v] error=[%v] latency=[%v]",
 					v.Method, v.URI, v.Status, v.Error, v.Latency)
 			}
@@ -29,6 +36,15 @@ func (c *controller) logger() echo.MiddlewareFunc {
 		LogError:   true,
 		LogLatency: true,
 	})
+}
+
+func endpointExpectsIncreasedLatency(req *http.Request) bool {
+	for _, endpoint := range endpointsExpectingIncreasedLatency {
+		if endpoint == req.URL.Path {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *controller) session() echo.MiddlewareFunc {

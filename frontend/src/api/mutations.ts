@@ -1,23 +1,17 @@
-import { ApiClient } from '../providers';
+import { ApisauceClient } from '../providers';
 import { UseMutationOptions } from 'react-query/types/react/types';
 import { AxiosRequestConfig } from 'axios';
 
 export type MutationOptions<TData = unknown, TError = unknown, TVariables = void, TContext = unknown> = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationKey' | 'mutationFn'>
 
-export const PostMutation = <TData = void, TBody = {}>(url: string, params = {}): (body: TBody) => Promise<TData> => {
+// TODO ms solve this without hacks
+export const FileUploadMutation = <TData = void, TBody extends File = File>(url: string): (body: TBody) => Promise<TData> => {
     return async (body?) => {
 
-        const {data} = await ApiClient.post<TData>(url, await postRequestBody(body));
+        const {data} = await ApisauceClient.post<TData>(url, {content: await body.text()}, {timeout: undefined});
 
         return data;
     };
-};
-
-const postRequestBody = async <TBody>(body?: TBody): Promise<any> => {
-    if (body instanceof File) {
-        return {content: await body.text()};
-    }
-    return body;
 };
 
 const postRequestConfig = <TBody>(body?: TBody): AxiosRequestConfig => {

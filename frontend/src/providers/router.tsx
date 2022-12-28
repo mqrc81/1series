@@ -2,7 +2,7 @@ import React, { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import App from '../pages/app';
 import ErrorFallback from '../pages/error-fallback/error-fallback';
-import { ApiClient } from './apisauce';
+import { ApisauceClient } from './apisauce';
 
 const Home = lazy(() => import('../pages/home/home'));
 const PopularShows = lazy(() => import('../pages/popular-shows/popular-shows'));
@@ -14,7 +14,7 @@ export const Router = createBrowserRouter([
         path: '/',
         element: <App/>,
         errorElement: <ErrorFallback/>,
-        loader: () => ApiClient.get('/ping', {}, {withCredentials: false}),
+        loader: () => ApisauceClient.get('/ping', {}, {withCredentials: false}),
         children: [
             {
                 path: '/',

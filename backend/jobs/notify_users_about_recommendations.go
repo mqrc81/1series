@@ -16,6 +16,7 @@ const (
 	trackedShowRatingWeight          = 1
 	showRecommendationPositionWeight = 1
 	showRecommendationDepth          = 3
+	showRecommendationDepthMax       = showRecommendationDepth * 2
 	totalRecommendationsAmount       = 4
 )
 

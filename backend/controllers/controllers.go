@@ -46,14 +46,14 @@ func NewController(
 
 	validate := validator.New()
 
+	baseController := newController(userRepository)
 	userController := users.NewController(userRepository, trackedShowRepository, tmdbClient, emailClient, validate)
 	showController := shows.NewController(userRepository, releaseRepository, genreRepository, networkRepository, traktClient, tmdbClient)
 	jobController := jobs.NewController(scheduler)
 
-	controller := newController(userRepository)
-	baseRouter := controller.Group("/api")
+	baseRouter := baseController.Group("/api")
 	{
-		baseRouter.GET("/ping", controller.ping)
+		baseRouter.GET("/ping", baseController.Ping)
 	}
 
 	showRouter := baseRouter.Group("/shows")
@@ -78,17 +78,17 @@ func NewController(
 		jobRouter.GET("/runByTag", jobController.RunJobsByTag)
 	}
 
-	controller.Use(
+	baseController.Use(
 		middleware.RequestID(),
 		middleware.Recover(),
-		controller.logger(),
+		baseController.logger(),
 		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: corsAllowOrigins, AllowCredentials: true}),
-		// middleware.CSRF(),
-		controller.session(),
-		controller.withUser(),
+		middleware.CSRFWithConfig(middleware.CSRFConfig{TokenLookup: "token:_csrf"}),
+		baseController.session(),
+		baseController.withUser(),
 	)
 
-	return controller, nil
+	return baseController, nil
 }
 
 func newController(userRepository repositories.UserRepository) controller {
@@ -98,6 +98,6 @@ func newController(userRepository repositories.UserRepository) controller {
 	return controller{echoEngine, userRepository}
 }
 
-func (c *controller) ping(ctx echo.Context) error {
+func (c *controller) Ping(ctx echo.Context) error {
 	return ctx.String(http.StatusOK, "Pong!")
 }
