@@ -6,12 +6,15 @@ import { ConfigProvider as AntConfigProvider } from 'antd';
 import { RouterProvider } from 'react-router-dom';
 import { AntTheme, QueryClient, Router } from './providers';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+export const Main: React.FC = () => (
     <React.StrictMode>
         <QueryClientProvider client={QueryClient}>
             <AntConfigProvider theme={AntTheme}>
                 <RouterProvider router={Router}/>
             </AntConfigProvider>
         </QueryClientProvider>
-    </React.StrictMode>,
+    </React.StrictMode>
+);
+ReactDOM.createRoot(document.getElementById('root')).render(
+    <Main/>,
 );

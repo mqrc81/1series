@@ -29,15 +29,16 @@ type exportedImdbWatchlistRow struct {
 	DateRated   time.Time `csv:"-"`
 }
 
+//goland:noinspection GoPreferNilSlice
 func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// Input
 	user, err := GetUserFromSession(ctx)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
 	}
-	// formFile, err := ctx.FormFile(imdbWatchlistImportFileName)
+	// formFile, err := ctx.FormFile("file")
 	// if err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file: "+err.Error())
+	// 	return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
 	// }
 	// file, err := formFile.Open()
 	// if err != nil {
@@ -46,18 +47,13 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// defer file.Close()
 
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
-	var textContent struct {
-		Content string `json:"content"`
-	}
-	if err = ctx.Bind(&textContent); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "unable to parse content: "+err.Error())
-	}
-	if err = gocsv.UnmarshalString(textContent.Content, &exportedImdbWatchlist); err != nil {
+	reader := gocsv.DefaultCSVReader(ctx.Request().Body)
+	if err = gocsv.UnmarshalCSV(reader, &exportedImdbWatchlist); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file: "+err.Error())
 	}
 
 	// Use-Case
-	var failedImports []failedImdbWatchlistImports
+	failedImports := []failedImdbWatchlistImports{}
 	for _, row := range exportedImdbWatchlist {
 		if !(row.TitleType == imdbTitleTypeTvSeries || row.TitleType == imdbTitleTypeTvMiniSeries) {
 			continue

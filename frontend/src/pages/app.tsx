@@ -5,7 +5,7 @@ import { useQuery } from 'react-query';
 import { GetQuery } from '../api';
 
 const App: React.FC = () => {
-    useQuery(['ping'], GetQuery('/ping'), {cacheTime: Infinity});
+    useQuery(['ping'], GetQuery('/ping'), {staleTime: Infinity});
     return (
         <Suspense fallback={<Spin className="m-auto mt-5" spinning size="large"/>}>
             <AppLayout/>

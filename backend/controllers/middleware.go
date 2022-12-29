@@ -14,7 +14,7 @@ import (
 
 var (
 	endpointsExpectingIncreasedLatency = []string{
-		"/api/importImdbWatchlist",
+		"/api/users/importImdbWatchlist",
 	}
 )
 
