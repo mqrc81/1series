@@ -36,20 +36,19 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
 	}
-	// formFile, err := ctx.FormFile("file")
-	// if err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
-	// }
-	// file, err := formFile.Open()
-	// if err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, "unable to open the imdb watchlist export file")
-	// }
-	// defer file.Close()
+	formFile, err := ctx.FormFile("file")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
+	}
+	file, err := formFile.Open()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "unable to open the imdb watchlist export file")
+	}
+	defer file.Close()
 
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
-	reader := gocsv.DefaultCSVReader(ctx.Request().Body)
-	if err = gocsv.UnmarshalCSV(reader, &exportedImdbWatchlist); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file: "+err.Error())
+	if err = gocsv.Unmarshal(file, &exportedImdbWatchlist); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file")
 	}
 
 	// Use-Case
@@ -60,7 +59,7 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 		}
 		results, err := c.tmdbClient.GetFindByID(row.Const, map[string]string{"external_source": "imdb_id"})
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "unable to find tmdb show by imdb id: "+err.Error())
+			return echo.NewHTTPError(http.StatusInternalServerError, "unable to find tmdb show by imdb id")
 		}
 		if len(results.TvResults) == 1 {
 			if err = c.trackedShowsRepository.Save(domain.TrackedShow{
