@@ -20,9 +20,10 @@ type upcomingReleasesDto struct {
 	Releases     []domain.Release `json:"releases"`
 }
 
+//goland:noinspection GoPreferNilSlice
 func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 
-	var genres []domain.Genre
+	genres := []domain.Genre{}
 	for _, genre := range dto.Genres {
 		genres = append(genres, domain.Genre{
 			Id:   int(genre.ID),
@@ -30,7 +31,7 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 		})
 	}
 
-	var networks []domain.Network
+	networks := []domain.Network{}
 	for _, network := range dto.Networks {
 		networks = append(networks, domain.Network{
 			Id:   int(network.ID),
@@ -86,8 +87,9 @@ func SeasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	}
 }
 
-//goland:noinspection GoNameStartsWithPackageName
-func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []domain.Show) {
+//goland:noinspection GoNameStartsWithPackageName,GoPreferNilSlice
+func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) []domain.Show {
+	shows := []domain.Show{}
 	for _, result := range dto.Results[:maxResults] {
 		shows = append(shows, domain.Show{
 			Id:     int(result.ID),

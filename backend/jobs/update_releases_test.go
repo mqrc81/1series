@@ -1,11 +1,11 @@
 package jobs
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/mqrc81/zeries/trakt"
-	"github.com/nbio/st"
 )
 
 type TraktShow struct {
@@ -100,7 +100,7 @@ func Test_hasRelevantIds(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			st.Expect(t, hasRelevantIds(tt.args), tt.want)
+			assert.Equal(t, hasRelevantIds(tt.args), tt.want)
 
 		})
 	}
@@ -256,7 +256,7 @@ func Test_hasRelevantInfo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			st.Expect(t, hasRelevantInfo(tt.args), tt.want)
+			assert.Equal(t, hasRelevantInfo(tt.args), tt.want)
 
 		})
 	}

@@ -5,26 +5,33 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/mqrc81/zeries/logger"
 	_ "github.com/mqrc81/zeries/sql"
+	"sync"
 )
 
 var (
-	Config struct {
-		Port                string   `env:"PORT"`
-		BackendUrl          string   `env:"BACKEND_URL"`
-		DatabaseUrl         string   `env:"DATABASE_URL"`
-		TmdbKey             string   `env:"TMDB_KEY"`
-		TraktKey            string   `env:"TRAKT_KEY"`
-		SendGridKey         string   `env:"SENDGRID_KEY"`
-		SendGridSenderEmail string   `env:"SENDGRID_SENDER_EMAIL"`
-		JobTagsOnInit       []string `env:"JOB_TAGS_ON_INIT" envDefault:""`
-		Admins              []string `env:"ADMINS" envDefault:""`
-	}
+	once   = new(sync.Once)
+	config EnvironmentVariables
 )
 
-func init() {
-	_ = godotenv.Load()
-	err := env.Parse(&Config, env.Options{RequiredIfNoDef: true})
-	if err != nil {
-		logger.FatalOnError(err)
-	}
+type EnvironmentVariables struct {
+	Port                string   `env:"PORT"`
+	BackendUrl          string   `env:"BACKEND_URL"`
+	DatabaseUrl         string   `env:"DATABASE_URL"`
+	TmdbKey             string   `env:"TMDB_KEY"`
+	TraktKey            string   `env:"TRAKT_KEY"`
+	SendGridKey         string   `env:"SENDGRID_KEY"`
+	SendGridSenderEmail string   `env:"SENDGRID_SENDER_EMAIL"`
+	JobTagsOnInit       []string `env:"JOB_TAGS_ON_INIT" envDefault:""`
+	Admins              []string `env:"ADMINS" envDefault:""`
+}
+
+func Config() EnvironmentVariables {
+	once.Do(func() {
+		_ = godotenv.Load()
+		err := env.Parse(&config, env.Options{RequiredIfNoDef: true})
+		if err != nil {
+			logger.FatalOnError(err)
+		}
+	})
+	return config
 }

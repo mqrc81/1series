@@ -22,7 +22,7 @@ func NewController(
 }
 
 func isAdmin(user domain.User) bool {
-	for _, admin := range env.Config.Admins {
+	for _, admin := range env.Config().Admins {
 		if user.Username == admin {
 			return true
 		}

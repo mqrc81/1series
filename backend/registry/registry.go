@@ -19,7 +19,7 @@ import (
 )
 
 func NewDatabase() *sql.Database {
-	database, err := sqlx.Connect("postgres", env.Config.DatabaseUrl)
+	database, err := sqlx.Connect("postgres", env.Config().DatabaseUrl)
 	logger.FatalOnError(err)
 	goose.SetLogger(logger.DefaultLogger)
 	err = goose.SetDialect("postgres")
@@ -28,19 +28,19 @@ func NewDatabase() *sql.Database {
 }
 
 func NewTmdbClient() *tmdb.Client {
-	tmdbClient, err := tmdb.Init(env.Config.TmdbKey)
+	tmdbClient, err := tmdb.Init(env.Config().TmdbKey)
 	logger.FatalOnError(err)
 	return tmdbClient
 }
 
 func NewTraktClient() *trakt.Client {
-	traktClient, err := trakt.Init(env.Config.TraktKey)
+	traktClient, err := trakt.Init(env.Config().TraktKey)
 	logger.FatalOnError(err)
 	return traktClient
 }
 
 func NewEmailClient() *email.Client {
-	emailClient, err := email.NewEmailClient(env.Config.SendGridKey, env.Config.SendGridSenderEmail)
+	emailClient, err := email.NewEmailClient(env.Config().SendGridKey, env.Config().SendGridSenderEmail)
 	logger.FatalOnError(err)
 	return emailClient
 }

@@ -43,12 +43,12 @@ func migrateDatabase(database *sql.Database) {
 func scheduleAndRunJobs(scheduler *gocron.Scheduler) {
 	logger.Info("Scheduling and running jobs")
 	scheduler.StartAsync()
-	for _, tag := range env.Config.JobTagsOnInit {
+	for _, tag := range env.Config().JobTagsOnInit {
 		logger.FatalOnError(scheduler.RunByTagWithDelay(tag, time.Second))
 	}
 }
 
 func serveApplication(controller controllers.Controller) {
-	logger.Info("Listening on " + env.Config.BackendUrl)
-	logger.FatalOnError(controller.Start(":" + env.Config.Port))
+	logger.Info("Listening on " + env.Config().BackendUrl)
+	logger.FatalOnError(controller.Start(":" + env.Config().Port))
 }
