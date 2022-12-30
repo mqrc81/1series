@@ -12,6 +12,7 @@ type PopularShowsDto struct {
 	shows    []domain.Show
 }
 
+//goland:noinspection GoPreferNilSlice
 func (c *showsController) GetPopularShows(ctx echo.Context) error {
 	// Input
 	page, _ := strconv.Atoi(ctx.QueryParam("page"))
@@ -25,7 +26,7 @@ func (c *showsController) GetPopularShows(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "error fetching trakt shows watched weekly: "+err.Error())
 	}
 
-	var shows []domain.Show
+	shows := []domain.Show{}
 	for _, traktShow := range traktShows {
 		tmdbShow, err := c.tmdbClient.GetTVDetails(traktShow.TmdbId(), nil)
 		if err != nil {

@@ -8,15 +8,15 @@ const AppLayout: React.FC = () => {
     return (
         <>
             <div className="leading-normal tracking-normal overflow-x-hidden">
-                <AppShell>
-                    <Header height={60}>
+                <AppShell hidden>
+                    <Header height={60} className="md:px-60">
                         <nav className="block flex">
                             <NavLink
                                 to="/"
                                 className="font-semibold mr-8"
                             >
                                 <span className="text-2xl text-transparent bg-clip-text bg-gradient-to-b from-violet-500 to-sky-500">
-                                    <span className="">TV Stop</span>
+                                    <span className="">NewSeries.top</span>
                                 </span>
                             </NavLink>
                             <NavLink
@@ -35,11 +35,11 @@ const AppLayout: React.FC = () => {
                             </NavLink>
                         </nav>
                     </Header>
-                    <div id="content" className="md:px-60 pt-10 h-full w-full overflow-y-hidden">
+                    <div className="md:px-60 pt-10 w-full overflow-y-hidden flex-grow">
                         <Outlet/>
                     </div>
-                    <Footer height={80}>
-                        Zeries ©2022 by Marc Schmidt
+                    <Footer height={80} className="md:px-60">
+                        TODO Footer
                     </Footer>
                 </AppShell>
             </div>

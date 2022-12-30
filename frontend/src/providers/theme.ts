@@ -19,6 +19,7 @@ export const MantineTheme: MantineThemeOverride = {
     defaultRadius: 'md',
     cursorType: 'pointer',
     loader: 'oval',
+    defaultGradient: {from: 'violet', to: 'blue'},
 };
 
 const AntTheme = {

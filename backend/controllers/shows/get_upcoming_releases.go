@@ -8,6 +8,7 @@ import (
 	"github.com/mqrc81/zeries/domain"
 )
 
+//goland:noinspection GoPreferNilSlice
 func (c *showsController) GetUpcomingReleases(ctx echo.Context) error {
 	// Input
 	page, _ := strconv.Atoi(ctx.QueryParam("page"))
@@ -28,7 +29,7 @@ func (c *showsController) GetUpcomingReleases(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	var releases []domain.Release
+	releases := []domain.Release{}
 	for _, releaseRef := range releasesRef {
 		tmdbRelease, err := c.tmdbClient.GetTVDetails(releaseRef.ShowId, map[string]string{"append_to_response": "translations"})
 		if err != nil {

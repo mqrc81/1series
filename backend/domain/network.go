@@ -1,7 +1,7 @@
 package domain
 
 type Network struct {
-	Id   int
-	Name string
-	Logo string
+	Id   int    `json:"id"`
+	Name string `json:"name,omitempty"`
+	Logo string `json:"logo,omitempty"`
 }
