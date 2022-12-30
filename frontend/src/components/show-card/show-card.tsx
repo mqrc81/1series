@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, Image } from 'antd';
 import { ShowDto } from '../../api';
+import { Badge, Card, Group, Image, Text } from '@mantine/core';
 
 type Props = {
     show: ShowDto;
@@ -9,16 +9,22 @@ type Props = {
 export const ShowCard: React.FC<Props> = ({show}) => {
     return (
         <>
-            <Card bordered title={<span className="font-semibold">{show.name}</span>}>
-                <div className="block">
-                    <div className="mb-4">{show.overview}</div>
-                    <div className="w-3/4 mx-auto">
-                        <Image
-                            src={show.poster}
-                            preview={false}
-                        />
-                    </div>
-                </div>
+            <Card withBorder>
+                <Card.Section>
+                    <Image
+                        src={show.poster}
+                        withPlaceholder
+                    />
+                </Card.Section>
+                <Group position="apart" className="mt-5 mb-2">
+                    <Text className="font-semibold">{show.name}</Text>
+                    <Badge color="pink" variant="light">
+                        {show.rating}
+                    </Badge>
+                </Group>
+                <Text size="sm" color="dimmed">
+                    {show.overview ?? 'No overview for this series yet...'}
+                </Text>
             </Card>
         </>
     );

@@ -1,12 +1,12 @@
 import React from 'react';
 import { useGetPopularShowsQuery } from '../../api';
-import { Spin } from 'antd';
 import { useToast } from '../../hooks/use-toast/use-toast';
 import { ShowCard } from '../../components';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { Loader } from '@mantine/core';
 
 const PopularShows: React.FC = () => {
-    const {errorToast, toastContextHolder} = useToast();
+    const {errorToast} = useToast();
     const {
         data: showsData,
         isSuccess, isLoading, isFetching,
@@ -33,8 +33,7 @@ const PopularShows: React.FC = () => {
                     </div>
                 </InfiniteScroll>
             }
-            {(isLoading || isFetching) && <Spin className="m-auto mt-5" spinning size="large"/>}
-            {toastContextHolder}
+            {(isLoading || isFetching) && <Loader className="m-auto mt-5"/>}
         </div>
     );
 };

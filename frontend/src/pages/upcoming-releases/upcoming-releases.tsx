@@ -1,12 +1,12 @@
 import React from 'react';
 import { useGetUpcomingReleasesQuery } from '../../api';
-import { Button, Spin } from 'antd';
 import { useToast } from '../../hooks/use-toast/use-toast';
 import { ReleaseCard } from '../../components';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { Button, Loader } from '@mantine/core';
 
 const UpcomingReleases: React.FC = () => {
-    const {errorToast, toastContextHolder} = useToast();
+    const {errorToast} = useToast();
     const {
         data: showsData,
         isSuccess, isLoading,
@@ -21,7 +21,7 @@ const UpcomingReleases: React.FC = () => {
             {isSuccess && (
                 isFetchingPreviousPage || isLoading
             ) ? (
-                <Spin className="m-auto mt-5" spinning size="large"/>
+                <Loader className="m-auto mt-5"/>
             ) : (
                 <Button
                     className="mb-10"
@@ -45,8 +45,7 @@ const UpcomingReleases: React.FC = () => {
                     </div>
                 </InfiniteScroll>
             }
-            {(isLoading || isFetchingNextPage) && <Spin className="m-auto mt-5" spinning size="large"/>}
-            {toastContextHolder}
+            {(isLoading || isFetchingNextPage) && <Loader className="m-auto mt-5"/>}
         </div>
     );
 };

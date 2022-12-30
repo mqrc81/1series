@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useRouteError } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button } from '@mantine/core';
 
 type Props = { title: string, subtitle: string, description: string };
 
@@ -8,11 +8,11 @@ const ErrorPage: React.FC<Props> = ({title, subtitle, description}) => {
     return (
         <div className="h-screen flex bg-gray-700">
             <div className="m-auto max-w-screen-xl text-center">
-                <h1 className="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-cyan-400">{title}</h1>
+                <h1 className="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-violet-500">{title}</h1>
                 <p className="mb-4 text-3xl tracking-tight font-bold md:text-4xl text-white">{subtitle}</p>
                 <p className="mb-4 text-lg font-light text-gray-400">{description}</p>
-                <Button className="inline-flex" size="large">
-                    <Link className="hover:text-cyan-400" to="/">Back to Homepage</Link>
+                <Button className="inline-flex" size="lg">
+                    <Link className="hover:text-violet-500" to="/">Back to Homepage</Link>
                 </Button>
             </div>
         </div>

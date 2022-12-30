@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, Image } from 'antd';
 import { ReleaseDto } from '../../api';
+import { Badge, Card, Group, Image, Text } from '@mantine/core';
 
 type Props = {
     release: ReleaseDto;
@@ -8,18 +8,22 @@ type Props = {
 
 export const ReleaseCard: React.FC<Props> = ({release}) => {
     return (
-        <>
-            <Card bordered title={<span className="font-semibold">{release.show.name + ' (' + release.season.name + ')'}</span>}>
-                <div className="block">
-                    <div className="mb-4">{release.season.overview ?? 'No season overview...'}</div>
-                    <div className="w-3/4 mx-auto">
-                        <Image
-                            src={release.season.poster ?? release.show.poster}
-                            preview={false}
-                        />
-                    </div>
-                </div>
-            </Card>
-        </>
+        <Card withBorder>
+            <Card.Section>
+                <Image
+                    src={release.season.poster ?? release.show.poster}
+                    withPlaceholder
+                />
+            </Card.Section>
+            <Group position="apart" className="mt-5 mb-2">
+                <Text className="font-semibold">{release.show.name + ' (' + release.season.name + ')'}</Text>
+                <Badge color="pink" variant="light">
+                    {release.show.rating}
+                </Badge>
+            </Group>
+            <Text size="sm" color="dimmed">
+                {release.season.overview ?? 'No overview for this season yet...'}
+            </Text>
+        </Card>
     );
 };

@@ -1,31 +1,30 @@
-import { message } from 'antd';
 import React, { useCallback } from 'react';
-import { NoticeType } from 'antd/es/message/interface';
+import { showNotification } from '@mantine/notifications';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faCheck, faExclamation, faInfo, faXmark } from '@fortawesome/free-solid-svg-icons';
 
-type ToastCallback = (text: string) => void;
+type ToastCallback = (message: string, title?: string) => void;
 
 export const useToast = (): {
     infoToast: ToastCallback,
     successToast: ToastCallback,
     errorToast: ToastCallback,
     warningToast: ToastCallback,
-    toastContextHolder: ReturnType<typeof message['useMessage']>[1]
 } => {
-    const [messageApi, contextHolder] = message.useMessage({
-        maxCount: 3,
-    });
 
-    const toast = useCallback((type: NoticeType): ToastCallback =>
-        (text: string) => messageApi.open({
-            type,
-            content: text,
-        }), []);
+    const toast = useCallback((icon: IconProp, color: string): ToastCallback => {
+        return (message: string, title?: string) => showNotification({
+            title,
+            message,
+            icon: <FontAwesomeIcon icon={icon} className={'text-' + color + '500'}/>,
+        });
+    }, []);
 
     return {
-        infoToast: toast('info'),
-        successToast: toast('success'),
-        errorToast: toast('error'),
-        warningToast: toast('warning'),
-        toastContextHolder: contextHolder,
+        infoToast: toast(faInfo, 'violet'),
+        successToast: toast(faCheck, 'green'),
+        errorToast: toast(faXmark, 'red'),
+        warningToast: toast(faExclamation, 'yellow'),
     };
 };

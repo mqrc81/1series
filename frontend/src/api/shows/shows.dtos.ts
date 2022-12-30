@@ -3,6 +3,7 @@ export type ShowDto = {
     name: string;
     overview: string;
     poster: string;
+    rating: number;
 }
 
 export type SeasonDto = {

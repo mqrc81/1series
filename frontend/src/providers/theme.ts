@@ -1,8 +1,28 @@
-import { ThemeConfig } from 'antd/es/config-provider/context';
-import { theme } from 'antd';
+import { MantineThemeOverride } from '@mantine/core';
 
-export const AntTheme: ThemeConfig = {
-    algorithm: theme.darkAlgorithm,
+export const MantineTheme: MantineThemeOverride = {
+    colorScheme: 'dark',
+    fontFamily: 'Rubik, sans-serif',
+    primaryColor: 'violet',
+    components: {
+        Loader: {
+            defaultProps: {
+                size: 'xl',
+            },
+        },
+        Card: {
+            defaultProps: {
+                shadow: 'md',
+            },
+        },
+    },
+    defaultRadius: 'md',
+    cursorType: 'pointer',
+    loader: 'oval',
+};
+
+const AntTheme = {
+    // algorithm: theme.darkAlgorithm,
     token: {
         colorTextBase: '#F3F4F6', // gray-100
         colorBgBase: '#374151', // gray-700

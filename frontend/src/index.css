@@ -10,8 +10,4 @@
     body {
         @apply font-rubik text-gray-100;
     }
-
-    #content {
-        background-image: linear-gradient(to right, #FCE7F3, #374151, #374151, #374151, #374151, #374151, #374151, #374151, #374151, #FCE7F3);
-    }
 }

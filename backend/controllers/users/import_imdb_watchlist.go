@@ -36,19 +36,11 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
 	}
-	formFile, err := ctx.FormFile("file")
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid imdb watchlist export file")
-	}
-	file, err := formFile.Open()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "unable to open the imdb watchlist export file")
-	}
-	defer file.Close()
 
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
-	if err = gocsv.Unmarshal(file, &exportedImdbWatchlist); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file")
+	reader := gocsv.DefaultCSVReader(ctx.Request().Body)
+	if err = gocsv.UnmarshalCSV(reader, &exportedImdbWatchlist); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file: "+err.Error())
 	}
 
 	// Use-Case
