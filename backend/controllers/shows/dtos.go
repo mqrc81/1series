@@ -1,6 +1,7 @@
 package shows
 
 import (
+	"math"
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
@@ -49,7 +50,7 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 		Overview:      dto.Overview,
 		Year:          airDate.Year(),
 		Poster:        tmdbImageUrlFromImagePath(dto.PosterPath),
-		Rating:        dto.VoteAverage,
+		Rating:        roundTo1DecimalPlace(dto.VoteAverage),
 		Genres:        genres,
 		Networks:      networks,
 		Homepage:      dto.Homepage,
@@ -92,7 +93,7 @@ func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) (shows []
 			Id:     int(result.ID),
 			Name:   result.Name,
 			Poster: tmdbImageUrlFromImagePath(result.PosterPath),
-			Rating: result.VoteAverage,
+			Rating: roundTo1DecimalPlace(result.VoteAverage),
 		})
 	}
 	return shows
@@ -103,4 +104,8 @@ func tmdbImageUrlFromImagePath(imagePath string) string {
 		return tmdbImageBaseUrl + imagePath
 	}
 	return ""
+}
+
+func roundTo1DecimalPlace(num float32) float32 {
+	return float32(math.Round(float64(num*10))) / 10
 }
