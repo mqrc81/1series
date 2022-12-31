@@ -1,6 +1,6 @@
 export type GenreDto = {
     id: number;
-    genre: string;
+    name: string;
 }
 
 export type ShowDto = {

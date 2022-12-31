@@ -17,7 +17,7 @@ const SearchResult = forwardRef<HTMLDivElement, SearchShowsData>((data, ref) => 
                     <Group noWrap>
                         <Image withPlaceholder width={50} height={75} src={poster} radius="md"/>
                         <div>
-                            <div className="font-semibold mb-auto">
+                            <div className="font-medium mb-auto">
                                 {name}
                             </div>
                         </div>
@@ -60,9 +60,16 @@ export const HeaderSearchBar: React.FC = () => {
         <Select
             ref={selectRef}
             className="w-[28rem]"
-            placeholder="Search series..."
-            rightSection={isLoading ? <Loader size="xs"/> :
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={navigateToSearchPage} className="cursor-pointer text-violet-600"/>}
+            placeholder="Search series"
+            rightSection={isLoading ? (
+                <Loader size="xs"/>
+            ) : (
+                <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    onClick={navigateToSearchPage}
+                    className="cursor-pointer text-violet-600"
+                />
+            )}
             itemComponent={SearchResult}
             data={searchResults.map((show) => ({
                 value: show.id + '',
