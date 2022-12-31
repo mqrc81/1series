@@ -15,7 +15,7 @@ func (c *showsController) SearchShows(ctx echo.Context) error {
 	// Use-Case
 	tmdbShows, err := c.tmdbClient.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "error searching tmdb shows: "+err.Error())
+		return echo.NewHTTPError(http.StatusConflict, "error searching tmdb shows: "+err.Error())
 	}
 
 	// Output

@@ -1,9 +1,17 @@
+export type GenreDto = {
+    id: number;
+    genre: string;
+}
+
 export type ShowDto = {
     id: number;
     name: string;
     overview: string;
     poster: string;
+    backdrop: string;
     rating: number;
+    year: number;
+    genres: GenreDto[];
 }
 
 export type SeasonDto = {
@@ -28,3 +36,5 @@ export enum AnticipationLevel {
     High,
     Extreme,
 }
+
+export type ShowSearchResultDto = Pick<ShowDto, 'id' | 'name' | 'poster' | 'rating'>

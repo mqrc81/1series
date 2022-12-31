@@ -20,6 +20,14 @@ type upcomingReleasesDto struct {
 	Releases     []domain.Release `json:"releases"`
 }
 
+type searchShowsDto struct {
+	Id       int     `json:"id,omitempty"`
+	Name     string  `json:"name,omitempty"`
+	Poster   string  `json:"poster,omitempty"`
+	Backdrop string  `json:"backdrop,omitempty"`
+	Rating   float32 `json:"rating,omitempty"`
+}
+
 //goland:noinspection GoPreferNilSlice
 func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 
@@ -48,9 +56,11 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	return domain.Show{
 		Id:            int(dto.ID),
 		Name:          dto.Name,
+		OriginalName:  dto.OriginalName,
 		Overview:      dto.Overview,
 		Year:          airDate.Year(),
 		Poster:        tmdbImageUrlFromImagePath(dto.PosterPath),
+		Backdrop:      tmdbImageUrlFromImagePath(dto.BackdropPath),
 		Rating:        roundTo1DecimalPlace(dto.VoteAverage),
 		Genres:        genres,
 		Networks:      networks,
@@ -60,9 +70,7 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	}
 }
 
-func ReleaseFromTmdbShow(
-	dto *tmdb.TVDetails, seasonNumber int, airDate time.Time, anticipationLevel domain.AnticipationLevel,
-) domain.Release {
+func ReleaseFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int, airDate time.Time, anticipationLevel domain.AnticipationLevel) domain.Release {
 	return domain.Release{
 		Show:              ShowFromTmdbShow(dto),
 		Season:            SeasonFromTmdbShow(dto, seasonNumber),
@@ -90,12 +98,17 @@ func SeasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 //goland:noinspection GoNameStartsWithPackageName,GoPreferNilSlice
 func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) []domain.Show {
 	shows := []domain.Show{}
+	if maxResults > len(dto.Results) {
+		maxResults = len(dto.Results)
+	}
 	for _, result := range dto.Results[:maxResults] {
 		shows = append(shows, domain.Show{
-			Id:     int(result.ID),
-			Name:   result.Name,
-			Poster: tmdbImageUrlFromImagePath(result.PosterPath),
-			Rating: roundTo1DecimalPlace(result.VoteAverage),
+			Id:           int(result.ID),
+			Name:         result.Name,
+			OriginalName: result.OriginalName,
+			Poster:       tmdbImageUrlFromImagePath(result.PosterPath),
+			Backdrop:     tmdbImageUrlFromImagePath(result.BackdropPath),
+			Rating:       roundTo1DecimalPlace(result.VoteAverage),
 		})
 	}
 	return shows

@@ -1,6 +1,6 @@
-import { QueryFunctionContext, QueryKey } from 'react-query/types/core/types';
+import { QueryKey } from 'react-query/types/core/types';
 import { UseQueryOptions } from 'react-query/types/react/types';
-import { GetNextPageParamFunction, GetPreviousPageParamFunction, UseInfiniteQueryOptions } from 'react-query';
+import { GetNextPageParamFunction, GetPreviousPageParamFunction, UseInfiniteQueryOptions, useQuery } from 'react-query';
 import { Paginated } from './dtos';
 import { ApisauceClient } from '../providers/apisauce';
 
@@ -10,18 +10,17 @@ export type InfiniteQueryOptions<TQueryFnData = unknown, TError = unknown, TData
 export const getPreviousPageParam: GetPreviousPageParamFunction<Paginated<unknown>> = ({previousPage = undefined}) => previousPage;
 export const getNextPageParam: GetNextPageParamFunction<Paginated<unknown>> = ({nextPage = undefined}) => nextPage;
 
-export const GetQuery = <TData>(url: string, params = {}): () => Promise<TData> => {
-    return async () => {
-        const {data} = await ApisauceClient.get<TData>(url, params);
+export const usePingQuery = (options?: Omit<QueryOptions<string>, 'staleTime'>) => {
+    return useQuery<string>(
+        ['ping'],
+        async () => {
+            const {data} = await ApisauceClient.get<string>('/ping');
 
-        return data;
-    };
-};
-
-export const GetInfiniteQuery = <TData>(url: string): (context: QueryFunctionContext) => Promise<TData> => {
-    return async ({pageParam = 1}) => {
-        const {data} = await ApisauceClient.get<TData>(url, {page: pageParam});
-
-        return data;
-    };
+            return data;
+        },
+        {
+            ...options,
+            staleTime: Infinity,
+        },
+    );
 };
