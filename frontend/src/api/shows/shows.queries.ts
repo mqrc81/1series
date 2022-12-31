@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from 'react-query';
+import { QueryKey, useInfiniteQuery, useQuery } from 'react-query';
 import { ReleaseDto, ShowDto, ShowSearchResultDto } from './shows.dtos';
 import { getNextPageParam, getPreviousPageParam, InfiniteQueryOptions, QueryOptions } from '../queries';
 import { Paginated } from '../dtos';
@@ -12,10 +12,7 @@ export const useGetPopularShowsQuery = (options?: InfiniteQueryOptions<Paginated
 
             return data;
         },
-        {
-            getNextPageParam,
-            ...options,
-        },
+        {getNextPageParam, ...options},
     );
 };
 
@@ -27,17 +24,13 @@ export const useGetUpcomingReleasesQuery = (options?: InfiniteQueryOptions<Pagin
 
             return data;
         },
-        {
-            getPreviousPageParam,
-            getNextPageParam,
-            ...options,
-        },
+        {getPreviousPageParam, getNextPageParam, ...options},
     );
 };
 
 export const useSearchShowsQuery = (searchTerm: string, options?: QueryOptions<ShowSearchResultDto[]> & { minParamLength: number }) => {
-    return useQuery<ShowSearchResultDto[]>(
-        ['shows', 'search', searchTerm],
+    return useQuery(
+        ['shows', 'search', searchTerm] as QueryKey,
         async () => {
             if (searchTerm.length < options.minParamLength) return [];
 
@@ -46,5 +39,17 @@ export const useSearchShowsQuery = (searchTerm: string, options?: QueryOptions<S
             return data;
         },
         options,
+    );
+};
+
+export const useGetShowQuery = (id: number, options?: Omit<QueryOptions<ShowDto>, 'enabled'>) => {
+    return useQuery(
+        ['shows', id] as QueryKey,
+        async () => {
+            const {data} = await ApisauceClient.get<ShowDto>(`/shows/${id}`);
+
+            return data;
+        },
+        {enabled: id > 0, ...options},
     );
 };

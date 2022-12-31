@@ -1,6 +1,5 @@
-import { QueryKey } from 'react-query/types/core/types';
 import { UseQueryOptions } from 'react-query/types/react/types';
-import { GetNextPageParamFunction, GetPreviousPageParamFunction, UseInfiniteQueryOptions, useQuery } from 'react-query';
+import { GetNextPageParamFunction, GetPreviousPageParamFunction, QueryKey, UseInfiniteQueryOptions, useQuery } from 'react-query';
 import { Paginated } from './dtos';
 import { ApisauceClient } from '../providers/apisauce';
 

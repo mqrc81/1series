@@ -6,7 +6,7 @@ import ErrorFallback from '../pages/error-fallback/error-fallback';
 const Home = lazy(() => import('../pages/home/home'));
 const PopularShows = lazy(() => import('../pages/popular-shows/popular-shows'));
 const UpcomingReleases = lazy(() => import('../pages/upcoming-releases/upcoming-releases'));
-const ImportImdbWatchlist = lazy(() => import('../pages/import-imdb-watchlist/import-imdb-watchlist'));
+const ShowDetails = lazy(() => import('../pages/show-details/show-details'));
 
 export const Router = createBrowserRouter([
     {
@@ -27,8 +27,8 @@ export const Router = createBrowserRouter([
                 element: <UpcomingReleases/>,
             },
             {
-                path: '/users/import-imdb-watchlist',
-                element: <ImportImdbWatchlist/>,
+                path: '/shows/:id',
+                element: <ShowDetails/>,
             },
         ],
     },
