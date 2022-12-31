@@ -18,7 +18,7 @@ export const ShowCard: React.FC<Props> = ({show}) => {
                         className="relative"
                     />
                     <Badge color="violet" variant="gradient" className="absolute z-10 left-5 -bottom-3 py-3">
-                        {show.rating}
+                        {show.rating.toFixed(1)}
                     </Badge>
                 </Card.Section>
                 <Card.Section className="mt-5 whitespace-nowrap">

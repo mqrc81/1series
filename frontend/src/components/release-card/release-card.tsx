@@ -18,7 +18,7 @@ export const ReleaseCard: React.FC<Props> = ({release: {show, season}}) => {
                         height={352}
                     />
                     {!!show.rating && <Badge color="violet" variant="gradient" className="absolute z-10 left-5 -bottom-3 py-3">
-                        {show.rating}
+                        {show.rating.toFixed(1)}
                     </Badge>}
                     <div className="bg-black/50 text-white absolute z-10 top-0 right-0 text-sm rounded-md px-2 py-1">{season.name}</div>
                 </Card.Section>

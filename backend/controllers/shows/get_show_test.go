@@ -31,7 +31,7 @@ func TestGetShow_valid(t *testing.T) {
 			ID:           13,
 			Name:         "Game of Thrones",
 			FirstAirDate: "2022-12-30",
-			VoteAverage:  7.344902,
+			VoteAverage:  7.3,
 		})
 
 	c := &showsController{
