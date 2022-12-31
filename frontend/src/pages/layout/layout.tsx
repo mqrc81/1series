@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
             <div className="leading-normal tracking-normal overflow-x-hidden">
                 <AppShell hidden>
                     <Header/>
-                    <div className="md:px-52 pt-10 min-h-[calc(100vh-140px)] w-screen overflow-y-hidden">
+                    <div className="md:px-52 py-10 min-h-[calc(100vh-140px)] w-screen overflow-y-hidden">
                         <Outlet/>
                     </div>
                     <Footer/>

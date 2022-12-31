@@ -10,7 +10,7 @@ import { ShowSearchResultDto, useSearchShowsQuery } from '../../../api';
 type SearchShowsData = SelectItem & { group: 'Series' | 'Other', onSelect: () => void } & ShowSearchResultDto;
 
 const SearchResult = forwardRef<HTMLDivElement, SearchShowsData>((data, ref) => {
-    const {id, name, poster, ...other} = data;
+        const {id, name, poster, ...other} = data;
         return (
             <>
                 <div ref={ref} {...other} className="p-2 aria-selected:bg-gray-700 cursor-pointer">
@@ -42,10 +42,12 @@ export const HeaderSearchBar: React.FC = () => {
     const selectRef = useRef<HTMLInputElement>();
 
     const navigateToSearchPage = () => {
+        if (searchTerm.length < 3) return;
         navigate('/shows/search?searchTerm=' + searchTerm);
         resetSearchInput();
     };
     const navigateToShowPage = (showId: string) => {
+        if (searchTerm.length < 3) return;
         navigate('/shows/' + showId);
         resetSearchInput();
     };
