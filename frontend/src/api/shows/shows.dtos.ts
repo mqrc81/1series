@@ -37,4 +37,4 @@ export enum AnticipationLevel {
     Extreme,
 }
 
-export type ShowSearchResultDto = Pick<ShowDto, 'id' | 'name' | 'poster' | 'rating'>
+export type ShowSearchResultDto = Pick<ShowDto, 'id' | 'name' | 'overview' | 'poster' | 'rating'>

@@ -10,7 +10,7 @@ import { ShowSearchResultDto, useSearchShowsQuery } from '../../../api';
 type SearchShowsData = SelectItem & { group: 'Series' | 'Other', onSelect: () => void } & ShowSearchResultDto;
 
 const SearchResult = forwardRef<HTMLDivElement, SearchShowsData>((data, ref) => {
-    const {id, name, poster, onSelect} = data;
+        const {id, name, poster, onSelect} = data;
         return (
             <>
                 <div ref={ref} className="p-2 hover:bg-gray-700">

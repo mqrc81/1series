@@ -7,6 +7,7 @@ const Home = lazy(() => import('../pages/home/home'));
 const PopularShows = lazy(() => import('../pages/popular-shows/popular-shows'));
 const UpcomingReleases = lazy(() => import('../pages/upcoming-releases/upcoming-releases'));
 const ShowDetails = lazy(() => import('../pages/show-details/show-details'));
+const ShowsSearch = lazy(() => import('../pages/shows-search/shows-search'));
 
 export const Router = createBrowserRouter([
     {
@@ -29,6 +30,10 @@ export const Router = createBrowserRouter([
             {
                 path: '/shows/:id',
                 element: <ShowDetails/>,
+            },
+            {
+                path: '/shows/search',
+                element: <ShowsSearch/>,
             },
         ],
     },

@@ -13,6 +13,12 @@ export const MantineTheme: MantineThemeOverride = {
         Card: {
             defaultProps: {
                 shadow: 'md',
+                radius: 'md',
+            },
+        },
+        Image: {
+            defaultProps: {
+                radius: 'md',
             },
         },
     },
