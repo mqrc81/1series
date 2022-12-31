@@ -2,7 +2,7 @@ import React from 'react';
 import { useToast } from '../../hooks/use-toast/use-toast';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useImportImdbWatchlistMutation } from '../../api';
-import { Group, Text } from '@mantine/core';
+import { Group } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-regular-svg-icons';
@@ -36,21 +36,21 @@ const ImportImdbWatchlist: React.FC = () => {
             >
                 <Group position="center" spacing="xl" className="h-52">
                     <Dropzone.Accept>
-                        <FontAwesomeIcon className="text-green-500" icon={faCircleCheck} size="4x"/>
+                        <FontAwesomeIcon className="text-green-600" icon={faCircleCheck} size="4x"/>
                     </Dropzone.Accept>
                     <Dropzone.Reject>
-                        <FontAwesomeIcon className="text-red-500" icon={faCircleXmark} size="4x"/>
+                        <FontAwesomeIcon className="text-red-600" icon={faCircleXmark} size="4x"/>
                     </Dropzone.Reject>
                     <Dropzone.Idle>
-                        <FontAwesomeIcon className="text-violet-500" icon={faFileImport} size="4x"/>
+                        <FontAwesomeIcon className="text-violet-600" icon={faFileImport} size="4x"/>
                     </Dropzone.Idle>
                     <div>
-                        <Text size="xl" inline>
+                        <span className="text-xl">
                             Drag your WATCHLIST.csv file here or click to select
-                        </Text>
-                        <Text size="sm" color="dimmed" inline className="mt-3">
+                        </span>
+                        <span className="text-sm text-gray-500 mt-3">
                             The file must not exceed 1mb
-                        </Text>
+                        </span>
                     </div>
                 </Group>
             </Dropzone>

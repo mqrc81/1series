@@ -4,6 +4,7 @@ export const MantineTheme: MantineThemeOverride = {
     colorScheme: 'dark',
     fontFamily: 'Rubik, sans-serif',
     primaryColor: 'violet',
+    primaryShade: 6,
     components: {
         Loader: {
             defaultProps: {
@@ -34,10 +35,10 @@ const AntTheme = {
         colorTextBase: '#F3F4F6', // gray-100
         colorBgBase: '#374151', // gray-700
         colorPrimary: '#22D3EE', // cyan-400
-        colorInfo: '#0EA5E9', // sky-500
-        colorSuccess: '#22C55E', // green-500
-        colorError: '#EF4444', // red-500
-        colorWarning: '#EAB308', // yellow-500
+        colorInfo: '#0EA5E9', // sky-600
+        colorSuccess: '#22C55E', // green-600
+        colorError: '#EF4444', // red-600
+        colorWarning: '#EAB308', // yellow-600
         fontFamily: 'Rubik, sans-serif',
         // fontSize: 14, // default
         // borderRadius: 6, // default

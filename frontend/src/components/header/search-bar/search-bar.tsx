@@ -62,7 +62,7 @@ export const HeaderSearchBar: React.FC = () => {
             className="w-[28rem]"
             placeholder="Search series..."
             rightSection={isLoading ? <Loader size="xs"/> :
-                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={navigateToSearchPage} className="cursor-pointer text-violet-500"/>}
+                <FontAwesomeIcon icon={faMagnifyingGlass} onClick={navigateToSearchPage} className="cursor-pointer text-violet-600"/>}
             itemComponent={SearchResult}
             data={searchResults.map((show) => ({
                 value: show.id + '',
@@ -76,7 +76,7 @@ export const HeaderSearchBar: React.FC = () => {
             onInput={({currentTarget: {value}}) => setSearchTerm(value)}
             nothingFound={(searchTerm === '' || isLoading) ? null : (searchTerm.length < 3 ? 'Type at least 3 characters' : 'No series found')}
             maxDropdownHeight={300}
-            classNames={{input: 'bg-white text-violet-500'}}
+            classNames={{input: 'bg-white text-violet-600'}}
             onKeyDown={({key}) => {if (key === 'Enter') navigateToSearchPage();}}
         />
     );
