@@ -1,38 +1,54 @@
 import React from 'react';
 import { useGetPopularShowsQuery } from '../../api';
-import { useToast } from '../../hooks/use-toast/use-toast';
-import { ShowCard } from '../../components';
+import { useGenresFilter, useToast } from '../../hooks';
+import { CardSkeleton, ShowCard, ShowFilters } from '../../components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Loader } from '@mantine/core';
+import { useForceUpdate } from '@mantine/hooks';
 
 const PopularShows: React.FC = () => {
     const {errorToast} = useToast();
+    const forceUpdate = useForceUpdate();
     const {
         data: showsData,
-        isSuccess, isLoading, isFetching,
         fetchNextPage, hasNextPage,
     } = useGetPopularShowsQuery({
         onError: () => errorToast('Error fetching popular shows...'),
     });
+    const {isGenreFiltered, isGenreFilterActive} = useGenresFilter();
 
     return (
-        <div className="grid grid-cols-1 w-full">
-            {isSuccess &&
+        <div className="grid grid-cols-1">
+            <div className="flex flex-row">
+                <div className="basis-1/4 mr-5 hidden md:block">
+                    <ShowFilters onFilterChange={forceUpdate} />
+                </div>
                 <InfiniteScroll
                     style={{overflow: 'hidden'}}
                     next={fetchNextPage}
                     hasMore={hasNextPage}
-                    loader={undefined}
-                    dataLength={showsData.pages.length}
+                    loader={(<>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-5 mt-5">
+                            <CardSkeleton />
+                            <CardSkeleton />
+                            <CardSkeleton />
+                            <span className="hidden md:block"><CardSkeleton /></span>
+                            <span className="hidden md:block"><CardSkeleton /></span>
+                        </div>
+                        <Loader color="teal" className="m-auto mt-5" />
+                    </>)}
+                    dataLength={showsData?.pages.length ?? 0}
                 >
-                    <div className="grid grid-cols-5 gap-5">
-                        {showsData.pages.flatMap(({shows}) => shows).map((show, i) => (
-                            <ShowCard key={i} show={show}/>
-                        ))}
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-5">
+                        {showsData?.pages
+                            .flatMap(({shows}) => shows)
+                            .filter(({genres}) => !isGenreFilterActive() || genres.some(isGenreFiltered))
+                            .map((show, i) => (
+                                <ShowCard key={i} show={show} />
+                            ))}
                     </div>
                 </InfiniteScroll>
-            }
-            {(isLoading || isFetching) && <Loader className="m-auto mt-5"/>}
+            </div>
         </div>
     );
 };

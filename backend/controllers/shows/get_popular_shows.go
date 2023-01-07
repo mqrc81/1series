@@ -3,6 +3,7 @@ package shows
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/logger"
 	"net/http"
 	"strconv"
 )
@@ -28,12 +29,19 @@ func (c *showsController) GetPopularShows(ctx echo.Context) error {
 
 	shows := []domain.Show{}
 	for _, traktShow := range traktShows {
+		if traktShow.TmdbId() == 0 {
+			logger.Warning("tmdb show for trakt show %v not found", traktShow.Show.Ids.Trakt)
+			continue
+		}
 		tmdbShow, err := c.tmdbClient.GetTVDetails(traktShow.TmdbId(), nil)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "error fetching tmdb show: "+err.Error())
 		}
 
 		shows = append(shows, ShowFromTmdbShow(tmdbShow))
+	}
+	if page >= 25 {
+		page = -1
 	}
 
 	// Output

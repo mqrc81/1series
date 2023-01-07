@@ -20,7 +20,7 @@ func (c *Client) GetShowsWatchedWeekly(page int, limit int) (showsWatched []Show
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add(http.CanonicalHeaderKey("content-type"), "application/json")
 	req.Header.Add("trakt-api-version", "2")
 	req.Header.Add("trakt-api-key", c.apiKey)
 

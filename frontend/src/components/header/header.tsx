@@ -1,7 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRightFromBracket, faCalendarDays, faCog, faFireFlameCurved, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowRightFromBracket,
+    faCalendarDays,
+    faCog,
+    faFireFlameCurved,
+    faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { Avatar, Header as AppHeader, Menu } from '@mantine/core';
 import { HeaderSearchBar } from './search-bar/search-bar';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -24,14 +30,14 @@ const navBarItems: NavBarItem[] = [
 
 export const Header: React.FC = () => {
     return (
-        <AppHeader height={60} className="md:px-52">
+        <AppHeader height={60} className="md:px-60">
             <nav className="grid grid-cols-3 gap-3">
                 {/*<NavLink*/}
                 {/*    to="/"*/}
                 {/*    className="font-semibold mr-8 mt-4"*/}
                 {/*>*/}
                 {/*    <span className="text-2xl">*/}
-                {/*        <span className="text-transparent bg-clip-text bg-gradient-to-b from-violet-600 to-blue-600">NewSeries</span>*/}
+                {/*        <span className="text-transparent bg-clip-text bg-gradient-to-b from-violet-600 to-teal-600">NewSeries</span>*/}
                 {/*        <span>.top</span>*/}
                 {/*    </span>*/}
                 {/*</NavLink>*/}
@@ -40,7 +46,7 @@ export const Header: React.FC = () => {
                         <NavLink
                             key={title}
                             to={path}
-                            className={({isActive}) => ('mr-5 font-medium ' + (isActive ? 'text-blue-600' : 'hover:text-violet-600'))}
+                            className={({isActive}) => ('mr-5 font-medium ' + (isActive ? 'text-teal-600' : 'hover:text-violet-600'))}
                         >
                             <FontAwesomeIcon icon={icon}/>
                             <span className="pl-3">{title}</span>

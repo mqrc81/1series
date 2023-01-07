@@ -1,5 +1,5 @@
 import { QueryKey, useInfiniteQuery, useQuery } from 'react-query';
-import { ReleaseDto, ShowDto, ShowSearchResultDto } from './shows.dtos';
+import { GenreDto, ReleaseDto, ShowDto, ShowSearchResultDto } from './shows.dtos';
 import { getNextPageParam, getPreviousPageParam, InfiniteQueryOptions, QueryOptions } from '../queries';
 import { Paginated } from '../dtos';
 import { ApisauceClient } from '../../providers/apisauce';
@@ -51,5 +51,18 @@ export const useGetShowQuery = (id: number, options?: Omit<QueryOptions<ShowDto>
             return data;
         },
         {enabled: id > 0, ...options},
+    );
+};
+
+const GENRES_TO_IGNORE = ['Talk', 'News'];
+export const useGetGenresQuery = (options?: Omit<QueryOptions<GenreDto[]>, 'staleTime'>) => {
+    return useQuery(
+        ['shows', 'genres'] as QueryKey,
+        async () => {
+            const {data} = await ApisauceClient.get<GenreDto[]>(`/shows/genres`);
+
+            return data?.filter(genre => !GENRES_TO_IGNORE.includes(genre.name));
+        },
+        {staleTime: Infinity, ...options},
     );
 };

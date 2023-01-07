@@ -9,6 +9,7 @@ func init() {
 	goose.AddMigration(upUpdateTrackedShowsTable, downUpdateTrackedShowsTable)
 }
 
+//goland:noinspection ALL
 func upUpdateTrackedShowsTable(tx *sql.Tx) error {
 	_, err := tx.Exec(`
 		ALTER TABLE ONLY watched_shows ALTER COLUMN rating SET DEFAULT 0;

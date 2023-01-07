@@ -3,13 +3,11 @@ import { Card, Skeleton } from '@mantine/core';
 
 export const CardSkeleton: React.FC = () => {
     return (
-        <Card className="h-[414px]">
+        <Card className="h-[346px] w-[181px]">
             <Card.Section>
-                <Skeleton height={352}/>
+                <Skeleton height={272} />
             </Card.Section>
-            <Card.Section className="px-2 py-5">
-                <Skeleton height={20}/>
-            </Card.Section>
+            <Skeleton height={24} className="mt-6" />
         </Card>
     );
 };

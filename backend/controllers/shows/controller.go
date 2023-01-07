@@ -30,6 +30,7 @@ type Controller interface {
 	SearchShows(ctx echo.Context) error
 	GetGenres(ctx echo.Context) error
 	GetNetworks(ctx echo.Context) error
+	GetSeason(ctx echo.Context) error
 }
 
 func NewController(

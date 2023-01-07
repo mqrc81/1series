@@ -6,8 +6,8 @@ import { Loader } from '@mantine/core';
 const App: React.FC = () => {
     usePingQuery();
     return (
-        <Suspense fallback={<Loader className="mx-auto my-auto justify-self-center"/>}>
-            <Layout/>
+        <Suspense fallback={<Loader color="teal" className="mx-auto mt-5 justify-self-center" />}>
+            <Layout />;
         </Suspense>
     );
 };

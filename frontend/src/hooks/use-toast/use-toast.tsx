@@ -17,7 +17,7 @@ export const useToast = (): {
         return (message: string, title?: string) => showNotification({
             title,
             message,
-            icon: <FontAwesomeIcon icon={icon} className={'text-' + color + '500'}/>,
+            icon: <FontAwesomeIcon icon={icon} className={'text-' + color + '-600'} />,
         });
     }, []);
 

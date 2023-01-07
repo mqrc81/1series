@@ -8,24 +8,22 @@ import (
 	"github.com/mqrc81/zeries/logger"
 )
 
-type popularShowsDto struct {
-	NextPage int           `json:"nextPage,omitempty"`
-	Shows    []domain.Show `json:"shows"`
-}
+const (
+	tmdbVoteAverageInflationMultiplier = 1.03
+)
 
-type upcomingReleasesDto struct {
-	PreviousPage int              `json:"previousPage,omitempty"`
-	NextPage     int              `json:"nextPage,omitempty"`
-	Releases     []domain.Release `json:"releases"`
-}
+type (
+	popularShowsDto struct {
+		NextPage int           `json:"nextPage,omitempty"`
+		Shows    []domain.Show `json:"shows"`
+	}
 
-type searchShowsDto struct {
-	Id       int     `json:"id,omitempty"`
-	Name     string  `json:"name,omitempty"`
-	Poster   string  `json:"poster,omitempty"`
-	Backdrop string  `json:"backdrop,omitempty"`
-	Rating   float32 `json:"rating,omitempty"`
-}
+	upcomingReleasesDto struct {
+		PreviousPage int              `json:"previousPage,omitempty"`
+		NextPage     int              `json:"nextPage,omitempty"`
+		Releases     []domain.Release `json:"releases"`
+	}
+)
 
 //goland:noinspection GoPreferNilSlice
 func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
@@ -60,7 +58,7 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 		Year:          airDate.Year(),
 		Poster:        tmdbImageUrlFromImagePath(dto.PosterPath),
 		Backdrop:      tmdbImageUrlFromImagePath(dto.BackdropPath),
-		Rating:        dto.VoteAverage,
+		Rating:        ratingFromTmdbVoteAverage(dto.VoteAverage),
 		Genres:        genres,
 		Networks:      networks,
 		Homepage:      dto.Homepage,
@@ -94,6 +92,17 @@ func SeasonFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int) domain.Season {
 	}
 }
 
+func SeasonFromTmdbSeason(dto *tmdb.TVSeasonDetails, showId int) domain.Season {
+	return domain.Season{
+		ShowId:        showId,
+		Number:        dto.SeasonNumber,
+		Name:          dto.Name,
+		Overview:      dto.Overview,
+		Poster:        tmdbImageUrlFromImagePath(dto.PosterPath),
+		EpisodesCount: len(dto.Episodes),
+	}
+}
+
 //goland:noinspection GoNameStartsWithPackageName,GoPreferNilSlice
 func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) []domain.Show {
 	shows := []domain.Show{}
@@ -107,7 +116,7 @@ func ShowsFromTmdbShowsSearch(dto *tmdb.SearchTVShows, maxResults int) []domain.
 			OriginalName: result.OriginalName,
 			Poster:       tmdbImageUrlFromImagePath(result.PosterPath),
 			Backdrop:     tmdbImageUrlFromImagePath(result.BackdropPath),
-			Rating:       result.VoteAverage,
+			Rating:       ratingFromTmdbVoteAverage(result.VoteAverage),
 		})
 	}
 	return shows
@@ -118,4 +127,13 @@ func tmdbImageUrlFromImagePath(imagePath string) string {
 		return tmdbImageBaseUrl + imagePath
 	}
 	return ""
+}
+
+func ratingFromTmdbVoteAverage(voteAverage float32) float32 {
+	// ratings are
+	if rating := voteAverage * tmdbVoteAverageInflationMultiplier; rating > 10 {
+		return 10
+	} else {
+		return rating
+	}
 }

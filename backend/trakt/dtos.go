@@ -10,8 +10,9 @@ import (
 type ShowsWatchedDto struct {
 	Show struct {
 		Ids struct {
-			Tmdb int    `json:"tmdb"`
-			Slug string `json:"slug"`
+			Trakt int    `json:"trakt"`
+			Tmdb  int    `json:"tmdb"`
+			Slug  string `json:"slug"`
 		} `json:"ids"`
 	} `json:"show"`
 }

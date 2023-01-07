@@ -1,10 +1,11 @@
 package domain
 
 type User struct {
-	Id       int    `db:"id"`
-	Username string `db:"username"`
-	Email    string `db:"email"`
-	Password string `db:"password"`
+	Id            int    `db:"id"`
+	Username      string `db:"username"`
+	Email         string `db:"email"`
+	EmailVerified bool   `db:"email_verified"`
+	Password      string `db:"password"`
 	NotificationOptions
 }
 

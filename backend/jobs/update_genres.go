@@ -7,6 +7,13 @@ import (
 	"github.com/mqrc81/zeries/repositories"
 )
 
+var (
+	genresToIgnore = []string{
+		"Talk",
+		"News",
+	}
+)
+
 func (job updateGenresJob) name() string {
 	return "UPDATE-GENRES job"
 }
