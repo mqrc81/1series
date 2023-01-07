@@ -1,9 +1,9 @@
-export type GenreDto = {
+export type Genre = {
     id: number;
     name: string;
 }
 
-export type ShowDto = {
+export type Show = {
     id: number;
     name: string;
     overview: string;
@@ -11,10 +11,10 @@ export type ShowDto = {
     backdrop: string;
     rating: number;
     year: number;
-    genres: GenreDto[];
+    genres: Genre[];
 }
 
-export type SeasonDto = {
+export type Season = {
     showId: number;
     number: number;
     name: string;
@@ -24,8 +24,8 @@ export type SeasonDto = {
 }
 
 export type ReleaseDto = {
-    show: ShowDto;
-    season: SeasonDto;
+    show: Show;
+    season: Season;
     airDate: Date;
     anticipationLevel: AnticipationLevel;
 }
@@ -37,4 +37,4 @@ export enum AnticipationLevel {
     Extreme,
 }
 
-export type ShowSearchResultDto = Pick<ShowDto, 'id' | 'name' | 'overview' | 'poster' | 'rating'>
+export type ShowSearchResult = Pick<Show, 'id' | 'name' | 'overview' | 'poster' | 'rating'>

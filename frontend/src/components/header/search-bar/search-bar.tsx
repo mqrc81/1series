@@ -5,9 +5,9 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { SelectItem } from '@mantine/core/lib/Select/types';
 import { useDebouncedValue } from '@mantine/hooks';
-import { ShowSearchResultDto, useSearchShowsQuery } from '../../../api';
+import { ShowSearchResult, useSearchShowsQuery } from '../../../api';
 
-type SearchShowsData = SelectItem & { group: 'Series' | 'Other', onSelect: () => void } & ShowSearchResultDto;
+type SearchShowsData = SelectItem & { group: 'Series' | 'Other', onSelect: () => void } & ShowSearchResult;
 
 const SearchResult = forwardRef<HTMLDivElement, SearchShowsData>((data, ref) => {
         const {id, name, poster, ...other} = data;

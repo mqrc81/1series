@@ -1,10 +1,10 @@
 import React from 'react';
-import { ShowDto } from '../../api';
+import { Show } from '../../api';
 import { Badge, Card, Image, Tooltip } from '@mantine/core';
 import { Link } from 'react-router-dom';
 
 type Props = {
-    show: ShowDto;
+    show: Show;
 }
 
 export const ShowCard: React.FC<Props> = ({show}) => {
