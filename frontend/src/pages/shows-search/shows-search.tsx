@@ -24,9 +24,11 @@ const ShowsSearch: React.FC = () => {
                         <Link to={'/shows/' + show.id} key={i} className="cursor-pointer">
                             <Card radius="md">
                                 <Card.Section>
-                                    <BackgroundImage src={show.poster} className="h-[252px] w-[448]">
+                                    <BackgroundImage src={show.backdrop} className="w-[448px] h-[252px]">
                                         <div key={i} className="bg-black/50 h-full flex">
-                                            <Center className="font-semibold text-3xl text-center mx-auto">{show.name}</Center>
+                                            <Center
+                                                className="font-semibold text-3xl text-center mx-auto"
+                                            >{show.name}</Center>
                                         </div>
                                     </BackgroundImage>
                                 </Card.Section>

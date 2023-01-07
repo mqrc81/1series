@@ -10,12 +10,12 @@ import { ShowSearchResult, useSearchShowsQuery } from '../../../api';
 type SearchShowsData = SelectItem & { group: 'Series' | 'Other', onSelect: () => void } & ShowSearchResult;
 
 const SearchResult = forwardRef<HTMLDivElement, SearchShowsData>((data, ref) => {
-        const {id, name, poster, ...other} = data;
+        const {name, poster} = data;
         return (
             <>
-                <div ref={ref} {...other} className="p-2 aria-selected:bg-gray-700 cursor-pointer">
+                <div ref={ref} className="p-2 aria-selected:bg-gray-700 cursor-pointer">
                     <Group noWrap>
-                        <Image withPlaceholder width={50} height={75} src={poster} radius="md"/>
+                        <Image withPlaceholder width={50} height={75} src={poster} radius="md" />
                         <div>
                             <div className="font-medium mb-auto">
                                 {name}
@@ -23,7 +23,7 @@ const SearchResult = forwardRef<HTMLDivElement, SearchShowsData>((data, ref) => 
                         </div>
                     </Group>
                 </div>
-                <Divider/>
+                <Divider />
             </>
         );
     },

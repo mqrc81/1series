@@ -14,6 +14,7 @@ module.exports = {
         },
         colors: {
             white: '#FFFFFF',
+            black: '#000000',
             // Mantine color palette
             dark: {
                 50: "#C1C2C5",
