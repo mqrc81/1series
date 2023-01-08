@@ -2,9 +2,8 @@ package repositories
 
 import (
 	"fmt"
-	"github.com/mqrc81/zeries/sql"
-
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/sql"
 )
 
 type networksRepository struct {
@@ -26,12 +25,12 @@ func (r *networksRepository) FindAll() (networks []domain.Network, err error) {
 func (r *networksRepository) Save(network domain.Network) (err error) {
 
 	if _, err = r.Exec(
-		`INSERT INTO networks(id, name, logo) VALUES ($1, $2, $3)`,
-		network.Id,
+		`INSERT INTO networks(network_id, name, logo) VALUES ($1, $2, $3)`,
+		network.NetworkId,
 		network.Name,
 		network.Logo,
 	); err != nil {
-		err = fmt.Errorf("error adding network [%v, %v, %v]: %w", network.Id, network.Name, network.Logo, err)
+		err = fmt.Errorf("error adding network [%v, %v, %v]: %w", network.NetworkId, network.Name, network.Logo, err)
 	}
 
 	return err

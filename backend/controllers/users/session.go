@@ -13,25 +13,35 @@ const (
 	SessionUserKey   = "user"
 )
 
-func AddUserToSession(ctx echo.Context, user domain.User) (err error) {
-	currentSession, err := session.Get(SessionKey, ctx)
-	if err == nil {
-		currentSession.Values[SessionUserIdKey] = user.Id
-		err = currentSession.Save(ctx.Request(), ctx.Response())
-	}
-	return err
-}
-
-func GetUserFromSession(ctx echo.Context) (user domain.User, err error) {
+func GetUserFromSession(ctx echo.Context) (domain.User, error) {
 	user, ok := ctx.Get(SessionUserKey).(domain.User)
 	if !ok {
 		logger.Warning("Sessions not implemented properly yet. Defaulting to user with Id=1 & Username=marc")
 		// TODO ms
-		// err = errors.New("no user in session")
+		// return domain.User{}, errors.New("no user in session")
 		user = domain.User{
 			Id:       1,
 			Username: "marc",
 		}
 	}
-	return user, err
+	return user, nil
+}
+
+func AddUserToSession(ctx echo.Context, user domain.User) error {
+	sess, err := session.Get(SessionKey, ctx)
+	if err == nil {
+		sess.Values[SessionUserIdKey] = user.Id
+		err = sess.Save(ctx.Request(), ctx.Response())
+	}
+	return err
+}
+
+func RemoveUserFromSession(ctx echo.Context) error {
+	sess, err := session.Get(SessionKey, ctx)
+	if err == nil {
+		delete(sess.Values, SessionUserIdKey)
+		delete(sess.Values, SessionUserKey)
+		err = sess.Save(ctx.Request(), ctx.Response())
+	}
+	return err
 }

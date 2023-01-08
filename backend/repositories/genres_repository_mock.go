@@ -7,7 +7,7 @@ import (
 func MockGenresRepository(genres ...domain.Genre) GenresRepository {
 	data := make(map[int]*domain.Genre)
 	for _, genre := range genres {
-		data[genre.Id] = &genre
+		data[genre.GenreId] = &genre
 	}
 	return &mockGenresRepository{data}
 }

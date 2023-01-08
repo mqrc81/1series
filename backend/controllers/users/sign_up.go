@@ -8,15 +8,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type registerForm struct {
+type signUpForm struct {
 	Username string `json:"username" validate:"required,alphanum,min=3,max=16"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3"`
 }
 
-func (c *usersController) RegisterUser(ctx echo.Context) (err error) {
+func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 	// Input
-	form := new(registerForm)
+	form := new(signUpForm)
 	if err = ctx.Bind(form); err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
@@ -50,10 +50,10 @@ func (c *usersController) RegisterUser(ctx echo.Context) (err error) {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
-
-	// Output
 	if err = AddUserToSession(ctx, user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	// Output
 	return ctx.JSON(http.StatusOK, user)
 }

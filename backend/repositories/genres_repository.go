@@ -27,11 +27,11 @@ func (r *genresRepository) FindAll() (genres []domain.Genre, err error) {
 func (r *genresRepository) Save(genre domain.Genre) (err error) {
 
 	if _, err = r.Exec(
-		`INSERT INTO genres(tmdb_id, name) VALUES ($1, $2)`,
-		genre.TmdbId,
+		`INSERT INTO genres(genre_id, name) VALUES ($1, $2)`,
+		genre.GenreId,
 		genre.Name,
 	); err != nil {
-		err = fmt.Errorf("error adding genre [%v, %v]: %w", genre.TmdbId, genre.Name, err)
+		err = fmt.Errorf("error adding genre [%v, %v]: %w", genre.GenreId, genre.Name, err)
 	}
 
 	return err
@@ -74,8 +74,8 @@ func (r *genresRepository) deleteAllGenresInTransaction(txn *sqlx.Tx) (err error
 }
 
 func (r *genresRepository) saveGenresInTransaction(txn *sqlx.Tx, genre domain.Genre) (err error) {
-	if _, err = txn.Exec(`INSERT INTO genres(tmdb_id, name) VALUES($1, $2)`,
-		genre.TmdbId,
+	if _, err = txn.Exec(`INSERT INTO genres(genre_id, name) VALUES($1, $2)`,
+		genre.GenreId,
 		genre.Name,
 	); err != nil {
 		err = fmt.Errorf("error saving genre: %w", err)

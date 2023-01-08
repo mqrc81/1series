@@ -56,12 +56,12 @@ func (c *controller) session() echo.MiddlewareFunc {
 func (c *controller) withUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			currentSession, err := session.Get(users.SessionKey, ctx)
+			sess, err := session.Get(users.SessionKey, ctx)
 			if err != nil {
 				return err
 			}
 
-			userId, ok := currentSession.Values[users.SessionUserIdKey].(int)
+			userId, ok := sess.Values[users.SessionUserIdKey].(int)
 			if !ok {
 				return next(ctx)
 			}

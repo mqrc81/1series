@@ -1,7 +1,7 @@
 package domain
 
 type Network struct {
-	Id   int    `json:"id"`
-	Name string `json:"name,omitempty"`
-	Logo string `json:"logo,omitempty"`
+	NetworkId int    `db:"network_id" json:"id,omitempty"`
+	Name      string `db:"name" json:"name,omitempty"`
+	Logo      string `db:"logo" json:"logo,omitempty"`
 }

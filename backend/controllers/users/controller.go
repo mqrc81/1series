@@ -23,8 +23,9 @@ type usersController struct {
 }
 
 type Controller interface {
-	RegisterUser(ctx echo.Context) error
-	LoginUser(ctx echo.Context) error
+	SignUserUp(ctx echo.Context) error
+	SignUserIn(ctx echo.Context) error
+	SignUserOut(ctx echo.Context) error
 	ImportImdbWatchlist(ctx echo.Context) error
 }
 

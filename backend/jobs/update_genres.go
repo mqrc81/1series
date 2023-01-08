@@ -29,8 +29,8 @@ func (job updateGenresJob) execute() error {
 	var genres []domain.Genre
 	for _, tmdbGenre := range tmdbGenres.Genres {
 		genres = append(genres, domain.Genre{
-			TmdbId: int(tmdbGenre.ID),
-			Name:   tmdbGenre.Name,
+			GenreId: int(tmdbGenre.ID),
+			Name:    tmdbGenre.Name,
 		})
 	}
 

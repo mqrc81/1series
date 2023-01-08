@@ -10,15 +10,12 @@ import (
 	"github.com/mqrc81/zeries/controllers/shows"
 	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/email"
+	"github.com/mqrc81/zeries/env"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
 	"io"
 	"net/http"
-)
-
-var (
-	corsAllowOrigins = []string{"http://127.0.0.1:4000", "https://next.up.railway.app", "https://dev-next.up.railway.app"}
 )
 
 type Controller interface {
@@ -73,8 +70,9 @@ func NewController(
 
 	usersRouter := baseRouter.Group("/users")
 	{
-		usersRouter.POST("/register", usersController.RegisterUser)
-		usersRouter.POST("/login", usersController.LoginUser)
+		usersRouter.POST("/signUp", usersController.SignUserUp)
+		usersRouter.POST("/signIn", usersController.SignUserIn)
+		usersRouter.POST("/signOut", usersController.SignUserOut)
 		usersRouter.POST("/importImdbWatchlist", usersController.ImportImdbWatchlist)
 	}
 
@@ -82,7 +80,7 @@ func NewController(
 		middleware.RequestID(),
 		middleware.Recover(),
 		c.logger(),
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: corsAllowOrigins, AllowCredentials: true}),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: []string{env.Config().FrontendUrl}, AllowCredentials: true}),
 		middleware.CSRFWithConfig(middleware.CSRFConfig{TokenLookup: "token:_csrf"}),
 		c.session(),
 		c.withUser(),

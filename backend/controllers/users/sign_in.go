@@ -7,14 +7,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type loginForm struct {
+type signInForm struct {
 	EmailOrUsername string `json:"emailOrUsername" validate:"required,email|alphanum"`
 	Password        string `json:"password" validate:"required"`
 }
 
-func (c *usersController) LoginUser(ctx echo.Context) (err error) {
+func (c *usersController) SignUserIn(ctx echo.Context) (err error) {
 	// Input
-	form := new(loginForm)
+	form := new(signInForm)
 	if err = ctx.Bind(form); err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
@@ -34,10 +34,10 @@ func (c *usersController) LoginUser(ctx echo.Context) (err error) {
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid password")
 	}
-
-	// Output
 	if err = AddUserToSession(ctx, user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	// Output
 	return ctx.JSON(http.StatusOK, user)
 }

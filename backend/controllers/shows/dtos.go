@@ -31,17 +31,17 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	genres := []domain.Genre{}
 	for _, genre := range dto.Genres {
 		genres = append(genres, domain.Genre{
-			Id:   int(genre.ID),
-			Name: genre.Name,
+			GenreId: int(genre.ID),
+			Name:    genre.Name,
 		})
 	}
 
 	networks := []domain.Network{}
 	for _, network := range dto.Networks {
 		networks = append(networks, domain.Network{
-			Id:   int(network.ID),
-			Name: network.Name,
-			Logo: tmdbImageUrlFromImagePath(network.LogoPath),
+			NetworkId: int(network.ID),
+			Name:      network.Name,
+			Logo:      tmdbImageUrlFromImagePath(network.LogoPath),
 		})
 	}
 

@@ -16,7 +16,7 @@ const ShowsSearch: React.FC = () => {
         <div className="w-full">
             {isLoading && (
                 // TODO ms: skeleton?
-                <Loader className="m-auto mt-5"/>
+                <Loader className="m-auto mt-5" />
             )}
             {isSuccess && (
                 <div className="grid grid-cols-3 gap-x-5 gap-y-3">

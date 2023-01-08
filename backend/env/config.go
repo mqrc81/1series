@@ -16,6 +16,7 @@ var (
 type EnvironmentVariables struct {
 	Port                string   `env:"PORT"`
 	BackendUrl          string   `env:"BACKEND_URL"`
+	FrontendUrl         string   `env:"FRONTEND_URL"`
 	DatabaseUrl         string   `env:"DATABASE_URL"`
 	TmdbKey             string   `env:"TMDB_KEY"`
 	TraktKey            string   `env:"TRAKT_KEY"`
