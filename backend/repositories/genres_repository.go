@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 	"github.com/mqrc81/zeries/sql"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mqrc81/zeries/domain"
@@ -27,9 +28,10 @@ func (r *genresRepository) FindAll() (genres []domain.Genre, err error) {
 func (r *genresRepository) Save(genre domain.Genre) (err error) {
 
 	if _, err = r.Exec(
-		`INSERT INTO genres(genre_id, name) VALUES ($1, $2)`,
+		`INSERT INTO genres(genre_id, name, created_at) VALUES ($1, $2, $3)`,
 		genre.GenreId,
 		genre.Name,
+		time.Now(),
 	); err != nil {
 		err = fmt.Errorf("error adding genre [%v, %v]: %w", genre.GenreId, genre.Name, err)
 	}
@@ -74,9 +76,10 @@ func (r *genresRepository) deleteAllGenresInTransaction(txn *sqlx.Tx) (err error
 }
 
 func (r *genresRepository) saveGenresInTransaction(txn *sqlx.Tx, genre domain.Genre) (err error) {
-	if _, err = txn.Exec(`INSERT INTO genres(genre_id, name) VALUES($1, $2)`,
+	if _, err = txn.Exec(`INSERT INTO genres(genre_id, name, created_at) VALUES($1, $2, $3)`,
 		genre.GenreId,
 		genre.Name,
+		time.Now(),
 	); err != nil {
 		err = fmt.Errorf("error saving genre: %w", err)
 	}

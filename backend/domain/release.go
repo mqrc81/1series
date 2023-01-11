@@ -16,6 +16,7 @@ type ReleaseRef struct {
 	SeasonNumber      int               `db:"season_number"`
 	AirDate           time.Time         `db:"air_date"`
 	AnticipationLevel AnticipationLevel `db:"anticipation_level"`
+	CreatedAt         time.Time         `db:"created_at"`
 }
 
 type AnticipationLevel int
