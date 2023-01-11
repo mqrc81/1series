@@ -6,7 +6,7 @@ import { useAuthStore } from '../../../stores';
 import { useSignUserOutMutation } from '../../../api';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { HeaderUserMenuLoginModal } from './login-modal/login-modal';
+import { HeaderUserMenuAuthModal } from './login-modal/auth-modal';
 import { useToast } from '../../../hooks';
 
 export const HeaderUserMenu: React.FC = () => {
@@ -54,7 +54,7 @@ export const HeaderUserMenu: React.FC = () => {
                     >Preferences</Menu.Item>
                 </Menu.Dropdown>
             </Menu>
-            <HeaderUserMenuLoginModal opened={loginModalOpened} onClose={closeLoginModal} />
+            <HeaderUserMenuAuthModal opened={loginModalOpened} onClose={closeLoginModal} />
         </>
     );
 };

@@ -65,10 +65,13 @@ func (r *usersRepository) FindByEmail(email string) (user domain.User, err error
 
 func (r *usersRepository) Save(user domain.User) (err error) {
 
-	if _, err = r.Exec(`INSERT INTO users(username, email, password, created_at) VALUES ($1, $2, $3, $4)`,
+	if _, err = r.Exec(
+		`INSERT INTO users(username, email, password, notify_releases, notify_recommendations, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
 		user.Username,
 		user.Email,
 		user.Password,
+		user.NotificationOptions.Releases,
+		user.NotificationOptions.Recommendations,
 		time.Now(),
 	); err != nil {
 		err = fmt.Errorf("error saving user [%v]: %w", user, err)
