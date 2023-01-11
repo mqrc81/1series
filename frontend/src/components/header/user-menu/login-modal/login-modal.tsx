@@ -21,6 +21,10 @@ export const HeaderUserMenuLoginModal: React.FC<Props> = ({opened, onClose}) => 
     });
 
     const form = useForm<SignUserInDto>({
+        initialValues: {
+            email: '',
+            password: '',
+        },
         validate: {
             email: isEmail('Invalid email'),
             password: hasLength({min: 2}, 'Invalid password'),
