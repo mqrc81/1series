@@ -16,6 +16,7 @@ export const LoginForm: React.FC<Props> = ({onSubmit, onSwitchToRegister, onSwit
     const {login} = useAuthStore();
     const {
         mutate: signIn,
+        isLoading,
     } = useSignUserInMutation({
         onSuccess: (user) => {
             login(user);
@@ -58,17 +59,16 @@ export const LoginForm: React.FC<Props> = ({onSubmit, onSwitchToRegister, onSwit
                     <Button
                         size="sm" classNames={{label: 'text-xs'}} variant="subtle" compact
                         onClick={onSwitchToRegister}
-                    >
-                        Create an account
-                    </Button>
+                    >Create an account</Button>
                     <Button
                         size="sm" classNames={{label: 'text-xs'}} variant="subtle" compact
                         onClick={onSwitchToResetPassword}
-                    >
-                        Forgot password
-                    </Button>
+                    >Forgot password</Button>
                 </Stack>
-                <Button type="submit" variant="filled" className="border-violet-600">Log In</Button>
+                <Button
+                    type="submit" variant="filled" className="border-violet-600"
+                    loading={isLoading}
+                >Log In</Button>
             </Group>
         </Box>
     );

@@ -13,6 +13,7 @@ export const RegisterForm: React.FC<{ onSubmit: () => void, onSwitchToLogin: () 
     const {login} = useAuthStore();
     const {
         mutate: signUp,
+        isLoading,
     } = useSignUserUpMutation({
         onSuccess: (user) => {
             login(user);
@@ -62,11 +63,12 @@ export const RegisterForm: React.FC<{ onSubmit: () => void, onSwitchToLogin: () 
                     <Button
                         size="sm" classNames={{label: 'text-xs'}} variant="subtle" compact
                         onClick={onSwitchToLogin}
-                    >
-                        I already have an account
-                    </Button>
+                    >I already have an account</Button>
                 </Stack>
-                <Button type="submit" variant="filled" className="border-violet-600">Register</Button>
+                <Button
+                    type="submit" variant="filled" className="border-violet-600"
+                    loading={isLoading}
+                >Register</Button>
             </Group>
         </Box>
     );

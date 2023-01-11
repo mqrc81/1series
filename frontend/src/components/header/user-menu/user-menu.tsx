@@ -6,7 +6,7 @@ import { useAuthStore } from '../../../stores';
 import { useSignUserOutMutation } from '../../../api';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { HeaderUserMenuAuthModal } from './login-modal/auth-modal';
+import { HeaderUserMenuAuthModal } from './auth-modal/auth-modal';
 import { useToast } from '../../../hooks';
 
 export const HeaderUserMenu: React.FC = () => {
