@@ -40,7 +40,7 @@ func (mock *mockUsersRepository) FindByEmail(email string) (domain.User, error) 
 	panic("implement me")
 }
 
-func (mock *mockUsersRepository) Save(user domain.User) (int, error) {
+func (mock *mockUsersRepository) Save(user domain.User) error {
 	// TODO implement me
 	panic("implement me")
 }

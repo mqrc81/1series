@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	sqlx "database/sql"
 	"time"
 
 	"github.com/mqrc81/zeries/domain"
@@ -13,7 +12,7 @@ type UsersRepository interface {
 	FindAll() ([]domain.User, error)
 	FindByUsername(username string) (domain.User, error)
 	FindByEmail(email string) (domain.User, error)
-	Save(user domain.User) (int, error)
+	Save(user domain.User) error
 }
 
 type GenresRepository interface {
@@ -58,9 +57,4 @@ func NewNetworksRepository(database *sql.Database) NetworksRepository {
 
 func NewTrackedShowsRepository(database *sql.Database) TrackedShowsRepository {
 	return &trackedShowsRepository{database}
-}
-
-func newId(res sqlx.Result) int {
-	id, _ := res.LastInsertId()
-	return int(id)
 }

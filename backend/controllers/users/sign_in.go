@@ -8,8 +8,8 @@ import (
 )
 
 type signInForm struct {
-	EmailOrUsername string `json:"emailOrUsername" validate:"required,email|alphanum"`
-	Password        string `json:"password" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 func (c *usersController) SignUserIn(ctx echo.Context) (err error) {
@@ -23,12 +23,9 @@ func (c *usersController) SignUserIn(ctx echo.Context) (err error) {
 	}
 
 	// Use-Case
-	user, err := c.usersRepository.FindByUsername(form.EmailOrUsername)
+	user, err := c.usersRepository.FindByEmail(form.Email)
 	if err != nil {
-		user, err = c.usersRepository.FindByEmail(form.EmailOrUsername)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid email or username")
-		}
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid email")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {

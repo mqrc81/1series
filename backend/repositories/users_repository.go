@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 	"github.com/mqrc81/zeries/sql"
+	"time"
 
 	"github.com/mqrc81/zeries/domain"
 )
@@ -62,17 +63,16 @@ func (r *usersRepository) FindByEmail(email string) (user domain.User, err error
 	return user, err
 }
 
-func (r *usersRepository) Save(user domain.User) (id int, err error) {
+func (r *usersRepository) Save(user domain.User) (err error) {
 
-	if res, err := r.Exec(`INSERT INTO users(username, password, email) VALUES ($1, $2, $3)`,
+	if _, err = r.Exec(`INSERT INTO users(username, email, password, created_at) VALUES ($1, $2, $3, $4)`,
 		user.Username,
 		user.Email,
 		user.Password,
+		time.Now(),
 	); err != nil {
 		err = fmt.Errorf("error saving user [%v]: %w", user, err)
-	} else {
-		id = newId(res)
 	}
 
-	return id, err
+	return err
 }

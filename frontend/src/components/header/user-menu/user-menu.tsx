@@ -7,13 +7,18 @@ import { useSignUserOutMutation } from '../../../api';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { HeaderUserMenuLoginModal } from './login-modal/login-modal';
+import { useToast } from '../../../hooks';
 
 export const HeaderUserMenu: React.FC = () => {
+    const {successToast} = useToast();
     const {isLoggedIn, logout} = useAuthStore();
     const {
         mutate: doLogout,
     } = useSignUserOutMutation({
-        onSuccess: logout,
+        onSuccess: () => {
+            logout();
+            successToast('Successfully logged out!');
+        },
     });
 
     const [loginModalOpened, {open: openLoginModal, close: closeLoginModal}] = useDisclosure(false);

@@ -37,7 +37,7 @@ func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusConflict, "error hashing password: "+err.Error())
 	}
 
-	userId, err := c.usersRepository.Save(domain.User{
+	err = c.usersRepository.Save(domain.User{
 		Username: form.Username,
 		Email:    form.Email,
 		Password: string(hashedPassword),
@@ -46,7 +46,7 @@ func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 
-	user, err := c.usersRepository.Find(userId)
+	user, err := c.usersRepository.FindByUsername(form.Username)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}

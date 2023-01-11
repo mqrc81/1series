@@ -1,15 +1,18 @@
 package domain
 
+import "time"
+
 type User struct {
-	Id            int    `db:"id"`
-	Username      string `db:"username"`
-	Email         string `db:"email"`
-	EmailVerified bool   `db:"email_verified"`
-	Password      string `db:"password"`
-	NotificationOptions
+	Id                  int       `db:"id" json:"id,omitempty"`
+	Username            string    `db:"username" json:"username,omitempty"`
+	Email               string    `db:"email" json:"email,omitempty"`
+	EmailVerified       bool      `db:"email_verified" json:"emailVerified"`
+	Password            string    `db:"password" json:"password,omitempty"`
+	CreatedAt           time.Time `db:"created_at" json:"createdAt"`
+	NotificationOptions `json:"notificationOptions"`
 }
 
 type NotificationOptions struct {
-	Releases        bool `db:"notify_releases"`
-	Recommendations bool `db:"notify_recommendations"`
+	Releases        bool `db:"notify_releases" json:"notifyReleases"`
+	Recommendations bool `db:"notify_recommendations" json:"notifyRecommendations"`
 }
