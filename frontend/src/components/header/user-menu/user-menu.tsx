@@ -1,17 +1,18 @@
 import React from 'react';
-import { Avatar, Menu, Modal } from '@mantine/core';
+import { Avatar, Menu } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightFromBracket, faArrowRightToBracket, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../../../stores';
-import { useLogoutUserMutation } from '../../../api';
+import { useSignUserOutMutation } from '../../../api';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
+import { HeaderUserMenuLoginModal } from './login-modal/login-modal';
 
 export const HeaderUserMenu: React.FC = () => {
     const {isLoggedIn, logout} = useAuthStore();
     const {
         mutate: doLogout,
-    } = useLogoutUserMutation({
+    } = useSignUserOutMutation({
         onSuccess: logout,
     });
 
@@ -26,15 +27,17 @@ export const HeaderUserMenu: React.FC = () => {
                     <Avatar className="ml-auto mt-3 cursor-pointer bg-violet-600" />
                 </Menu.Target>
                 <Menu.Dropdown>
-                    {isLoggedIn()
-                        ? <Menu.Item
+                    {isLoggedIn() ? (
+                        <Menu.Item
                             icon={<FontAwesomeIcon icon={faArrowRightFromBracket} />}
                             onClick={() => doLogout()}
                         >Logout</Menu.Item>
-                        : <Menu.Item
+                    ) : (
+                        <Menu.Item
                             icon={<FontAwesomeIcon icon={faArrowRightToBracket} />}
                             onClick={openLoginModal}
-                        >Login</Menu.Item>}
+                        >Login</Menu.Item>
+                    )}
                     <Menu.Item
                         icon={<FontAwesomeIcon icon={faUser} />}
                         onClick={() => navigate('/profile')}
@@ -46,15 +49,7 @@ export const HeaderUserMenu: React.FC = () => {
                     >Preferences</Menu.Item>
                 </Menu.Dropdown>
             </Menu>
-
-            <Modal
-                opened={loginModalOpened}
-                onClose={closeLoginModal}
-                title="Login"
-                centered
-            >
-                Login Modal Content
-            </Modal>
+            <HeaderUserMenuLoginModal opened={loginModalOpened} onClose={closeLoginModal} />
         </>
     );
 };

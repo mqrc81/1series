@@ -2,6 +2,7 @@ export type User = {
     id: number;
     username: string;
     email: string;
+    password: string;
     emailVerified: boolean;
 } & NotificationOptions
 
@@ -16,14 +17,9 @@ export type FailedImdbImport = {
     reason: string;
 }
 
-export type LoginUserDto = {
-    emailOrUsername: string;
-    password: string;
-}
+export type SignUserInDto = Pick<User, 'email' | 'password'>
 
-export type RegisterUserDto = Pick<User, 'username' | 'email'> & {
-    password: string;
-}
+export type SignUserUpDto = Pick<User, 'username' | 'email' | 'password'>
 
 export type TrackShowDto = {
     showId: number;

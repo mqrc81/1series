@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { MutationOptions } from '../mutations';
-import { FailedImdbImport, LoginUserDto, RegisterUserDto, TrackShowDto, User } from './users.dtos';
+import { FailedImdbImport, SignUserInDto, SignUserUpDto, TrackShowDto, User } from './users.dtos';
 import { ApisauceClient } from '../../providers/apisauce';
+import { queryKey } from '../queries';
 
-export const useRegisterUserMutation = (options?: MutationOptions<User, unknown, RegisterUserDto>) => {
+export const useSignUserUpMutation = (options?: MutationOptions<User, unknown, SignUserUpDto>) => {
+    const url = `/users/signUp`;
     return useMutation(
-        ['users', 'register'],
-        async (payload: RegisterUserDto) => {
-            const {data} = await ApisauceClient.post<User>(`/users/register`, payload);
+        queryKey(url),
+        async (payload: SignUserUpDto) => {
+            const {data} = await ApisauceClient.post<User>(url, payload);
 
             return data;
         },
@@ -15,11 +17,12 @@ export const useRegisterUserMutation = (options?: MutationOptions<User, unknown,
     );
 };
 
-export const useLoginUserMutation = (options?: MutationOptions<User, unknown, LoginUserDto>) => {
+export const useSignUserInMutation = (options?: MutationOptions<User, unknown, SignUserInDto>) => {
+    const url = `/users/signIn`;
     return useMutation(
-        ['users', 'login'],
-        async (payload: LoginUserDto) => {
-            const {data} = await ApisauceClient.post<User>(`/users/login`, payload);
+        queryKey(url),
+        async (payload: SignUserInDto) => {
+            const {data} = await ApisauceClient.post<User>(url, payload);
 
             return data;
         },
@@ -27,11 +30,12 @@ export const useLoginUserMutation = (options?: MutationOptions<User, unknown, Lo
     );
 };
 
-export const useLogoutUserMutation = (options?: MutationOptions<void>) => {
+export const useSignUserOutMutation = (options?: MutationOptions<void>) => {
+    const url = `/users/signOut`;
     return useMutation(
-        ['users', 'logout'],
+        queryKey(url),
         async () => {
-            await ApisauceClient.post<void>(`/users/logout`);
+            await ApisauceClient.post<void>(url);
         },
         options,
     );
@@ -47,7 +51,8 @@ export const useCreateTrackedShowMutation = (showId: number, options?: MutationO
     return useMutation(
         ['users', 'trackedShows', showId],
         async (rating: number) => {
-            await ApisauceClient.post<void>(`/users/trackedShows`, {showId, rating});
+            const url = `/users/trackedShows`;
+            await ApisauceClient.post<void>(url, {showId, rating});
         },
         options,
     );

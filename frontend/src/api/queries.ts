@@ -1,5 +1,11 @@
 import { UseQueryOptions } from 'react-query/types/react/types';
-import { GetNextPageParamFunction, GetPreviousPageParamFunction, QueryKey, UseInfiniteQueryOptions, useQuery } from 'react-query';
+import {
+    GetNextPageParamFunction,
+    GetPreviousPageParamFunction,
+    QueryKey,
+    UseInfiniteQueryOptions,
+    useQuery,
+} from 'react-query';
 import { Paginated } from './dtos';
 import { ApisauceClient } from '../providers/apisauce';
 
@@ -23,3 +29,5 @@ export const usePingQuery = (options?: Omit<QueryOptions<string>, 'staleTime'>) 
         },
     );
 };
+
+export const queryKey = (url: string): QueryKey => url.split('/').slice(1);
