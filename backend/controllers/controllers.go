@@ -40,12 +40,13 @@ func NewController(
 	genresRepository := repositories.NewGenresRepository(database)
 	networksRepository := repositories.NewNetworksRepository(database)
 	trackedShowsRepository := repositories.NewTrackedShowsRepository(database)
+	tokensRepository := repositories.NewTokensRepository(database)
 
 	validate := validator.New()
 
 	c := newController(usersRepository)
 	adminController := admin.NewController(scheduler)
-	usersController := users.NewController(usersRepository, trackedShowsRepository, tmdbClient, emailClient, validate)
+	usersController := users.NewController(usersRepository, trackedShowsRepository, tokensRepository, tmdbClient, emailClient, validate)
 	showsController := shows.NewController(usersRepository, releasesRepository, genresRepository, networksRepository, traktClient, tmdbClient)
 
 	baseRouter := c.Group("/api")
@@ -73,6 +74,8 @@ func NewController(
 		usersRouter.POST("/signUp", usersController.SignUserUp)
 		usersRouter.POST("/signIn", usersController.SignUserIn)
 		usersRouter.POST("/signOut", usersController.SignUserOut)
+		usersRouter.POST("/forgotPassword", usersController.ForgotPassword)
+		usersRouter.POST("/resetPassword", usersController.ResetPassword)
 		usersRouter.POST("/importImdbWatchlist", usersController.ImportImdbWatchlist)
 	}
 

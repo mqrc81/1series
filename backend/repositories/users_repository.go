@@ -76,3 +76,20 @@ func (r *usersRepository) Save(user domain.User) (err error) {
 
 	return err
 }
+
+func (r *usersRepository) Update(user domain.User) (err error) {
+
+	if _, err = r.Exec(
+		`UPDATE users u SET u.username = $1, u.email = $2, u.password = $3, u.notify_releases = $4, u.notify_recommendations = $5 WHERE u.id = $6`,
+		user.Username,
+		user.Email,
+		user.Password,
+		user.NotificationOptions.Releases,
+		user.NotificationOptions.Recommendations,
+		user.Id,
+	); err != nil {
+		err = fmt.Errorf("error updating user [%v]: %w", user, err)
+	}
+
+	return err
+}

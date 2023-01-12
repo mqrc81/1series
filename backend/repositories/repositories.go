@@ -13,6 +13,7 @@ type UsersRepository interface {
 	FindByUsername(username string) (domain.User, error)
 	FindByEmail(email string) (domain.User, error)
 	Save(user domain.User) error
+	Update(user domain.User) error
 }
 
 type GenresRepository interface {
@@ -42,7 +43,7 @@ type TrackedShowsRepository interface {
 type TokensRepository interface {
 	FindByToken(token string) (domain.Token, error)
 	Save(token domain.Token) error
-	DeleteByToken(token string) error
+	Delete(token domain.Token) error
 }
 
 func NewUsersRepository(database *sql.Database) UsersRepository {
@@ -63,4 +64,8 @@ func NewNetworksRepository(database *sql.Database) NetworksRepository {
 
 func NewTrackedShowsRepository(database *sql.Database) TrackedShowsRepository {
 	return &trackedShowsRepository{database}
+}
+
+func NewTokensRepository(database *sql.Database) TokensRepository {
+	return &tokensRepository{database}
 }

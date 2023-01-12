@@ -12,7 +12,7 @@ func init() {
 func upCreateTokensTable(tx *sql.Tx) error {
 	_, err := tx.Exec(`
 		CREATE TABLE tokens (
-			token TEXT PRIMARY KEY,
+			token TEXT PRIMARY KEY CHECK ( token != '' ),
 			user_id INT REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
 			purpose INT NOT NULL,
 			expires_at TIMESTAMP NOT NULL,

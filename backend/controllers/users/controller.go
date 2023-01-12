@@ -17,6 +17,7 @@ const (
 type usersController struct {
 	usersRepository        repositories.UsersRepository
 	trackedShowsRepository repositories.TrackedShowsRepository
+	tokensRepository       repositories.TokensRepository
 	tmdbClient             *tmdb.Client
 	emailClient            *email.Client
 	validate               *validator.Validate
@@ -26,12 +27,15 @@ type Controller interface {
 	SignUserUp(ctx echo.Context) error
 	SignUserIn(ctx echo.Context) error
 	SignUserOut(ctx echo.Context) error
+	ForgotPassword(ctx echo.Context) error
+	ResetPassword(ctx echo.Context) error
 	ImportImdbWatchlist(ctx echo.Context) error
 }
 
 func NewController(
 	usersRepository repositories.UsersRepository,
 	trackedShowsRepository repositories.TrackedShowsRepository,
+	tokensRepository repositories.TokensRepository,
 	tmdbClient *tmdb.Client,
 	emailClient *email.Client,
 	validate *validator.Validate,
@@ -39,6 +43,7 @@ func NewController(
 	return &usersController{
 		usersRepository,
 		trackedShowsRepository,
+		tokensRepository,
 		tmdbClient,
 		emailClient,
 		validate,

@@ -1,10 +1,10 @@
 package users
 
 import (
+	"errors"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/logger"
 )
 
 const (
@@ -16,13 +16,7 @@ const (
 func GetUserFromSession(ctx echo.Context) (domain.User, error) {
 	user, ok := ctx.Get(SessionUserKey).(domain.User)
 	if !ok {
-		logger.Warning("Sessions not implemented properly yet. Defaulting to user with Id=1 & Username=marc")
-		// TODO ms
-		// return domain.User{}, errors.New("no user in session")
-		user = domain.User{
-			Id:       1,
-			Username: "marc",
-		}
+		return domain.User{}, errors.New("no user in session")
 	}
 	return user, nil
 }
