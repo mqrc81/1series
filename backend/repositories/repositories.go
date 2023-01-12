@@ -39,6 +39,12 @@ type TrackedShowsRepository interface {
 	Save(trackedShow domain.TrackedShow) error
 }
 
+type TokensRepository interface {
+	FindByToken(token string) (domain.Token, error)
+	Save(token domain.Token) error
+	DeleteByToken(token string) error
+}
+
 func NewUsersRepository(database *sql.Database) UsersRepository {
 	return &usersRepository{database}
 }

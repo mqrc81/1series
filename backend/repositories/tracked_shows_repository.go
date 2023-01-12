@@ -14,7 +14,7 @@ func (r *trackedShowsRepository) FindAll() (trackedShows []domain.TrackedShow, e
 
 	if err = r.Select(
 		&trackedShows,
-		`SELECT ws.* FROM tracked_shows ws`,
+		`SELECT ts.user_id, ts.show_id, ts.rating FROM tracked_shows ts`,
 	); err != nil {
 		err = fmt.Errorf("error finding tracked shows: %w", err)
 	}
@@ -26,7 +26,7 @@ func (r *trackedShowsRepository) FindAllByUser(user domain.User) (trackedShows [
 
 	if err = r.Select(
 		&trackedShows,
-		`SELECT ws.* FROM tracked_shows ws WHERE ws.user_id = $1`,
+		`SELECT ts.user_id, ts.show_id, ts.rating FROM tracked_shows ts WHERE ts.user_id = $1`,
 		user.Id,
 	); err != nil {
 		err = fmt.Errorf("error finding tracked shows [%v]: %w", user.Id, err)

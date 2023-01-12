@@ -75,12 +75,11 @@ func (r *releasesRepository) ReplaceAll(releases []domain.ReleaseRef, pastReleas
 
 func (r *releasesRepository) saveReleaseInTransaction(txn *sqlx.Tx, release domain.ReleaseRef) (err error) {
 	if _, err = txn.Exec(
-		`INSERT INTO releases(show_id, season_number, air_date, anticipation_level, created_at) VALUES($1, $2, $3, $4)`,
+		`INSERT INTO releases(show_id, season_number, air_date, anticipation_level) VALUES($1, $2, $3)`,
 		release.ShowId,
 		release.SeasonNumber,
 		release.AirDate,
 		release.AnticipationLevel,
-		time.Now(),
 	); err != nil {
 		err = fmt.Errorf("error saving release: %w", err)
 	}

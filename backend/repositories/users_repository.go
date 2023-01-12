@@ -2,10 +2,8 @@ package repositories
 
 import (
 	"fmt"
-	"github.com/mqrc81/zeries/sql"
-	"time"
-
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/sql"
 )
 
 type usersRepository struct {
@@ -16,7 +14,7 @@ func (r *usersRepository) Find(userId int) (user domain.User, err error) {
 
 	if err = r.Get(
 		&user,
-		`SELECT u.* FROM users u WHERE u.id = $1`,
+		`SELECT u.id, u.username, u.email, u.password, u.email_verified, u.notify_releases, u.notify_recommendations FROM users u WHERE u.id = $1`,
 		userId,
 	); err != nil {
 		err = fmt.Errorf("error finding user [%v]: %w", userId, err)
@@ -29,7 +27,7 @@ func (r *usersRepository) FindAll() (users []domain.User, err error) {
 
 	if err = r.Select(
 		&users,
-		`SELECT u.* FROM users u`,
+		`SELECT u.id, u.username, u.email, u.password, u.email_verified, u.notify_releases, u.notify_recommendations FROM users u`,
 	); err != nil {
 		err = fmt.Errorf("error finding users: %w", err)
 	}
@@ -41,7 +39,7 @@ func (r *usersRepository) FindByUsername(username string) (user domain.User, err
 
 	if err = r.Get(
 		&user,
-		`SELECT u.* FROM users u WHERE u.username = $1`,
+		`SELECT u.id, u.username, u.email, u.password, u.email_verified, u.notify_releases, u.notify_recommendations FROM users u WHERE u.username = $1`,
 		username,
 	); err != nil {
 		err = fmt.Errorf("error finding user [%v]: %w", username, err)
@@ -54,7 +52,7 @@ func (r *usersRepository) FindByEmail(email string) (user domain.User, err error
 
 	if err = r.Get(
 		&user,
-		`SELECT u.* FROM users u WHERE u.email = $1`,
+		`SELECT u.id, u.username, u.email, u.password, u.email_verified, u.notify_releases, u.notify_recommendations FROM users u WHERE u.email = $1`,
 		email,
 	); err != nil {
 		err = fmt.Errorf("error finding user [%v]: %w", email, err)
@@ -66,13 +64,12 @@ func (r *usersRepository) FindByEmail(email string) (user domain.User, err error
 func (r *usersRepository) Save(user domain.User) (err error) {
 
 	if _, err = r.Exec(
-		`INSERT INTO users(username, email, password, notify_releases, notify_recommendations, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
+		`INSERT INTO users(username, email, password, notify_releases, notify_recommendations) VALUES ($1, $2, $3, $4, $5)`,
 		user.Username,
 		user.Email,
 		user.Password,
 		user.NotificationOptions.Releases,
 		user.NotificationOptions.Recommendations,
-		time.Now(),
 	); err != nil {
 		err = fmt.Errorf("error saving user [%v]: %w", user, err)
 	}
