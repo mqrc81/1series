@@ -1,6 +1,14 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { MutationOptions } from '../mutations';
-import { FailedImdbImport, ForgotPasswordDto, SignUserInDto, SignUserUpDto, TrackShowDto, User } from './users.dtos';
+import {
+    FailedImdbImport,
+    ForgotPasswordDto,
+    ResetPasswordDto,
+    SignUserInDto,
+    SignUserUpDto,
+    TrackShowDto,
+    User,
+} from './users.dtos';
 import { ApisauceClient } from '../../providers/apisauce';
 import { queryKey } from '../queries';
 
@@ -47,6 +55,17 @@ export const useForgotPasswordMutation = (options?: MutationOptions<void, unknow
         queryKey(url),
         async (payload: ForgotPasswordDto) => {
             await ApisauceClient.post<void>(url, payload);
+        },
+        options,
+    );
+};
+
+export const useResetPasswordMutation = (options?: MutationOptions<void, unknown, ResetPasswordDto>) => {
+    const url = `/users/resetPassword`;
+    return useMutation(
+        queryKey(url),
+        async ({password, token}: ResetPasswordDto & { token: string }) => {
+            await ApisauceClient.post<void>(url, {password}, {params: {token}});
         },
         options,
     );

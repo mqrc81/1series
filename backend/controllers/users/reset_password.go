@@ -3,6 +3,7 @@ package users
 import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -26,6 +27,9 @@ func (c *usersController) ResetPassword(ctx echo.Context) (err error) {
 	token, err := c.tokensRepository.FindByTokenId(tokenParam)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+	}
+	if token.ExpiresAt.Before(time.Now()) {
+		return echo.NewHTTPError(http.StatusBadRequest, "token expired")
 	}
 
 	user, err := c.usersRepository.Find(token.UserId)

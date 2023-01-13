@@ -44,6 +44,7 @@ type TokensRepository interface {
 	FindByTokenId(tokenId string) (domain.Token, error)
 	Save(token domain.Token) error
 	Delete(token domain.Token) error
+	DeleteByUserAndPurpose(user domain.User, purpose domain.TokenPurpose) error
 }
 
 func NewUsersRepository(database *sql.Database) UsersRepository {

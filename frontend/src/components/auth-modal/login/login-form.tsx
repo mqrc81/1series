@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Button, Group, PasswordInput, TextInput } from '@mantine/core';
-import { useToast } from '../../../../hooks';
-import { useAuthStore } from '../../../../stores';
-import { SignUserInDto, useSignUserInMutation } from '../../../../api';
+import { useToast } from '../../../hooks';
+import { useAuthStore } from '../../../stores';
+import { SignUserInDto, useSignUserInMutation } from '../../../api';
 import { hasLength, isEmail, useForm } from '@mantine/form';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
     onSwitchToResetPassword: () => void;
 }
 
-export const LoginForm: React.FC<Props> = ({onSubmit, onSwitchToRegister, onSwitchToResetPassword}) => {
+export const AuthModalLogin: React.FC<Props> = ({onSubmit, onSwitchToRegister, onSwitchToResetPassword}) => {
     const {successToast, errorToast} = useToast();
     const {login} = useAuthStore();
     const {

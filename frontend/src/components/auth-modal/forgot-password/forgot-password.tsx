@@ -1,6 +1,6 @@
 import React from 'react';
-import { useToast } from '../../../../hooks';
-import { ForgotPasswordDto, useForgotPasswordMutation } from '../../../../api';
+import { useToast } from '../../../hooks';
+import { ForgotPasswordDto, useForgotPasswordMutation } from '../../../api';
 import { isEmail, useForm } from '@mantine/form';
 import { Box, Button, Group, TextInput } from '@mantine/core';
 
@@ -9,7 +9,7 @@ type Props = {
     onSwitchToLogin: () => void;
 }
 
-export const ForgotPasswordForm: React.FC<Props> = ({onSubmit, onSwitchToLogin}) => {
+export const AuthModalForgotPassword: React.FC<Props> = ({onSubmit, onSwitchToLogin}) => {
     const {successToast, errorToast} = useToast();
     const {
         mutate: requestPasswordReset,

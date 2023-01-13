@@ -1,14 +1,16 @@
 import React from 'react';
-import { useToast } from '../../../../hooks';
-import { useAuthStore } from '../../../../stores';
-import { SignUserUpDto, useSignUserUpMutation } from '../../../../api';
+import { useToast } from '../../../hooks';
+import { useAuthStore } from '../../../stores';
+import { SignUserUpDto, useSignUserUpMutation } from '../../../api';
 import { hasLength, isEmail, matches, useForm } from '@mantine/form';
 import { Box, Button, Group, PasswordInput, TextInput } from '@mantine/core';
 
-export const RegisterForm: React.FC<{ onSubmit: () => void, onSwitchToLogin: () => void }> = ({
-                                                                                                  onSubmit,
-                                                                                                  onSwitchToLogin,
-                                                                                              }) => {
+type Props = {
+    onSubmit: () => void;
+    onSwitchToLogin: () => void;
+}
+
+export const AuthModalRegister: React.FC<Props> = ({onSubmit, onSwitchToLogin}) => {
     const {successToast, errorToast} = useToast();
     const {login} = useAuthStore();
     const {

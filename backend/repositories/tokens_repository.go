@@ -49,3 +49,16 @@ func (r *tokensRepository) Delete(token domain.Token) (err error) {
 
 	return err
 }
+
+func (r *tokensRepository) DeleteByUserAndPurpose(user domain.User, purpose domain.TokenPurpose) (err error) {
+
+	if _, err = r.Exec(
+		`DELETE FROM tokens t WHERE t.user_id = $1 AND t.purpose = $2`,
+		user.Id,
+		purpose,
+	); err != nil {
+		err = fmt.Errorf("error deleting token [%v, %v]: %w", user.Id, purpose, err)
+	}
+
+	return err
+}

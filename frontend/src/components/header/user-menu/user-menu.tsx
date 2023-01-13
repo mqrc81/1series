@@ -6,7 +6,7 @@ import { useAuthStore } from '../../../stores';
 import { useSignUserOutMutation } from '../../../api';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { HeaderUserMenuAuthModal } from './auth-modal/auth-modal';
+import { AuthModal } from '../../auth-modal/auth-modal';
 import { useToast } from '../../../hooks';
 
 export const HeaderUserMenu: React.FC = () => {
@@ -21,7 +21,7 @@ export const HeaderUserMenu: React.FC = () => {
         },
     });
 
-    const [loginModalOpened, {open: openLoginModal, close: closeLoginModal}] = useDisclosure(false);
+    const [authModalOpened, {open: openAuthModal, close: closeAuthModal}] = useDisclosure(false);
 
     const navigate = useNavigate();
 
@@ -40,7 +40,7 @@ export const HeaderUserMenu: React.FC = () => {
                     ) : (
                         <Menu.Item
                             icon={<FontAwesomeIcon icon={faArrowRightToBracket} />}
-                            onClick={openLoginModal}
+                            onClick={openAuthModal}
                         >Login</Menu.Item>
                     )}
                     <Menu.Item
@@ -54,7 +54,11 @@ export const HeaderUserMenu: React.FC = () => {
                     >Preferences</Menu.Item>
                 </Menu.Dropdown>
             </Menu>
-            <HeaderUserMenuAuthModal opened={loginModalOpened} onClose={closeLoginModal} />
+            <AuthModal
+                opened={authModalOpened}
+                onClose={closeAuthModal}
+                initialForm="Login"
+            />
         </>
     );
 };

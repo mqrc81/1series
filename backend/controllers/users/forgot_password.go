@@ -37,6 +37,9 @@ func (c *usersController) ForgotPassword(ctx echo.Context) (err error) {
 	}
 
 	token := generateToken(resetPasswordTokenLength)
+	if err = c.tokensRepository.DeleteByUserAndPurpose(user, domain.ResetPassword); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	if err = c.tokensRepository.Save(domain.Token{
 		TokenId:   token,
 		UserId:    user.Id,

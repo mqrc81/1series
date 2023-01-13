@@ -8,32 +8,39 @@ const PopularShows = lazy(() => import('../pages/popular-shows/popular-shows'));
 const UpcomingReleases = lazy(() => import('../pages/upcoming-releases/upcoming-releases'));
 const ShowDetails = lazy(() => import('../pages/show-details/show-details'));
 const ShowsSearch = lazy(() => import('../pages/shows-search/shows-search'));
+const PasswordReset = lazy(() => import('../pages/password-reset/password-reset'));
 
 export const Router = createBrowserRouter([
     {
         path: '/',
-        element: <App/>,
-        errorElement: <ErrorFallback/>,
+        element: <App />,
+        errorElement: <ErrorFallback />,
         children: [
             {
                 path: '/',
-                element: <Home/>,
+                element: <Home />,
             },
+            /* Shows */
             {
                 path: '/shows/popular',
-                element: <PopularShows/>,
+                element: <PopularShows />,
             },
             {
                 path: '/shows/releases',
-                element: <UpcomingReleases/>,
+                element: <UpcomingReleases />,
             },
             {
                 path: '/shows/:id',
-                element: <ShowDetails/>,
+                element: <ShowDetails />,
             },
             {
                 path: '/shows/search',
-                element: <ShowsSearch/>,
+                element: <ShowsSearch />,
+            },
+            /* Users */
+            {
+                path: '/users/resetPassword',
+                element: <PasswordReset />,
             },
         ],
     },

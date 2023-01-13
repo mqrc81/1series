@@ -80,7 +80,7 @@ func (r *usersRepository) Save(user domain.User) (err error) {
 func (r *usersRepository) Update(user domain.User) (err error) {
 
 	if _, err = r.Exec(
-		`UPDATE users u SET u.username = $1, u.email = $2, u.password = $3, u.notify_releases = $4, u.notify_recommendations = $5 WHERE u.id = $6`,
+		`UPDATE users SET username = $1, email = $2, password = $3, notify_releases = $4, notify_recommendations = $5 WHERE id = $6`,
 		user.Username,
 		user.Email,
 		user.Password,

@@ -4,7 +4,7 @@ import { BackgroundImage, Card, Center, Loader } from '@mantine/core';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const ShowsSearch: React.FC = () => {
-    const [searchParams] = useSearchParams('');
+    const [searchParams] = useSearchParams({searchTerm: ''});
     const searchTerm = searchParams.get('searchTerm');
 
     const {
