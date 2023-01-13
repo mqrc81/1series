@@ -16,3 +16,7 @@ type Database struct {
 func (db *Database) Migrate() error {
 	return goose.Up(db.DB.DB, migrationsDirectory)
 }
+
+func (db *Database) Rollback() error {
+	return goose.Down(db.DB.DB, migrationsDirectory)
+}

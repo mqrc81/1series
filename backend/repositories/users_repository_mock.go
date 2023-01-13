@@ -44,3 +44,8 @@ func (mock *mockUsersRepository) Save(user domain.User) error {
 	// TODO implement me
 	panic("implement me")
 }
+
+func (mock *mockUsersRepository) Update(user domain.User) error {
+	// TODO implement me
+	panic("implement me")
+}

@@ -3,7 +3,7 @@ import { useToast } from '../../../../hooks';
 import { useAuthStore } from '../../../../stores';
 import { SignUserUpDto, useSignUserUpMutation } from '../../../../api';
 import { hasLength, isEmail, matches, useForm } from '@mantine/form';
-import { Box, Button, Group, PasswordInput, Stack, TextInput } from '@mantine/core';
+import { Box, Button, Group, PasswordInput, TextInput } from '@mantine/core';
 
 export const RegisterForm: React.FC<{ onSubmit: () => void, onSwitchToLogin: () => void }> = ({
                                                                                                   onSubmit,
@@ -35,6 +35,7 @@ export const RegisterForm: React.FC<{ onSubmit: () => void, onSwitchToLogin: () 
             password: hasLength({min: 3}, 'Password must consist of at least 3 characters'),
         },
         validateInputOnBlur: true,
+        clearInputErrorOnChange: true,
     });
 
     return (
@@ -58,18 +59,16 @@ export const RegisterForm: React.FC<{ onSubmit: () => void, onSwitchToLogin: () 
                 {...form.getInputProps('password')}
             />
 
-            <Group position="apart" className="mt-5">
-                <Stack spacing={2} align="start">
-                    <Button
-                        size="sm" classNames={{label: 'text-xs'}} variant="subtle" compact
-                        onClick={onSwitchToLogin}
-                    >I already have an account</Button>
-                </Stack>
+            <Group position="apart" className="mt-4 mb-2 -mx-1.5">
                 <Button
-                    type="submit" variant="filled" className="border-violet-600"
-                    loading={isLoading}
-                >Register</Button>
+                    size="sm" classNames={{label: 'text-xs font-medium'}} variant="subtle" compact
+                    onClick={onSwitchToLogin}
+                >I already have an account</Button>
             </Group>
+            <Button
+                type="submit" variant="filled" className="border-gray-800 hover:border-0 w-full"
+                loading={isLoading}
+            >Register</Button>
         </Box>
     );
 };

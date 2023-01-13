@@ -21,6 +21,10 @@ export type SignUserInDto = Pick<User, 'email' | 'password'>
 
 export type SignUserUpDto = Pick<User, 'username' | 'email' | 'password'>
 
+export type ForgotPasswordDto = Pick<User, 'email'>
+
+export type ResetPasswordDto = Pick<User, 'password'>
+
 export type TrackShowDto = {
     showId: number;
     rating?: number;

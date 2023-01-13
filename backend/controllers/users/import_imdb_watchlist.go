@@ -29,6 +29,12 @@ type exportedImdbWatchlistRow struct {
 	DateRated   time.Time `csv:"-"`
 }
 
+type failedImdbWatchlistImports struct {
+	ImdbId string
+	Title  string
+	Reason string
+}
+
 //goland:noinspection GoPreferNilSlice
 func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// Input

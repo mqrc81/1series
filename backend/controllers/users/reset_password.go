@@ -23,7 +23,7 @@ func (c *usersController) ResetPassword(ctx echo.Context) (err error) {
 	}
 
 	// Use-Case
-	token, err := c.tokensRepository.FindByToken(tokenParam)
+	token, err := c.tokensRepository.FindByTokenId(tokenParam)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
 	}

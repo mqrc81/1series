@@ -41,7 +41,7 @@ type TrackedShowsRepository interface {
 }
 
 type TokensRepository interface {
-	FindByToken(token string) (domain.Token, error)
+	FindByTokenId(tokenId string) (domain.Token, error)
 	Save(token domain.Token) error
 	Delete(token domain.Token) error
 }

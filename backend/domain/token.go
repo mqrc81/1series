@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Token struct {
-	Token     string       `db:"token"`
+	TokenId   string       `db:"token_id"`
 	UserId    int          `db:"user_id"`
 	Purpose   TokenPurpose `db:"purpose"`
 	ExpiresAt time.Time    `db:"expires_at"`

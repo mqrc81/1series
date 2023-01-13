@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '@mantine/core';
 import { RegisterForm } from './register-form';
 import { LoginForm } from './login-form';
-import { ResetPasswordForm } from './reset-password-form';
+import { ForgotPasswordForm } from './forgot-password-form';
 
 type Props = { opened: boolean, onClose: () => void }
 
@@ -31,10 +31,9 @@ export const HeaderUserMenuAuthModal: React.FC<Props> = ({opened, onClose}) => {
                 />
             )}
             {currentForm === 'Reset Password' && (
-                <ResetPasswordForm
+                <ForgotPasswordForm
                     onSubmit={() => {}}
                     onSwitchToLogin={() => setCurrentForm('Login')}
-                    onSwitchToRegister={() => setCurrentForm('Register')}
                 />
             )}
         </Modal>

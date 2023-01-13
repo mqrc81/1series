@@ -35,9 +35,9 @@ func (e PasswordResetEmail) content() *mail.Content {
 	params.Add("token", e.Token)
 	return &mail.Content{
 		Type: "text/plain",
-		Value: fmt.Sprintf("Hello %v, this text content is only a temporary until I (the developer) make it prettier.\n"+
+		Value: fmt.Sprintf("Hello %v,\n"+
 			"Use the following link to reset your password:\n"+
 			"%v",
-			e.Recipient.Username, env.Config().BackendUrl+"/api/users/resetPassword?"+params.Encode()),
+			e.Recipient.Username, env.Config().FrontendUrl+"/users/resetPassword?"+params.Encode()),
 	}
 }

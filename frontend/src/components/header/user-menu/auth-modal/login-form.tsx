@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Group, PasswordInput, Stack, TextInput } from '@mantine/core';
+import { Box, Button, Group, PasswordInput, TextInput } from '@mantine/core';
 import { useToast } from '../../../../hooks';
 import { useAuthStore } from '../../../../stores';
 import { SignUserInDto, useSignUserInMutation } from '../../../../api';
@@ -36,6 +36,7 @@ export const LoginForm: React.FC<Props> = ({onSubmit, onSwitchToRegister, onSwit
             password: hasLength({min: 3}, 'Password must consist of at least 3 characters'),
         },
         validateInputOnBlur: true,
+        clearInputErrorOnChange: true,
     });
 
     return (
@@ -54,22 +55,20 @@ export const LoginForm: React.FC<Props> = ({onSubmit, onSwitchToRegister, onSwit
                 {...form.getInputProps('password')}
             />
 
-            <Group position="apart" className="mt-5">
-                <Stack spacing={2} align="start">
-                    <Button
-                        size="sm" classNames={{label: 'text-xs'}} variant="subtle" compact
-                        onClick={onSwitchToRegister}
-                    >Create an account</Button>
-                    <Button
-                        size="sm" classNames={{label: 'text-xs'}} variant="subtle" compact
-                        onClick={onSwitchToResetPassword}
-                    >Forgot password</Button>
-                </Stack>
+            <Group position="apart" className="mt-4 mb-2 -mx-1.5">
                 <Button
-                    type="submit" variant="filled" className="border-violet-600"
-                    loading={isLoading}
-                >Log In</Button>
+                    size="sm" classNames={{label: 'text-xs font-medium'}} variant="subtle" compact
+                    onClick={onSwitchToRegister}
+                >Create an account</Button>
+                <Button
+                    size="sm" classNames={{label: 'text-xs font-medium'}} variant="subtle" compact
+                    onClick={onSwitchToResetPassword}
+                >Forgot password</Button>
             </Group>
+            <Button
+                type="submit" variant="filled" className="border-gray-800 hover:border-0 w-full"
+                loading={isLoading}
+            >Log In</Button>
         </Box>
     );
 };
