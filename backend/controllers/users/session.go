@@ -5,37 +5,56 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
+	"net/http"
 )
 
 const (
-	SessionKey       = "session"
-	SessionUserIdKey = "userId"
-	SessionUserKey   = "user"
+	SessionKey                   = "session"
+	SessionUserIdKey             = "userId"
+	ContextUserKey               = "user"
+	RememberLoginTokenCookieName = "remember_login"
 )
 
-func GetUserFromSession(ctx echo.Context) (domain.User, error) {
-	user, ok := ctx.Get(SessionUserKey).(domain.User)
+func GetAuthenticatedUser(ctx echo.Context) (domain.User, error) {
+	user, ok := ctx.Get(ContextUserKey).(domain.User)
 	if !ok {
 		return domain.User{}, errors.New("no user in session")
 	}
 	return user, nil
 }
 
-func AddUserToSession(ctx echo.Context, user domain.User) error {
+func (c *usersController) authenticateUser(ctx echo.Context, user domain.User) error {
 	sess, err := session.Get(SessionKey, ctx)
 	if err == nil {
 		sess.Values[SessionUserIdKey] = user.Id
 		err = sess.Save(ctx.Request(), ctx.Response())
 	}
+	ctx.Set(ContextUserKey, user)
+
+	rememberLoginToken := domain.CreateToken(domain.RememberLogin, user.Id)
+	if err = c.tokensRepository.SaveOrReplace(rememberLoginToken); err != nil {
+		return err
+	}
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     RememberLoginTokenCookieName,
+		Value:    rememberLoginToken.Id,
+		Expires:  rememberLoginToken.ExpiresAt,
+		SameSite: http.SameSiteDefaultMode,
+	})
+
 	return err
 }
 
-func RemoveUserFromSession(ctx echo.Context) error {
+func (c *usersController) unauthenticateUser(ctx echo.Context) error {
+	if user, err := GetAuthenticatedUser(ctx); err == nil {
+		return c.tokensRepository.DeleteByUserIdAndPurpose(user.Id, domain.RememberLogin)
+	}
 	sess, err := session.Get(SessionKey, ctx)
 	if err == nil {
 		delete(sess.Values, SessionUserIdKey)
-		delete(sess.Values, SessionUserKey)
 		err = sess.Save(ctx.Request(), ctx.Response())
 	}
+	ctx.Set(ContextUserKey, nil)
 	return err
 }

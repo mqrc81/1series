@@ -24,7 +24,8 @@ type Controller interface {
 
 type controller struct {
 	*echo.Echo
-	usersRepository repositories.UsersRepository
+	usersRepository  repositories.UsersRepository
+	tokensRepository repositories.TokensRepository
 }
 
 func NewController(
@@ -44,7 +45,7 @@ func NewController(
 
 	validate := validator.New()
 
-	c := newController(usersRepository)
+	c := newController(usersRepository, tokensRepository)
 	adminController := admin.NewController(scheduler)
 	usersController := users.NewController(usersRepository, trackedShowsRepository, tokensRepository, tmdbClient, emailClient, validate)
 	showsController := shows.NewController(usersRepository, releasesRepository, genresRepository, networksRepository, traktClient, tmdbClient)
@@ -52,6 +53,7 @@ func NewController(
 	baseRouter := c.Group("/api")
 	{
 		baseRouter.GET("/ping", c.Ping)
+		baseRouter.GET("/init", c.Init)
 	}
 
 	adminRouter := baseRouter.Group("/admin")
@@ -92,13 +94,24 @@ func NewController(
 	return c, nil
 }
 
-func newController(usersRepository repositories.UsersRepository) controller {
+func newController(
+	usersRepository repositories.UsersRepository,
+	tokensRepository repositories.TokensRepository,
+) controller {
 	echoEngine := echo.New()
 	echoEngine.Logger.SetOutput(io.Discard)
 	echoEngine.HideBanner = true
-	return controller{echoEngine, usersRepository}
+	return controller{echoEngine, usersRepository, tokensRepository}
 }
 
 func (c *controller) Ping(ctx echo.Context) error {
 	return ctx.String(http.StatusOK, "Pong!")
+}
+
+func (c *controller) Init(ctx echo.Context) error {
+	if user, err := users.GetAuthenticatedUser(ctx); err != nil {
+		return ctx.NoContent(http.StatusOK)
+	} else {
+		return ctx.JSON(http.StatusOK, user)
+	}
 }

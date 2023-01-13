@@ -11,7 +11,7 @@ import (
 
 type PasswordResetEmail struct {
 	Recipient domain.User
-	Token     string
+	Token     domain.Token
 }
 
 func (e PasswordResetEmail) create(sender *mail.Email) *mail.SGMailV3 {
@@ -32,7 +32,7 @@ func (e PasswordResetEmail) recipient() *mail.Email {
 
 func (e PasswordResetEmail) content() *mail.Content {
 	params := url.Values{}
-	params.Add("token", e.Token)
+	params.Add("token", e.Token.Id)
 	return &mail.Content{
 		Type: "text/plain",
 		Value: fmt.Sprintf("Hello %v,\n"+

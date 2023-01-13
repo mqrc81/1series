@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/controllers/users"
+	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/logger"
 	"net/http"
 	"time"
@@ -63,15 +64,43 @@ func (c *controller) withUser() echo.MiddlewareFunc {
 
 			userId, ok := sess.Values[users.SessionUserIdKey].(int)
 			if !ok {
-				return next(ctx)
+				cookie, err := ctx.Cookie(users.RememberLoginTokenCookieName)
+				if err != nil {
+					return next(ctx)
+				}
+
+				token, err := c.tokensRepository.Find(cookie.Value)
+				if err != nil || token.IsExpired() {
+					cookie.Expires = time.Now()
+					ctx.SetCookie(cookie)
+					return next(ctx)
+				}
+
+				userId = token.UserId
+
+				newToken := domain.CreateToken(domain.RememberLogin, userId)
+				if err = c.tokensRepository.SaveOrReplace(newToken); err != nil {
+					cookie.Expires = time.Now()
+					ctx.SetCookie(cookie)
+					return next(ctx)
+				}
+
+				ctx.SetCookie(&http.Cookie{
+					Name:     users.RememberLoginTokenCookieName,
+					Value:    newToken.Id,
+					Expires:  newToken.ExpiresAt,
+					SameSite: http.SameSiteDefaultMode,
+				})
 			}
 
 			user, err := c.usersRepository.Find(userId)
 			if err != nil {
+				delete(sess.Values, users.SessionUserIdKey)
+				_ = sess.Save(ctx.Request(), ctx.Response())
 				return next(ctx)
 			}
 
-			ctx.Set(users.SessionUserKey, user)
+			ctx.Set(users.ContextUserKey, user)
 			return next(ctx)
 		}
 	}

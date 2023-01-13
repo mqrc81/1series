@@ -10,11 +10,11 @@ type tokensRepository struct {
 	*sql.Database
 }
 
-func (r *tokensRepository) FindByTokenId(tokenId string) (token domain.Token, err error) {
+func (r *tokensRepository) Find(tokenId string) (token domain.Token, err error) {
 
 	if err = r.Get(
 		&token,
-		`SELECT t.token_id, t.user_id, t.purpose, t.expires_at FROM tokens t WHERE t.token_id = $1`,
+		`SELECT t.id, t.user_id, t.purpose, t.expires_at FROM tokens t WHERE t.id = $1`,
 		tokenId,
 	); err != nil {
 		err = fmt.Errorf("error finding token [%v]: %w", tokenId, err)
@@ -23,11 +23,15 @@ func (r *tokensRepository) FindByTokenId(tokenId string) (token domain.Token, er
 	return token, err
 }
 
-func (r *tokensRepository) Save(token domain.Token) (err error) {
+func (r *tokensRepository) SaveOrReplace(token domain.Token) (err error) {
+
+	if err = r.DeleteByUserIdAndPurpose(token.UserId, token.Purpose); err != nil {
+		return err
+	}
 
 	if _, err = r.Exec(
-		`INSERT INTO tokens(token_id, user_id, purpose, expires_at) VALUES ($1, $2, $3, $4)`,
-		token.TokenId,
+		`INSERT INTO tokens(id, user_id, purpose, expires_at) VALUES ($1, $2, $3, $4);`,
+		token.Id,
 		token.UserId,
 		token.Purpose,
 		token.ExpiresAt,
@@ -41,8 +45,8 @@ func (r *tokensRepository) Save(token domain.Token) (err error) {
 func (r *tokensRepository) Delete(token domain.Token) (err error) {
 
 	if _, err = r.Exec(
-		`DELETE FROM tokens t WHERE t.token_id = $1`,
-		token.TokenId,
+		`DELETE FROM tokens t WHERE t.id = $1`,
+		token.Id,
 	); err != nil {
 		err = fmt.Errorf("error deleting token [%v]: %w", token, err)
 	}
@@ -50,14 +54,14 @@ func (r *tokensRepository) Delete(token domain.Token) (err error) {
 	return err
 }
 
-func (r *tokensRepository) DeleteByUserAndPurpose(user domain.User, purpose domain.TokenPurpose) (err error) {
+func (r *tokensRepository) DeleteByUserIdAndPurpose(userId int, purpose domain.TokenPurpose) (err error) {
 
 	if _, err = r.Exec(
 		`DELETE FROM tokens t WHERE t.user_id = $1 AND t.purpose = $2`,
-		user.Id,
+		userId,
 		purpose,
 	); err != nil {
-		err = fmt.Errorf("error deleting token [%v, %v]: %w", user.Id, purpose, err)
+		err = fmt.Errorf("error deleting token [%v, %v]: %w", userId, purpose, err)
 	}
 
 	return err

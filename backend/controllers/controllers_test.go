@@ -16,7 +16,7 @@ func TestPing(t *testing.T) {
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(req, rec)
 	ctx.SetPath("/api/ping")
-	c := &controller{e, repositories.MockUsersRepository()}
+	c := &controller{e, repositories.MockUsersRepository(), repositories.MockTokensRepository()}
 
 	// Assertions
 	if assert.NoError(t, c.Ping(ctx)) {

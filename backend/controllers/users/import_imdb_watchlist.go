@@ -38,7 +38,7 @@ type failedImdbWatchlistImports struct {
 //goland:noinspection GoPreferNilSlice
 func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// Input
-	user, err := GetUserFromSession(ctx)
+	user, err := GetAuthenticatedUser(ctx)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
 	}

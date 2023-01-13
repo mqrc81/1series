@@ -53,7 +53,7 @@ func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
-	if err = AddUserToSession(ctx, user); err != nil {
+	if err = c.authenticateUser(ctx, user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

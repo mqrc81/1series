@@ -1,10 +1,9 @@
 package users
 
 import (
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-
-	"github.com/labstack/echo/v4"
 )
 
 type signInForm struct {
@@ -31,7 +30,7 @@ func (c *usersController) SignUserIn(ctx echo.Context) (err error) {
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid password")
 	}
-	if err = AddUserToSession(ctx, user); err != nil {
+	if err = c.authenticateUser(ctx, user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

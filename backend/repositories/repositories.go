@@ -41,10 +41,10 @@ type TrackedShowsRepository interface {
 }
 
 type TokensRepository interface {
-	FindByTokenId(tokenId string) (domain.Token, error)
-	Save(token domain.Token) error
+	Find(tokenId string) (domain.Token, error)
+	SaveOrReplace(token domain.Token) error
 	Delete(token domain.Token) error
-	DeleteByUserAndPurpose(user domain.User, purpose domain.TokenPurpose) error
+	DeleteByUserIdAndPurpose(userId int, purpose domain.TokenPurpose) error
 }
 
 func NewUsersRepository(database *sql.Database) UsersRepository {

@@ -11,7 +11,7 @@ func (c *usersController) SignUserOut(ctx echo.Context) (err error) {
 	// -
 
 	// Use-Case
-	if err = RemoveUserFromSession(ctx); err != nil {
+	if err = c.unauthenticateUser(ctx); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

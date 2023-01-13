@@ -1,11 +1,9 @@
 package users
 
 import (
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"time"
-
-	"github.com/labstack/echo/v4"
 )
 
 type resetPasswordForm struct {
@@ -24,11 +22,11 @@ func (c *usersController) ResetPassword(ctx echo.Context) (err error) {
 	}
 
 	// Use-Case
-	token, err := c.tokensRepository.FindByTokenId(tokenParam)
+	token, err := c.tokensRepository.Find(tokenParam)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
 	}
-	if token.ExpiresAt.Before(time.Now()) {
+	if token.IsExpired() {
 		return echo.NewHTTPError(http.StatusBadRequest, "token expired")
 	}
 

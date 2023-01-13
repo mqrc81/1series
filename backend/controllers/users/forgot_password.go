@@ -1,19 +1,10 @@
 package users
 
 import (
-	"crypto/rand"
-	"encoding/hex"
+	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/email"
 	"net/http"
-	"time"
-
-	"github.com/labstack/echo/v4"
-)
-
-const (
-	resetPasswordExpiration  = 1 * time.Hour
-	resetPasswordTokenLength = 32
 )
 
 type forgotPasswordForm struct {
@@ -36,16 +27,8 @@ func (c *usersController) ForgotPassword(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, "unknown email")
 	}
 
-	token := generateToken(resetPasswordTokenLength)
-	if err = c.tokensRepository.DeleteByUserAndPurpose(user, domain.ResetPassword); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	if err = c.tokensRepository.Save(domain.Token{
-		TokenId:   token,
-		UserId:    user.Id,
-		Purpose:   domain.ResetPassword,
-		ExpiresAt: time.Now().Add(resetPasswordExpiration),
-	}); err != nil {
+	token := domain.CreateToken(domain.ResetPassword, user.Id)
+	if err = c.tokensRepository.SaveOrReplace(token); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -58,12 +41,4 @@ func (c *usersController) ForgotPassword(ctx echo.Context) (err error) {
 
 	// Output
 	return ctx.NoContent(http.StatusOK)
-}
-
-func generateToken(length int) string {
-	b := make([]byte, length/2)
-	if _, err := rand.Read(b); err != nil {
-		return ""
-	}
-	return hex.EncodeToString(b)
 }
