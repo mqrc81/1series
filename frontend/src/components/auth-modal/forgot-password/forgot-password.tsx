@@ -10,7 +10,7 @@ type Props = {
 }
 
 export const AuthModalForgotPassword: React.FC<Props> = ({onSubmit, onSwitchToLogin}) => {
-    const {successToast, errorToast} = useToast();
+    const {successToast} = useToast();
     const {
         mutate: requestPasswordReset,
         isLoading,
@@ -19,7 +19,6 @@ export const AuthModalForgotPassword: React.FC<Props> = ({onSubmit, onSwitchToLo
             successToast('A link to reset your password has been sent to the email!');
             onSubmit();
         },
-        onError: () => errorToast('A user with this email doesn\'t exist!'),
     });
 
     const form = useForm<ForgotPasswordDto>({

@@ -1,22 +1,19 @@
 import React from 'react';
 import { useGetUpcomingReleasesQuery } from '../../api';
-import { useGenresFilter, useToast } from '../../hooks';
+import { useGenresFilter } from '../../hooks';
 import { CardSkeleton, ReleaseCard, ShowFilters } from '../../components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Button, Loader } from '@mantine/core';
 import { useForceUpdate } from '@mantine/hooks';
 
 const UpcomingReleases: React.FC = () => {
-    const {errorToast} = useToast();
     const forceUpdate = useForceUpdate();
     const {
         data: releasesData,
         isSuccess, isLoading,
         fetchNextPage, hasNextPage,
         fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage,
-    } = useGetUpcomingReleasesQuery({
-        onError: () => errorToast('Error fetching upcoming releases...'),
-    });
+    } = useGetUpcomingReleasesQuery();
     const {isGenreFiltered, isGenreFilterActive} = useGenresFilter();
 
     return (

@@ -1,7 +1,9 @@
 package shows
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 )
 
@@ -9,13 +11,13 @@ func (c *showsController) SearchShows(ctx echo.Context) error {
 	// Input
 	searchTerm := ctx.QueryParam("searchTerm")
 	if searchTerm == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid search-term")
+		return errors.MissingParameter("search-term")
 	}
 
 	// Use-Case
 	tmdbShows, err := c.tmdbClient.GetSearchTVShow(searchTerm, map[string]string{"language": "en-US"})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusConflict, "error searching tmdb shows: "+err.Error())
+		return errors.Internal(fmt.Errorf("error searching tmdb shows: %w", err))
 	}
 
 	// Output

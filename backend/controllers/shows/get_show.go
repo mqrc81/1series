@@ -1,6 +1,7 @@
 package shows
 
 import (
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 	"strconv"
 
@@ -11,13 +12,13 @@ func (c *showsController) GetShow(ctx echo.Context) error {
 	// Input
 	showId, err := strconv.Atoi(ctx.Param("showId"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid show-id")
+		return errors.MissingParameter("show-id")
 	}
 
 	// Use-Case
 	tmdbShow, err := c.tmdbClient.GetTVDetails(showId, nil)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return errors.FromTmdb(err, "show", errors.Params{"id": showId})
 	}
 
 	// Output

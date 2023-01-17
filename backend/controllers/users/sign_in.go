@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
@@ -15,23 +16,23 @@ func (c *usersController) SignUserIn(ctx echo.Context) (err error) {
 	// Input
 	form := new(signInForm)
 	if err = ctx.Bind(form); err != nil {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return errors.Internal(err)
 	}
 	if err = c.validate.Struct(form); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
+		return errors.FromValidation(err)
 	}
 
 	// Use-Case
 	user, err := c.usersRepository.FindByEmail(form.Email)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid email")
+		return errors.FromDatabase(err, "user", errors.Params{"email": form.Email})
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid password")
+		return errors.InvalidBody("Invalid credentials.")
 	}
 	if err = c.authenticateUser(ctx, user); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return errors.Internal(err)
 	}
 
 	// Output

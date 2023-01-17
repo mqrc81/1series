@@ -1,6 +1,7 @@
 package users
 
 import (
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +13,7 @@ func (c *usersController) SignUserOut(ctx echo.Context) (err error) {
 
 	// Use-Case
 	if err = c.unauthenticateUser(ctx); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return errors.Internal(err)
 	}
 
 	// Output

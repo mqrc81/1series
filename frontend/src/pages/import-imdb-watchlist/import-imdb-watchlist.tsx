@@ -1,5 +1,5 @@
 import React from 'react';
-import { useToast } from '../../hooks/use-toast/use-toast';
+import { useToast } from '../../hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useImportImdbWatchlistMutation } from '../../api';
 import { Group } from '@mantine/core';
@@ -18,7 +18,6 @@ const ImportImdbWatchlist: React.FC = () => {
         isSuccess, isLoading,
     } = useImportImdbWatchlistMutation({
         onSuccess: (failedImports) => successToast('Successfully added your IMDb watchlist to tracked shows (' + (failedImports.length) + ' failed)'),
-        onError: () => errorToast('Error importing IMDb watchlist...'),
     });
 
     return (
@@ -29,10 +28,7 @@ const ImportImdbWatchlist: React.FC = () => {
                 maxSize={ONE_MEGABYTE}
                 disabled={isLoading}
                 onDrop={(files) => uploadFile(files[0])}
-                onReject={(fileRejections) => {
-                    console.info(fileRejections);
-                    errorToast('Please select a valid .csv file');
-                }}
+                onReject={() => errorToast('Please select a valid .csv file')}
             >
                 <Group position="center" spacing="xl" className="h-52">
                     <Dropzone.Accept>

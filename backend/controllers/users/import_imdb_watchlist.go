@@ -1,8 +1,10 @@
 package users
 
 import (
+	"fmt"
 	"github.com/gocarina/gocsv"
 	"github.com/labstack/echo/v4"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/logger"
 	"net/http"
@@ -40,13 +42,13 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// Input
 	user, err := GetAuthenticatedUser(ctx)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, "no user is logged in")
+		return errors.Internal(err)
 	}
 
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
 	reader := gocsv.DefaultCSVReader(ctx.Request().Body)
 	if err = gocsv.UnmarshalCSV(reader, &exportedImdbWatchlist); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "unable to parse imdb watchlist file: "+err.Error())
+		return errors.InvalidBody("Invalid WATCHLIST.csv file.")
 	}
 
 	// Use-Case
@@ -57,7 +59,7 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 		}
 		results, err := c.tmdbClient.GetFindByID(row.Const, map[string]string{"external_source": "imdb_id"})
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "unable to find tmdb show by imdb id")
+			return errors.Internal(fmt.Errorf("error fetching tmdb-show by imdb-id %v: %w", row.Const, err))
 		}
 		if len(results.TvResults) == 1 {
 			if err = c.trackedShowsRepository.Save(domain.TrackedShow{
@@ -65,7 +67,7 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 				ShowId: int(results.TvResults[0].ID),
 				Rating: row.YourRating,
 			}); err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+				return errors.FromDatabase(err, "tracked-shows", nil)
 			}
 		} else if len(results.TvResults) < 1 {
 			logger.Warning("No tmdb shows found for imdb id %v", row.Const)

@@ -1,6 +1,8 @@
 package users
 
 import (
+	"fmt"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -18,23 +20,23 @@ func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 	// Input
 	form := new(signUpForm)
 	if err = ctx.Bind(form); err != nil {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return errors.Internal(err)
 	}
 	if err = c.validate.Struct(form); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
+		return errors.FromValidation(err)
 	}
 
 	// Use-Case
 	if _, err = c.usersRepository.FindByUsername(form.Username); err == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "username is already taken")
+		return errors.InvalidBody("Username is already taken.")
 	}
 	if _, err = c.usersRepository.FindByEmail(form.Email); err == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "email is already taken")
+		return errors.InvalidBody("Email is already taken.")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusConflict, "error hashing password: "+err.Error())
+		return errors.Internal(fmt.Errorf("error hashing password: %w", err))
 	}
 
 	if err = c.usersRepository.Save(domain.User{
@@ -46,15 +48,15 @@ func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 			Recommendations: true,
 		},
 	}); err != nil {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return errors.FromDatabase(err, "user", nil)
 	}
 
 	user, err := c.usersRepository.FindByUsername(form.Username)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return errors.Internal(err)
 	}
 	if err = c.authenticateUser(ctx, user); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return errors.Internal(err)
 	}
 
 	// Output

@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const AuthModalRegister: React.FC<Props> = ({onSubmit, onSwitchToLogin}) => {
-    const {successToast, errorToast} = useToast();
+    const {successToast} = useToast();
     const {login} = useAuthStore();
     const {
         mutate: signUp,
@@ -22,7 +22,6 @@ export const AuthModalRegister: React.FC<Props> = ({onSubmit, onSwitchToLogin}) 
             successToast('Successfully registered!');
             onSubmit();
         },
-        onError: () => errorToast('Invalid credentials!'),
     });
 
     const form = useForm<SignUserUpDto>({

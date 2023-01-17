@@ -1,20 +1,17 @@
 import React from 'react';
 import { useGetPopularShowsQuery } from '../../api';
-import { useGenresFilter, useToast } from '../../hooks';
+import { useGenresFilter } from '../../hooks';
 import { CardSkeleton, ShowCard, ShowFilters } from '../../components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Loader } from '@mantine/core';
 import { useForceUpdate } from '@mantine/hooks';
 
 const PopularShows: React.FC = () => {
-    const {errorToast} = useToast();
     const forceUpdate = useForceUpdate();
     const {
         data: showsData,
         fetchNextPage, hasNextPage,
-    } = useGetPopularShowsQuery({
-        onError: () => errorToast('Error fetching popular shows...'),
-    });
+    } = useGetPopularShowsQuery();
     const {isGenreFiltered, isGenreFilterActive} = useGenresFilter();
 
     return (

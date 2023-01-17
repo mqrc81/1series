@@ -1,6 +1,7 @@
 package shows
 
 import (
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 	"strconv"
 
@@ -13,27 +14,27 @@ func (c *showsController) GetUpcomingReleases(ctx echo.Context) error {
 	// Input
 	page, _ := strconv.Atoi(ctx.QueryParam("page"))
 	if page == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "parameter page must be positive or negative")
+		return errors.MissingParameter("page")
 	}
 
 	// Use-Case
 	pastReleases, err := c.releasesRepository.CountPastReleases()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return errors.Internal(err)
 	}
 
 	amount, offset, possiblyHasMore := calculateRange(page, pastReleases)
 
 	releasesRef, err := c.releasesRepository.FindAllInRange(amount, offset)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
+		return errors.FromDatabase(err, "releases", nil)
 	}
 
 	releases := []domain.Release{}
 	for _, releaseRef := range releasesRef {
 		tmdbRelease, err := c.tmdbClient.GetTVDetails(releaseRef.ShowId, map[string]string{"append_to_response": "translations"})
 		if err != nil {
-			return echo.NewHTTPError(http.StatusConflict, err.Error())
+			return errors.FromTmdb(err, "show", errors.Params{"id": releaseRef.ShowId})
 		}
 
 		releases = append(

@@ -10,7 +10,7 @@ type Props = {
 }
 
 export const AuthModalResetPassword: React.FC<Props> = ({onSubmit}) => {
-    const {successToast, errorToast} = useToast();
+    const {successToast} = useToast();
     const {
         mutate: resetPassword,
         isLoading,
@@ -19,7 +19,6 @@ export const AuthModalResetPassword: React.FC<Props> = ({onSubmit}) => {
             successToast('Your password has been reset! Please log in.');
             onSubmit();
         },
-        onError: () => errorToast('Your link has expired!'),
         onSettled: () => searchParams.delete('token'),
     });
 

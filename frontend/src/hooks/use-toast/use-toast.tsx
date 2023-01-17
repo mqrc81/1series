@@ -15,18 +15,21 @@ export const useToast = (): {
 } => {
 
     const toast = useCallback((icon: IconProp, color: MantineColor): ToastCallback => {
-        return (message: string, title?: string) => showNotification({
-            title,
-            message,
-            icon: <FontAwesomeIcon icon={icon} />,
-            color: color,
-            classNames: {
-                root: 'bg-white',
-                description: 'text-dark-600',
-                title: 'text-dark-800',
-                closeButton: 'text-dark-600 hover:bg-gray-300',
-            },
-        });
+        return (message, title?: string) => {
+            if (!message) return;
+            showNotification({
+                title,
+                message,
+                icon: <FontAwesomeIcon icon={icon} />,
+                color: color,
+                classNames: {
+                    root: 'bg-white',
+                    description: 'text-dark-600',
+                    title: 'text-dark-800',
+                    closeButton: 'text-dark-600 hover:bg-gray-300',
+                },
+            });
+        };
     }, []);
 
     return {

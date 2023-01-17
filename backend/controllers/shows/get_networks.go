@@ -2,6 +2,7 @@ package shows
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 )
 
@@ -12,7 +13,7 @@ func (c *showsController) GetNetworks(ctx echo.Context) error {
 	// Use-Case
 	networks, err := c.networksRepository.FindAll()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return errors.FromDatabase(err, "genres", nil)
 	}
 
 	// Output

@@ -1,7 +1,9 @@
 package shows
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/logger"
 	"net/http"
@@ -24,7 +26,7 @@ func (c *showsController) GetPopularShows(ctx echo.Context) error {
 	// Use-Case
 	traktShows, err := c.traktClient.GetShowsWatchedWeekly(page, popularShowsPerRequest)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "error fetching trakt shows watched weekly: "+err.Error())
+		return errors.Internal(fmt.Errorf("error fetching trakt shows watched weekly: %w", err))
 	}
 
 	shows := []domain.Show{}
@@ -35,7 +37,7 @@ func (c *showsController) GetPopularShows(ctx echo.Context) error {
 		}
 		tmdbShow, err := c.tmdbClient.GetTVDetails(traktShow.TmdbId(), nil)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "error fetching tmdb show: "+err.Error())
+			return errors.FromTmdb(err, "show", errors.Params{"id": traktShow.TmdbId()})
 		}
 
 		shows = append(shows, ShowFromTmdbShow(tmdbShow))

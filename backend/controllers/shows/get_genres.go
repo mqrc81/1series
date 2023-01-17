@@ -2,6 +2,7 @@ package shows
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"net/http"
 )
 
@@ -12,7 +13,7 @@ func (c *showsController) GetGenres(ctx echo.Context) error {
 	// Use-Case
 	genres, err := c.genresRepository.FindAll()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return errors.FromDatabase(err, "genres", nil)
 	}
 
 	// Output
