@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/env"
 	"net/http"
 )
 
@@ -21,6 +22,15 @@ func GetAuthenticatedUser(ctx echo.Context) (domain.User, error) {
 		return domain.User{}, errors.New("no user in session")
 	}
 	return user, nil
+}
+
+func IsAdmin(user domain.User) bool {
+	for _, admin := range env.Config().Admins {
+		if user.Username == admin {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *usersController) authenticateUser(ctx echo.Context, user domain.User) error {

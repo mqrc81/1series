@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/mqrc81/zeries/controllers/errors"
 	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/domain"
 	"github.com/mqrc81/zeries/logger"
@@ -101,6 +102,17 @@ func (c *controller) withUser() echo.MiddlewareFunc {
 			}
 
 			ctx.Set(users.ContextUserKey, user)
+			return next(ctx)
+		}
+	}
+}
+
+func (c *controller) adminOnly() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			if user, err := users.GetAuthenticatedUser(ctx); err != nil || !users.IsAdmin(user) {
+				return errors.AdminOnly()
+			}
 			return next(ctx)
 		}
 	}

@@ -42,13 +42,13 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	// Input
 	user, err := GetAuthenticatedUser(ctx)
 	if err != nil {
-		return errors.Internal(err)
+		return errors.Unauthorized()
 	}
 
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
 	reader := gocsv.DefaultCSVReader(ctx.Request().Body)
 	if err = gocsv.UnmarshalCSV(reader, &exportedImdbWatchlist); err != nil {
-		return errors.InvalidBody("Invalid WATCHLIST.csv file.")
+		return errors.InvalidParam("Invalid WATCHLIST.csv file.")
 	}
 
 	// Use-Case

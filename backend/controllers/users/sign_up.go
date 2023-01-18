@@ -28,10 +28,10 @@ func (c *usersController) SignUserUp(ctx echo.Context) (err error) {
 
 	// Use-Case
 	if _, err = c.usersRepository.FindByUsername(form.Username); err == nil {
-		return errors.InvalidBody("Username is already taken.")
+		return errors.InvalidParam("Username is already taken.")
 	}
 	if _, err = c.usersRepository.FindByEmail(form.Email); err == nil {
-		return errors.InvalidBody("Email is already taken.")
+		return errors.InvalidParam("Email is already taken.")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)

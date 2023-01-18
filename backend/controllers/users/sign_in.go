@@ -29,7 +29,7 @@ func (c *usersController) SignUserIn(ctx echo.Context) (err error) {
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
-		return errors.InvalidBody("Invalid credentials.")
+		return errors.InvalidParam("Invalid credentials.")
 	}
 	if err = c.authenticateUser(ctx, user); err != nil {
 		return errors.Internal(err)

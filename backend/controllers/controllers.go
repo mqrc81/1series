@@ -46,6 +46,16 @@ func NewController(
 	validate := validator.New()
 
 	c := newController(usersRepository, tokensRepository)
+	c.Use(
+		middleware.RequestID(),
+		middleware.Recover(),
+		c.logger(),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: []string{env.Config().FrontendUrl}, AllowCredentials: true}),
+		middleware.CSRFWithConfig(middleware.CSRFConfig{TokenLookup: "token:_csrf"}),
+		c.session(),
+		c.withUser(),
+	)
+
 	adminController := admin.NewController(scheduler)
 	usersController := users.NewController(usersRepository, trackedShowsRepository, tokensRepository, tmdbClient, emailClient, validate)
 	showsController := shows.NewController(usersRepository, releasesRepository, genresRepository, networksRepository, traktClient, tmdbClient)
@@ -56,7 +66,7 @@ func NewController(
 		baseRouter.GET("/init", c.Init)
 	}
 
-	adminRouter := baseRouter.Group("/admin")
+	adminRouter := baseRouter.Group("/admin", c.adminOnly())
 	{
 		adminRouter.GET("/triggerJobs", adminController.TriggerJobs)
 	}
@@ -80,16 +90,6 @@ func NewController(
 		usersRouter.POST("/resetPassword", usersController.ResetPassword)
 		usersRouter.POST("/importImdbWatchlist", usersController.ImportImdbWatchlist)
 	}
-
-	c.Use(
-		middleware.RequestID(),
-		middleware.Recover(),
-		c.logger(),
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: []string{env.Config().FrontendUrl}, AllowCredentials: true}),
-		middleware.CSRFWithConfig(middleware.CSRFConfig{TokenLookup: "token:_csrf"}),
-		c.session(),
-		c.withUser(),
-	)
 
 	return c, nil
 }
