@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/env"
+	"github.com/mqrc81/1series/domain"
+	"github.com/mqrc81/1series/env"
 	"net/http"
 )
 

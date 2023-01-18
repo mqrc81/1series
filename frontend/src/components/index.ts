@@ -6,3 +6,4 @@ export * from './header/header';
 export * from './light-container/light-container';
 export * from './show-filters/show-filters';
 export * from './auth-modal/auth-modal';
+export * from './utils';

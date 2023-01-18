@@ -4,8 +4,8 @@ import (
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/email"
-	"github.com/mqrc81/zeries/repositories"
+	"github.com/mqrc81/1series/email"
+	"github.com/mqrc81/1series/repositories"
 )
 
 const (

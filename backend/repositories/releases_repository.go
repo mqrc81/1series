@@ -2,11 +2,11 @@ package repositories
 
 import (
 	"fmt"
-	"github.com/mqrc81/zeries/sql"
+	"github.com/mqrc81/1series/sql"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/1series/domain"
 )
 
 type releasesRepository struct {
@@ -27,7 +27,10 @@ func (r *releasesRepository) FindAllInRange(amount int, offset int) (releases []
 	return releases, err
 }
 
-func (r *releasesRepository) FindAllAiringBetween(startDate time.Time, endDate time.Time) (releases []domain.ReleaseRef, err error) {
+func (r *releasesRepository) FindAllAiringBetween(
+	startDate time.Time,
+	endDate time.Time,
+) (releases []domain.ReleaseRef, err error) {
 
 	if err = r.Select(
 		&releases,

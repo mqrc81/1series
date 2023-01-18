@@ -5,7 +5,7 @@ import (
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/h2non/gock"
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/1series/domain"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"

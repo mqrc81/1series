@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/repositories"
+	"github.com/mqrc81/1series/repositories"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"

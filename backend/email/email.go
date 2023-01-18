@@ -22,7 +22,7 @@ func NewEmailClient(apiKey string, senderEmail string) (*Client, error) {
 	}
 	client := sendgrid.NewSendClient(apiKey)
 	sender := &mail.Email{
-		Name:    "Zeries",
+		Name:    "1Series",
 		Address: senderEmail,
 	}
 	return &Client{client, sender}, nil

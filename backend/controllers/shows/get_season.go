@@ -1,7 +1,7 @@
 package shows
 
 import (
-	"github.com/mqrc81/zeries/controllers/errors"
+	"github.com/mqrc81/1series/controllers/errors"
 	"net/http"
 	"strconv"
 

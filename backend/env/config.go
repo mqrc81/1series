@@ -3,8 +3,8 @@ package env
 import (
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
-	"github.com/mqrc81/zeries/logger"
-	_ "github.com/mqrc81/zeries/sql"
+	"github.com/mqrc81/1series/logger"
+	_ "github.com/mqrc81/1series/sql"
 	"sync"
 )
 

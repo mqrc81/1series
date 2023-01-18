@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/go-co-op/gocron"
 	_ "github.com/lib/pq"
-	"github.com/mqrc81/zeries/controllers"
-	"github.com/mqrc81/zeries/env"
-	"github.com/mqrc81/zeries/logger"
-	"github.com/mqrc81/zeries/registry"
-	"github.com/mqrc81/zeries/sql"
+	"github.com/mqrc81/1series/controllers"
+	"github.com/mqrc81/1series/env"
+	"github.com/mqrc81/1series/logger"
+	"github.com/mqrc81/1series/registry"
+	"github.com/mqrc81/1series/sql"
 	"time"
 )
 

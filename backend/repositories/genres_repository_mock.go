@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/1series/domain"
 )
 
 func MockGenresRepository(genres ...domain.Genre) GenresRepository {

@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"errors"
-	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/1series/domain"
 )
 
 func MockUsersRepository(users ...domain.User) UsersRepository {

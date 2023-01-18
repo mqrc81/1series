@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/logger"
+	"github.com/mqrc81/1series/domain"
+	"github.com/mqrc81/1series/logger"
 )
 
 const (
@@ -67,7 +67,12 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 	}
 }
 
-func ReleaseFromTmdbShow(dto *tmdb.TVDetails, seasonNumber int, airDate time.Time, anticipationLevel domain.AnticipationLevel) domain.Release {
+func ReleaseFromTmdbShow(
+	dto *tmdb.TVDetails,
+	seasonNumber int,
+	airDate time.Time,
+	anticipationLevel domain.AnticipationLevel,
+) domain.Release {
 	return domain.Release{
 		Show:              ShowFromTmdbShow(dto),
 		Season:            SeasonFromTmdbShow(dto, seasonNumber),

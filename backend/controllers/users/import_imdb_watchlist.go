@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/gocarina/gocsv"
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/controllers/errors"
-	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/logger"
+	"github.com/mqrc81/1series/controllers/errors"
+	"github.com/mqrc81/1series/domain"
+	"github.com/mqrc81/1series/logger"
 	"net/http"
 	"time"
 )

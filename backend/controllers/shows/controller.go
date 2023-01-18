@@ -3,8 +3,8 @@ package shows
 import (
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/repositories"
-	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/1series/repositories"
+	"github.com/mqrc81/1series/trakt"
 )
 
 const (

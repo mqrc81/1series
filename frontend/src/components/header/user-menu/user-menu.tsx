@@ -1,7 +1,13 @@
 import React from 'react';
 import { Avatar, Menu } from '@mantine/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRightFromBracket, faArrowRightToBracket, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowRightFromBracket,
+    faArrowRightToBracket,
+    faCog,
+    faEye,
+    faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../../../stores';
 import { useSignUserOutMutation } from '../../../api';
 import { useDisclosure } from '@mantine/hooks';
@@ -33,25 +39,39 @@ export const HeaderUserMenu: React.FC = () => {
                 </Menu.Target>
                 <Menu.Dropdown>
                     {isLoggedIn() ? (
-                        <Menu.Item
-                            icon={<FontAwesomeIcon icon={faArrowRightFromBracket} />}
-                            onClick={() => doLogout()}
-                        >Logout</Menu.Item>
+                        <>
+                            <Menu.Item
+                                icon={<FontAwesomeIcon icon={faEye} />}
+                                onClick={() => navigate('/tracked-shows')}
+                            >Tracked Series</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item
+                                icon={<FontAwesomeIcon icon={faUser} />}
+                                onClick={() => navigate('/profile')}
+                            >Profile</Menu.Item>
+                            <Menu.Item
+                                icon={<FontAwesomeIcon icon={faCog} />}
+                                onClick={() => navigate('/profile?tab=preferences')}
+                            >Preferences</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item
+                                icon={<FontAwesomeIcon icon={faArrowRightFromBracket} />}
+                                onClick={() => doLogout()}
+                            >Sign Out</Menu.Item>
+                        </>
                     ) : (
-                        <Menu.Item
-                            icon={<FontAwesomeIcon icon={faArrowRightToBracket} />}
-                            onClick={openAuthModal}
-                        >Login</Menu.Item>
+                        <>
+                            <Menu.Item
+                                icon={<FontAwesomeIcon icon={faEye} />}
+                                onClick={openAuthModal}
+                            >Tracked Series</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item
+                                icon={<FontAwesomeIcon icon={faArrowRightToBracket} />}
+                                onClick={openAuthModal}
+                            >Sign In</Menu.Item>
+                        </>
                     )}
-                    <Menu.Item
-                        icon={<FontAwesomeIcon icon={faUser} />}
-                        onClick={() => navigate('/profile')}
-                    >Profile</Menu.Item>
-                    <Menu.Divider />
-                    <Menu.Item
-                        icon={<FontAwesomeIcon icon={faCog} />}
-                        onClick={() => navigate('/profile?tab=preferences')}
-                    >Preferences</Menu.Item>
                 </Menu.Dropdown>
             </Menu>
             <AuthModal

@@ -2,9 +2,9 @@ package email
 
 import (
 	"fmt"
-	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/env"
-	"github.com/mqrc81/zeries/logger"
+	"github.com/mqrc81/1series/domain"
+	"github.com/mqrc81/1series/env"
+	"github.com/mqrc81/1series/logger"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"net/url"
 )

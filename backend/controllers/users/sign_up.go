@@ -2,11 +2,11 @@ package users
 
 import (
 	"fmt"
-	"github.com/mqrc81/zeries/controllers/errors"
+	"github.com/mqrc81/1series/controllers/errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/1series/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

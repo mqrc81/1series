@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/1series/domain"
 	"time"
 )
 
@@ -22,7 +22,10 @@ func (mock *mockReleasesRepository) FindAllInRange(amount int, offset int) ([]do
 	panic("implement me")
 }
 
-func (mock *mockReleasesRepository) FindAllAiringBetween(startDate time.Time, endDate time.Time) ([]domain.ReleaseRef, error) {
+func (mock *mockReleasesRepository) FindAllAiringBetween(
+	startDate time.Time,
+	endDate time.Time,
+) ([]domain.ReleaseRef, error) {
 	// TODO implement me
 	panic("implement me")
 }

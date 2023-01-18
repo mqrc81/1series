@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/cyruzin/golang-tmdb"
-	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/1series/trakt"
 )
 
 type TraktShow struct {

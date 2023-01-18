@@ -1,4 +1,4 @@
-module github.com/mqrc81/zeries
+module github.com/mqrc81/1series
 
 go 1.17
 

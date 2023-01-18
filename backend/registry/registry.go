@@ -2,20 +2,20 @@ package registry
 
 import (
 	"github.com/go-co-op/gocron"
-	"github.com/mqrc81/zeries/email"
-	"github.com/mqrc81/zeries/env"
-	"github.com/mqrc81/zeries/logger"
-	"github.com/mqrc81/zeries/sql"
+	"github.com/mqrc81/1series/email"
+	"github.com/mqrc81/1series/env"
+	"github.com/mqrc81/1series/logger"
+	"github.com/mqrc81/1series/sql"
 	"github.com/pressly/goose/v3"
 	"time"
 
 	"github.com/cyruzin/golang-tmdb"
 	"github.com/jmoiron/sqlx"
-	"github.com/mqrc81/zeries/controllers"
-	"github.com/mqrc81/zeries/jobs"
-	"github.com/mqrc81/zeries/repositories"
-	_ "github.com/mqrc81/zeries/sql"
-	"github.com/mqrc81/zeries/trakt"
+	"github.com/mqrc81/1series/controllers"
+	"github.com/mqrc81/1series/jobs"
+	"github.com/mqrc81/1series/repositories"
+	_ "github.com/mqrc81/1series/sql"
+	"github.com/mqrc81/1series/trakt"
 )
 
 func NewDatabase() *sql.Database {

@@ -3,8 +3,8 @@ package repositories
 import (
 	"time"
 
-	"github.com/mqrc81/zeries/domain"
-	"github.com/mqrc81/zeries/sql"
+	"github.com/mqrc81/1series/domain"
+	"github.com/mqrc81/1series/sql"
 )
 
 type UsersRepository interface {

@@ -71,7 +71,7 @@ export const useResetPasswordMutation = (options?: MutationOptions<void, ResetPa
     );
 };
 
-export const useCreateTrackedShowMutation = (showId: number, options?: MutationOptions<void, number>) => {
+export const useCreateTrackedShowMutation = (showId: number, options: MutationOptions<void, number> = {}) => {
     const queryClient = useQueryClient();
     options.onSuccess = (data, variables, context) => {
         void queryClient.invalidateQueries(['users', 'trackedShows']);
@@ -88,7 +88,7 @@ export const useCreateTrackedShowMutation = (showId: number, options?: MutationO
     );
 };
 
-export const useUpdateTrackedShowMutation = (showId: number, options?: MutationOptions<void, number>) => {
+export const useUpdateTrackedShowMutation = (showId: number, options: MutationOptions<void, number> = {}) => {
     const queryClient = useQueryClient();
     options.onSuccess = (data, variables, context) => {
         void queryClient.invalidateQueries(['users', 'trackedShows']);
@@ -105,7 +105,7 @@ export const useUpdateTrackedShowMutation = (showId: number, options?: MutationO
     );
 };
 
-export const useDeleteTrackedShowMutation = (showId: number, options?: MutationOptions<void, TrackShowDto>) => {
+export const useDeleteTrackedShowMutation = (showId: number, options: MutationOptions<void, TrackShowDto> = {}) => {
     const queryClient = useQueryClient();
     options.onSuccess = (data, variables, context) => {
         void queryClient.invalidateQueries(['users', 'trackedShows']);
@@ -122,18 +122,18 @@ export const useDeleteTrackedShowMutation = (showId: number, options?: MutationO
     );
 };
 
-export const useImportImdbWatchlistMutation = (options?: MutationOptions<FailedImdbImport[], File>) => {
-    const queryClient = useQueryClient();
-    options.onSuccess = (data, variables, context) => {
-        void queryClient.invalidateQueries(['users', 'trackedShows']);
-        options.onSuccess?.(data, variables, context);
-    };
+export const useImportImdbWatchlistMutation = (options: MutationOptions<FailedImdbImport[], File> = {}) => {
+        const queryClient = useQueryClient();
+        options.onSuccess = (data, variables, context) => {
+            void queryClient.invalidateQueries(['users', 'trackedShows']);
+            options.onSuccess?.(data, variables, context);
+        };
 
-    const url = `/users/importImdbWatchlist`;
-    return useMutation(
-        queryKey(url),
-        async (file: File) => {
-            const {data} = await ApisauceClient.post<FailedImdbImport[]>(url, file, {headers: {'content-type': file.type}});
+        const url = `/users/importImdbWatchlist`;
+        return useMutation(
+            queryKey(url),
+            async (file: File) => {
+                const {data} = await ApisauceClient.post<FailedImdbImport[]>(url, file, {headers: {'content-type': file.type}});
 
                 return data;
             },
