@@ -9,6 +9,7 @@ const TrackedShows: React.FC = () => {
         data: trackedShows = [],
         isSuccess, isLoading,
     } = useGetTrackedShowsQuery();
+
     return (<>
         <div className="grid grid-cols-1 gap-y-10">
             <div className="w-full">

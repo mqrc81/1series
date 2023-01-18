@@ -18,6 +18,7 @@ type EnvironmentVariables struct {
 	BackendUrl          string   `env:"BACKEND_URL"`
 	FrontendUrl         string   `env:"FRONTEND_URL"`
 	DatabaseUrl         string   `env:"DATABASE_URL"`
+	SessionKey          string   `env:"SESSION_KEY"`
 	TmdbKey             string   `env:"TMDB_KEY"`
 	TraktKey            string   `env:"TRAKT_KEY"`
 	SendGridKey         string   `env:"SENDGRID_KEY"`

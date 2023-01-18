@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -68,7 +67,7 @@ func endpointExpectsIncreasedLatency(req *http.Request) bool {
 }
 
 func (c *controller) session() echo.MiddlewareFunc {
-	key := securecookie.GenerateRandomKey(32)
+	key := []byte(env.Config().SessionKey)
 	store := sessions.NewCookieStore(key)
 	return session.Middleware(store)
 }
