@@ -5,12 +5,10 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/mqrc81/zeries/controllers/admin"
 	"github.com/mqrc81/zeries/controllers/shows"
 	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/email"
-	"github.com/mqrc81/zeries/env"
 	"github.com/mqrc81/zeries/repositories"
 	"github.com/mqrc81/zeries/sql"
 	"github.com/mqrc81/zeries/trakt"
@@ -45,16 +43,7 @@ func NewController(
 
 	validate := validator.New()
 
-	c := newController(usersRepository, tokensRepository)
-	c.Use(
-		middleware.RequestID(),
-		middleware.Recover(),
-		c.logger(),
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: []string{env.Config().FrontendUrl}, AllowCredentials: true}),
-		middleware.CSRFWithConfig(middleware.CSRFConfig{TokenLookup: "token:_csrf"}),
-		c.session(),
-		c.withUser(),
-	)
+	c := newController(usersRepository, tokensRepository).withMiddleware()
 
 	adminController := admin.NewController(scheduler)
 	usersController := users.NewController(usersRepository, trackedShowsRepository, tokensRepository, tmdbClient, emailClient, validate)
@@ -97,11 +86,11 @@ func NewController(
 func newController(
 	usersRepository repositories.UsersRepository,
 	tokensRepository repositories.TokensRepository,
-) controller {
-	echoEngine := echo.New()
-	echoEngine.Logger.SetOutput(io.Discard)
-	echoEngine.HideBanner = true
-	return controller{echoEngine, usersRepository, tokensRepository}
+) *controller {
+	e := echo.New()
+	e.Logger.SetOutput(io.Discard)
+	e.HideBanner = true
+	return &controller{e, usersRepository, tokensRepository}
 }
 
 func (c *controller) Ping(ctx echo.Context) error {

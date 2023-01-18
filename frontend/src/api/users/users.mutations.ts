@@ -12,7 +12,7 @@ import {
 import { ApisauceClient } from '../../providers/apisauce';
 import { queryKey } from '../queries';
 
-export const useSignUserUpMutation = (options?: MutationOptions<User, unknown, SignUserUpDto>) => {
+export const useSignUserUpMutation = (options?: MutationOptions<User, SignUserUpDto>) => {
     const url = `/users/signUp`;
     return useMutation(
         queryKey(url),
@@ -25,7 +25,7 @@ export const useSignUserUpMutation = (options?: MutationOptions<User, unknown, S
     );
 };
 
-export const useSignUserInMutation = (options?: MutationOptions<User, unknown, SignUserInDto>) => {
+export const useSignUserInMutation = (options?: MutationOptions<User, SignUserInDto>) => {
     const url = `/users/signIn`;
     return useMutation(
         queryKey(url),
@@ -49,7 +49,7 @@ export const useSignUserOutMutation = (options?: MutationOptions<void>) => {
     );
 };
 
-export const useForgotPasswordMutation = (options?: MutationOptions<void, unknown, ForgotPasswordDto>) => {
+export const useForgotPasswordMutation = (options?: MutationOptions<void, ForgotPasswordDto>) => {
     const url = `/users/forgotPassword`;
     return useMutation(
         queryKey(url),
@@ -60,7 +60,7 @@ export const useForgotPasswordMutation = (options?: MutationOptions<void, unknow
     );
 };
 
-export const useResetPasswordMutation = (options?: MutationOptions<void, unknown, ResetPasswordDto>) => {
+export const useResetPasswordMutation = (options?: MutationOptions<void, ResetPasswordDto>) => {
     const url = `/users/resetPassword`;
     return useMutation(
         queryKey(url),
@@ -71,7 +71,7 @@ export const useResetPasswordMutation = (options?: MutationOptions<void, unknown
     );
 };
 
-export const useCreateTrackedShowMutation = (showId: number, options?: MutationOptions<void, unknown, number>) => {
+export const useCreateTrackedShowMutation = (showId: number, options?: MutationOptions<void, number>) => {
     const queryClient = useQueryClient();
     options.onSuccess = (data, variables, context) => {
         void queryClient.invalidateQueries(['users', 'trackedShows']);
@@ -88,7 +88,7 @@ export const useCreateTrackedShowMutation = (showId: number, options?: MutationO
     );
 };
 
-export const useUpdateTrackedShowMutation = (showId: number, options?: MutationOptions<void, unknown, number>) => {
+export const useUpdateTrackedShowMutation = (showId: number, options?: MutationOptions<void, number>) => {
     const queryClient = useQueryClient();
     options.onSuccess = (data, variables, context) => {
         void queryClient.invalidateQueries(['users', 'trackedShows']);
@@ -105,7 +105,7 @@ export const useUpdateTrackedShowMutation = (showId: number, options?: MutationO
     );
 };
 
-export const useDeleteTrackedShowMutation = (showId: number, options?: MutationOptions<void, unknown, TrackShowDto>) => {
+export const useDeleteTrackedShowMutation = (showId: number, options?: MutationOptions<void, TrackShowDto>) => {
     const queryClient = useQueryClient();
     options.onSuccess = (data, variables, context) => {
         void queryClient.invalidateQueries(['users', 'trackedShows']);
@@ -122,22 +122,18 @@ export const useDeleteTrackedShowMutation = (showId: number, options?: MutationO
     );
 };
 
-export const useImportImdbWatchlistMutation = (options?: MutationOptions<FailedImdbImport[], unknown, File>) => {
-        const queryClient = useQueryClient();
-        options.onSuccess = (data, variables, context) => {
-            void queryClient.invalidateQueries(['users', 'trackedShows']);
-            options.onSuccess?.(data, variables, context);
-        };
+export const useImportImdbWatchlistMutation = (options?: MutationOptions<FailedImdbImport[], File>) => {
+    const queryClient = useQueryClient();
+    options.onSuccess = (data, variables, context) => {
+        void queryClient.invalidateQueries(['users', 'trackedShows']);
+        options.onSuccess?.(data, variables, context);
+    };
 
     const url = `/users/importImdbWatchlist`;
-        return useMutation(
-            queryKey(url),
-            async (file: File) => {
-                const {data} = await ApisauceClient.post<FailedImdbImport[]>(url, file, {
-                    headers: {
-                        'content-type': file.type,
-                    },
-                });
+    return useMutation(
+        queryKey(url),
+        async (file: File) => {
+            const {data} = await ApisauceClient.post<FailedImdbImport[]>(url, file, {headers: {'content-type': file.type}});
 
                 return data;
             },

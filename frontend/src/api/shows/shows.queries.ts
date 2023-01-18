@@ -1,14 +1,15 @@
-import { QueryKey, useInfiniteQuery, useQuery } from 'react-query';
+import { useInfiniteQuery, useQuery } from 'react-query';
 import { Genre, ReleaseDto, Show, ShowSearchResult } from './shows.dtos';
-import { getNextPageParam, getPreviousPageParam, InfiniteQueryOptions, QueryOptions } from '../queries';
+import { getNextPageParam, getPreviousPageParam, InfiniteQueryOptions, queryKey, QueryOptions } from '../queries';
 import { Paginated } from '../dtos';
 import { ApisauceClient } from '../../providers/apisauce';
 
 export const useGetPopularShowsQuery = (options?: InfiniteQueryOptions<Paginated<{ shows: Show[] }>>) => {
-    return useInfiniteQuery<Paginated<{ shows: Show[] }>>(
-        ['shows', 'popular'],
+    const url = `/shows/popular`;
+    return useInfiniteQuery(
+        queryKey(url),
         async ({pageParam = 1}) => {
-            const {data} = await ApisauceClient.get<Paginated<{ shows: Show[] }>>(`/shows/popular`, {page: pageParam});
+            const {data} = await ApisauceClient.get<Paginated<{ shows: Show[] }>>(url, {page: pageParam});
 
             return data;
         },
@@ -17,10 +18,11 @@ export const useGetPopularShowsQuery = (options?: InfiniteQueryOptions<Paginated
 };
 
 export const useGetUpcomingReleasesQuery = (options?: InfiniteQueryOptions<Paginated<{ releases: ReleaseDto[] }>>) => {
-    return useInfiniteQuery<Paginated<{ releases: ReleaseDto[] }>>(
-        ['shows', 'releases'],
+    const url = `/shows/releases`;
+    return useInfiniteQuery(
+        queryKey(url),
         async ({pageParam = 1}) => {
-            const {data} = await ApisauceClient.get<Paginated<{ releases: ReleaseDto[] }>>(`/shows/releases`, {page: pageParam});
+            const {data} = await ApisauceClient.get<Paginated<{ releases: ReleaseDto[] }>>(url, {page: pageParam});
 
             return data;
         },
@@ -29,12 +31,13 @@ export const useGetUpcomingReleasesQuery = (options?: InfiniteQueryOptions<Pagin
 };
 
 export const useSearchShowsQuery = (searchTerm: string, options?: QueryOptions<ShowSearchResult[]> & { minParamLength: number }) => {
+    const url = `/shows/search`;
     return useQuery(
-        ['shows', 'search', searchTerm] as QueryKey,
+        queryKey(url),
         async () => {
             if (searchTerm.length < options.minParamLength) return [];
 
-            const {data} = await ApisauceClient.get<ShowSearchResult[]>(`/shows/search`, {searchTerm});
+            const {data} = await ApisauceClient.get<ShowSearchResult[]>(url, {searchTerm});
 
             return data;
         },
@@ -43,10 +46,11 @@ export const useSearchShowsQuery = (searchTerm: string, options?: QueryOptions<S
 };
 
 export const useGetShowQuery = (id: number, options?: Omit<QueryOptions<Show>, 'enabled'>) => {
+    const url = `/shows/${id}`;
     return useQuery(
-        ['shows', id] as QueryKey,
+        queryKey(url),
         async () => {
-            const {data} = await ApisauceClient.get<Show>(`/shows/${id}`);
+            const {data} = await ApisauceClient.get<Show>(url);
 
             return data;
         },
@@ -56,10 +60,11 @@ export const useGetShowQuery = (id: number, options?: Omit<QueryOptions<Show>, '
 
 const GENRES_TO_IGNORE = ['Talk', 'News'];
 export const useGetGenresQuery = (options?: Omit<QueryOptions<Genre[]>, 'staleTime'>) => {
+    const url = `/shows/genres`;
     return useQuery(
-        ['shows', 'genres'] as QueryKey,
+        queryKey(url),
         async () => {
-            const {data} = await ApisauceClient.get<Genre[]>(`/shows/genres`);
+            const {data} = await ApisauceClient.get<Genre[]>(url);
 
             return data?.filter(genre => !GENRES_TO_IGNORE.includes(genre.name));
         },

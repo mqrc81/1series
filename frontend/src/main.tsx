@@ -11,9 +11,11 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { useToast } from './hooks';
 import { ApiErrorResponse } from 'apisauce';
 import { ClientError } from './api';
+import { useAuthStore } from './stores';
+import { StatusCodes } from 'http-status-codes';
 
 export const Main: React.FC = () => {
-    useToastOnApiError();
+    useHandleApiError();
     return (
         <React.StrictMode>
             <QueryClientProvider client={QueryClient}>
@@ -26,17 +28,28 @@ export const Main: React.FC = () => {
         </React.StrictMode>
     );
 };
-ReactDOM.createRoot(document.getElementById('root')).render(
-    <Main />,
-);
 
-const useToastOnApiError = () => {
+ReactDOM.createRoot(document.getElementById('root')).render(<Main />);
+
+const useHandleApiError = () => {
     const {errorToast} = useToast();
+    const {logout} = useAuthStore();
     useEffect(() => {
-        const onErrorFn = (error: unknown) => {
-            errorToast((error as ApiErrorResponse<ClientError>).data?.errorMessage ?? 'An unknown error occurred.');
+        const onError = (error: unknown) => {
+            if (isClientError(error)) {
+                errorToast(error.data.errorMessage);
+                if (error.status === StatusCodes.UNAUTHORIZED) {
+                    logout();
+                }
+            } else {
+                errorToast('An unknown error occurred.');
+            }
         };
-        QueryClient.getDefaultOptions().queries.onError = onErrorFn;
-        QueryClient.getDefaultOptions().mutations.onError = onErrorFn;
+        QueryClient.getDefaultOptions().queries.onError = onError;
+        QueryClient.getDefaultOptions().mutations.onError = onError;
     });
+};
+
+const isClientError = (error: unknown): error is ApiErrorResponse<ClientError> => {
+    return !!((error as ApiErrorResponse<ClientError>)?.data?.errorMessage);
 };

@@ -9,9 +9,14 @@ import (
 	"github.com/mqrc81/zeries/controllers/errors"
 	"github.com/mqrc81/zeries/controllers/users"
 	"github.com/mqrc81/zeries/domain"
+	"github.com/mqrc81/zeries/env"
 	"github.com/mqrc81/zeries/logger"
 	"net/http"
 	"time"
+)
+
+const (
+	csrfTokenKey = "_csrf"
 )
 
 var (
@@ -19,6 +24,19 @@ var (
 		"/api/users/importImdbWatchlist",
 	}
 )
+
+func (c *controller) withMiddleware() *controller {
+	c.Use(
+		middleware.RequestID(),
+		middleware.Recover(),
+		c.logger(),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: []string{env.Config().FrontendUrl}, AllowCredentials: true}),
+		middleware.CSRFWithConfig(middleware.CSRFConfig{TokenLookup: "token:" + csrfTokenKey}),
+		c.session(),
+		c.withUser(),
+	)
+	return c
+}
 
 func (c *controller) logger() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
