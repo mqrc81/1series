@@ -9,6 +9,7 @@ const UpcomingReleases = lazy(() => import('../pages/upcoming-releases/upcoming-
 const ShowDetails = lazy(() => import('../pages/show-details/show-details'));
 const ShowsSearch = lazy(() => import('../pages/shows-search/shows-search'));
 const PasswordReset = lazy(() => import('../pages/password-reset/password-reset'));
+const TrackedShows = lazy(() => import('../pages/tracked-shows/tracked-shows'));
 
 export const Router = createBrowserRouter([
     {
@@ -41,6 +42,10 @@ export const Router = createBrowserRouter([
             {
                 path: '/users/resetPassword',
                 element: <PasswordReset />,
+            },
+            {
+                path: '/users/trackedShows',
+                element: <TrackedShows />,
             },
         ],
     },

@@ -42,7 +42,7 @@ export const HeaderUserMenu: React.FC = () => {
                         <>
                             <Menu.Item
                                 icon={<FontAwesomeIcon icon={faEye} />}
-                                onClick={() => navigate('/tracked-shows')}
+                                onClick={() => navigate('/users/trackedShows')}
                             >Tracked Series</Menu.Item>
                             <Menu.Divider />
                             <Menu.Item

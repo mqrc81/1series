@@ -29,6 +29,7 @@ type Controller interface {
 	SignUserOut(ctx echo.Context) error
 	ForgotPassword(ctx echo.Context) error
 	ResetPassword(ctx echo.Context) error
+	GetTrackedShows(ctx echo.Context) error
 	ImportImdbWatchlist(ctx echo.Context) error
 }
 

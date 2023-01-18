@@ -48,7 +48,7 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 	var exportedImdbWatchlist []*exportedImdbWatchlistRow
 	reader := gocsv.DefaultCSVReader(ctx.Request().Body)
 	if err = gocsv.UnmarshalCSV(reader, &exportedImdbWatchlist); err != nil {
-		return errors.InvalidParam("Invalid WATCHLIST.csv file.")
+		return errors.InvalidParam("Invalid " + imdbWatchlistImportFileName + " file.")
 	}
 
 	// Use-Case
@@ -67,7 +67,7 @@ func (c *usersController) ImportImdbWatchlist(ctx echo.Context) (err error) {
 				ShowId: int(results.TvResults[0].ID),
 				Rating: row.YourRating,
 			}); err != nil {
-				return errors.FromDatabase(err, "tracked-shows", nil)
+				return errors.FromDatabase(err, "tracked shows", nil)
 			}
 		} else if len(results.TvResults) < 1 {
 			logger.Warning("No tmdb shows found for imdb id %v", row.Const)

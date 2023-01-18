@@ -77,6 +77,7 @@ func NewController(
 		usersRouter.POST("/signOut", usersController.SignUserOut)
 		usersRouter.POST("/forgotPassword", usersController.ForgotPassword)
 		usersRouter.POST("/resetPassword", usersController.ResetPassword)
+		usersRouter.GET("/trackedShows", usersController.GetTrackedShows)
 		usersRouter.POST("/importImdbWatchlist", usersController.ImportImdbWatchlist)
 	}
 

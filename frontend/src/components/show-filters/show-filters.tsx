@@ -6,7 +6,7 @@ import { useForceUpdate } from '@mantine/hooks';
 
 export const ShowFilters: React.FC<{ onFilterChange?: () => void }> = ({onFilterChange}) => {
     const forceUpdate = useForceUpdate();
-    const {data: genres = [], isSuccess} = useGetGenresQuery();
+    const {data: genres = []} = useGetGenresQuery();
     const {isGenreFiltered, filterGenre, unfilterGenre} = useGenresFilter();
 
     const onGenresChange = () => {
@@ -14,9 +14,6 @@ export const ShowFilters: React.FC<{ onFilterChange?: () => void }> = ({onFilter
         onFilterChange();
     };
 
-    if (!isSuccess) {
-        return <></>;
-    }
     return (
         <Card withBorder>
             <div>

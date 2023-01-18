@@ -38,15 +38,15 @@ const ImportImdbWatchlist: React.FC = () => {
                         <FontAwesomeIcon className="text-red-600" icon={faCircleXmark} size="4x"/>
                     </Dropzone.Reject>
                     <Dropzone.Idle>
-                        <FontAwesomeIcon className="text-violet-600" icon={faFileImport} size="4x"/>
+                        <FontAwesomeIcon className="text-violet-600" icon={faFileImport} size="4x" />
                     </Dropzone.Idle>
                     <div>
-                        <span className="text-xl">
-                            Drag your WATCHLIST.csv file here or click to select
-                        </span>
-                        <span className="text-sm text-gray-500 mt-3">
+                        <div className="text-xl">
+                            Export your IMDb watchlist and drag the file here or click to select
+                        </div>
+                        <div className="text-sm text-gray-500 mt-3">
                             The file must not exceed 1mb
-                        </span>
+                        </div>
                     </div>
                 </Group>
             </Dropzone>

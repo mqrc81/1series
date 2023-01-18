@@ -34,7 +34,7 @@ const UpcomingReleases: React.FC = () => {
                             <span className="hidden md:block"><CardSkeleton /></span>
                             <span className="hidden md:block"><CardSkeleton /></span>
                         </div>
-                    </>) : (
+                    </>) : (releasesData?.pages.length > 0 &&
                         <Button
                             className="mb-10 w-full"
                             disabled={!hasPreviousPage}
