@@ -9,6 +9,7 @@ type Show struct {
 	Poster        string    `json:"poster,omitempty"`
 	Backdrop      string    `json:"backdrop,omitempty"`
 	Rating        float32   `json:"rating,omitempty"`
+	RatingCount   int       `json:"ratingCount"`
 	Homepage      string    `json:"homepage,omitempty"`
 	SeasonsCount  int       `json:"seasonsCount"`
 	EpisodesCount int       `json:"episodesCount"`

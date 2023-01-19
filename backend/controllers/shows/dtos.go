@@ -59,6 +59,7 @@ func ShowFromTmdbShow(dto *tmdb.TVDetails) (show domain.Show) {
 		Poster:        tmdbImageUrlFromImagePath(dto.PosterPath),
 		Backdrop:      tmdbImageUrlFromImagePath(dto.BackdropPath),
 		Rating:        ratingFromTmdbVoteAverage(dto.VoteAverage),
+		RatingCount:   int(dto.VoteCount),
 		Genres:        genres,
 		Networks:      networks,
 		Homepage:      dto.Homepage,

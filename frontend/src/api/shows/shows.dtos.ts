@@ -10,6 +10,7 @@ export type Show = {
     poster: string;
     backdrop: string;
     rating: number;
+    ratingCount: number;
     year: number;
     genres: Genre[];
 }

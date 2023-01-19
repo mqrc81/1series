@@ -1,8 +1,9 @@
 import React from 'react';
 import { Show } from '../../api';
-import { Badge, Card, Image, Tooltip } from '@mantine/core';
+import { Card, Image, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { ShowCardActionsDropdown } from './actions-dropdown/actions-dropdown';
+import { ShowCardRatingRing } from './rating-ring/rating-ring';
 
 type Props = {
     show: Show;
@@ -15,11 +16,10 @@ export const ShowCard: React.FC<Props> = ({show}) => {
             <Card.Section className="relative">
                 <ShowCardActionsDropdown showId={show.id} className="absolute z-10 right-0 top-0 w-4" />
                 <Image src={show.poster} withPlaceholder className="h-[272px]" />
-                {!!show.rating && (
-                    <Badge variant="gradient" className="absolute z-10 left-4 -bottom-3 py-3">
-                        {show.rating.toFixed(1)}
-                    </Badge>
-                )}
+                <ShowCardRatingRing
+                    rating={show.rating} ratingCount={show.ratingCount}
+                    className="absolute z-10 left-1 -bottom-5"
+                />
             </Card.Section>
             <Tooltip
                 label={show.genres.map(({name}) => name).join(', ')}
